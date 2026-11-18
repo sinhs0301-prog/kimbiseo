@@ -64,7 +64,7 @@ const Interp = {
         h("p", {class: "interp-dst", lang: it.dst_lang || null, text: it.dst}),
         it.money ? h("p", {class: "interp-krw", text: it.money}) : null));
     }
-    if (!this.items.length) list.appendChild(h("li", {}, h("p", {class: "hint", text: "한국어로 말하면 상대 언어로, 상대가 말하면 한국어로 옮겨요. 끝낼 땐 '통역 그만'."})));
+    if (!this.items.length) list.appendChild(h("li", {}, h("p", {class: "hint", text: "내 언어로 말하면 상대 언어로, 상대가 말하면 내 언어로 옮겨요. 끝낼 땐 '통역 그만'."})));
     box.append(list);
   },
 
@@ -92,14 +92,14 @@ const Interp = {
     const s2 = Settings.section(card, "통역 목소리", ["통역.목소리_엔진"]);
     let eng = get(c, "통역.목소리_엔진", "원어민");
     const rtBox = h("div", {id: "set-interp-rt"}, h("p", {class: "hint", text: "살펴보는 중이에요."}));
-    s2.append(h("p", {class: "hint", text: "외국어 번역을 그 나라 목소리로 읽을지, 화면 글자로만 보여 줄지 골라요. 한국어 번역은 늘 김비서 목소리로 읽어요."}),
+    s2.append(h("p", {class: "hint", text: "외국어 번역을 그 나라 목소리로 읽을지, 화면 글자로만 보여 줄지 골라요. 내 언어 번역은 늘 김비서 목소리로 읽어요."}),
       choiceGroup((ch["통역_목소리"] || []).map((x) => ({값: x.id, 이름: x["이름"], 설명: x["설명"]})), eng, (v) => { eng = v; }, {wide: true, idp: "set-interp-eng"}),
       rtBox, Settings.saveRow("set-interp-eng-save", () => ({통역: {목소리_엔진: eng}})));
     this.loadRuntime(rtBox);
 
     const s3 = Settings.section(card, "환율", ["통역.환율_켜기"]);
     const fx = h("input", {type: "checkbox", id: "set-interp-fx"}); fx.checked = get(c, "통역.환율_켜기", true) !== false;
-    s3.append(h("p", {class: "hint", text: "상대가 말한 외국 돈(바트·엔·동·리라·유로·달러 …)을 원화로 바꿔 '(약 14,000원)'으로 덧붙여요. 환율은 통역을 쓸 때 하루 한 번만 공개 환율에서 받아요(내 정보는 안 보냄). 인터넷이 안 되면 마지막에 받은 값을 써요."}),
+    s3.append(h("p", {class: "hint", text: "상대가 말한 외국 돈(바트·엔·동·리라·유로·달러 …)을 한국 돈(원)으로 바꿔 '(약 14,000원)'으로 덧붙여요. 환율은 통역을 쓸 때 하루 한 번만 공개 환율에서 받아요(내 정보는 안 보냄). 인터넷이 안 되면 마지막에 받은 값을 써요."}),
       h("label", {class: "toggle", for: "set-interp-fx"}, fx, "외국 돈을 원화로 보여 주기"),
       h("p", {class: "hint", id: "set-interp-fx-src", text: "환율 출처: 유럽중앙은행 기준환율(frankfurter.dev) · Rates By Exchange Rate API(open.er-api.com, 위에 없는 통화)"}),
       Settings.saveRow("set-interp-fx-save", () => ({통역: {환율_켜기: fx.checked}})));

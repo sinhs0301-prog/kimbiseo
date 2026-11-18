@@ -294,9 +294,10 @@ class Session:
         '통역 그만'·'영어 통역해 줘' 같은 켜기·끄기 글만 받음(글은 이 기기 사용자가 친 것). 두뇌 대화·도구로는 절대 안 넘김."""
         st, cfg = self.state, self.cfg
         s = interp._STATE
-        hint = s["mode"] if s["mode"] != "auto" else (s["last"] or interp.cfg_of(cfg).get("기본상대") or "en")
+        home = interp.L.home_of(cfg)
+        hint = s["mode"] if s["mode"] != "auto" else (s["last"] or interp.default_peer(cfg))
         src = interp.L.script_lang(text, hint=hint)
-        cmd = interp.L.parse_command(cfg, text) if src == "ko" else None
+        cmd = interp.L.parse_command(cfg, text) if src == home else None
         if cmd and cmd[0] == "off":
             interp.turn_off("글로 끔")
             st.event("interp", state="off", **interp.view(cfg))
@@ -320,7 +321,7 @@ class Session:
         item = interp.remember(text, out, src, dst)
         logger.info(f"통역(글) {src}→{dst} ({who} {sec:.2f}초, 원문 {len(text)}자 → {len(out)}자)")
         st.event("interp", state="done", src_lang=src, dst_lang=dst, src=text, dst=item["dst"], money=item.get("money"),
-                 src_name=sn, dst_name=dn, sec=round(sec, 2), asr_ms=0, voice=bool(interp.L.voice_of(cfg, dst)) or dst == "ko")
+                 src_name=sn, dst_name=dn, sec=round(sec, 2), asr_ms=0, voice=bool(interp.L.voice_of(cfg, dst)) or dst == "ko")   # ko = 김비서 목소리
         await self.worker.queue_frame(TTSSpeakFrame(out, append_to_context=False))
 
     # ---- 도중 저장

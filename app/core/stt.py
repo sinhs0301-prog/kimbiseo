@@ -348,10 +348,15 @@ class EarSTT(SegmentedSTTService):
             code = interp.turn_on(self.cfg, cmd[1])
             interp.warm_voice(self.cfg, code)
             nm = interp.L.name_of(self.cfg, code)
+            home = interp.L.home_of(self.cfg)
+            hn = interp.L.name_of(self.cfg, home)
             st.event("user", text=text)
             st.event("interp", state="on", **interp.view(self.cfg))
-            yield TTSSpeakFrame(tr(f"네, 지금부터 {nm} 통역할게요. 한국어로 말씀하시면 {nm}로, 상대가 말하면 한국어로 옮겨 드려요. "
-                                   "끝내실 땐 통역 그만, 이라고 해 주세요."), append_to_context=False)
+            say = (tr(f"네, 지금부터 {nm} 통역할게요. {hn}로 말씀하시면 {nm}로, 상대가 말하면 {hn}로 옮겨 드려요. "
+                      "끝내실 땐 통역 그만, 이라고 해 주세요.") if home == "ko" else
+                   f"Okay, I'll interpret {nm} from now. Speak {hn} and I'll translate to {nm}; when the other person speaks, "
+                   f"I'll translate to {hn}. To finish, say 'stop interpreting'.")
+            yield TTSSpeakFrame(say, append_to_context=False)
             return
         yield TranscriptionFrame(text=text, user_id="", timestamp=time_now_iso8601(), language=self._plang, finalized=True)
 
@@ -383,10 +388,11 @@ class EarSTT(SegmentedSTTService):
                 st.event("echo", text=text, sim=round(sim, 2))
             st.event("unduck")
             return
-        src = r.get("lang") or "ko"
+        src = r.get("lang") or interp.L.home_of(cfg)
+        home = interp.L.home_of(cfg)
         st.last_asr_t = time.time()
         st.event("asr", text=text, verdict="interp", lang=src, asr_ms=asr_ms, audio_sec=round(r.get("audio_sec", 0), 2))
-        cmd = interp.L.parse_command(cfg, text) if src == "ko" else None
+        cmd = interp.L.parse_command(cfg, text) if src == home else None
         if cmd:
             me, sr = await self._spk_is_me(spk)
             if not me:   # 등록한 목소리만 명령 받기: 상대가 '통역 그만'이라고 해도 끄지 않고 번역만
@@ -421,7 +427,7 @@ class EarSTT(SegmentedSTTService):
         item = interp.remember(text, out, src, dst)
         logger.info(f"통역 {src}→{dst} ({who} {sec:.2f}초, 감지 {src} {r.get('lang_conf')}, 원문 {len(text)}자 → {len(out)}자)")
         st.event("interp", state="done", src_lang=src, dst_lang=dst, src=text, dst=item["dst"], money=item.get("money"),
-                 src_name=sn, dst_name=dn, sec=round(sec, 2), asr_ms=asr_ms, voice=bool(interp.L.voice_of(cfg, dst)) or dst == "ko")
+                 src_name=sn, dst_name=dn, sec=round(sec, 2), asr_ms=asr_ms, voice=bool(interp.L.voice_of(cfg, dst)) or dst == "ko")   # ko = 김비서 목소리
         yield TTSSpeakFrame(out, append_to_context=False)
 
     async def cleanup(self):

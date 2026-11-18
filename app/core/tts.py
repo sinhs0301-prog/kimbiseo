@@ -93,7 +93,7 @@ class FirstCommaAggregator(SimpleTextAggregator):
 class VoiceTTS(TTSService):
     def __init__(self, state, voice=None, **kw):
         async def _norm(text, _type):
-            if interp.speak_lang(text):      # 통역 번역문 — 그 언어 글자 그대로(한자·가나·태국 글자를 지우지 않음)
+            if interp.speak_lang(text, i18n.lang_of(state.cfg)):   # 통역 번역문 — 그 언어 글자 그대로(한자·가나·태국 글자를 지우지 않음)
                 return re.sub(r"[*_#`~]+", " ", text).strip()
             if text_norm.has_yawn(text):
                 state.event("yawn", text=text[:60])
@@ -197,7 +197,7 @@ class VoiceTTS(TTSService):
 
     async def run_tts(self, text: str, context_id: str):
         text = text.strip()
-        lang = interp.speak_lang(text)
+        lang = interp.speak_lang(text, i18n.lang_of(self.state.cfg))
         if lang:
             async for fr in self._interp_say(text, lang, context_id):
                 yield fr
