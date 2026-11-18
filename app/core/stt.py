@@ -352,10 +352,8 @@ class EarSTT(SegmentedSTTService):
             hn = interp.L.name_of(self.cfg, home)
             st.event("user", text=text)
             st.event("interp", state="on", **interp.view(self.cfg))
-            say = (tr(f"네, 지금부터 {nm} 통역할게요. {hn}로 말씀하시면 {nm}로, 상대가 말하면 {hn}로 옮겨 드려요. "
-                      "끝내실 땐 통역 그만, 이라고 해 주세요.") if home == "ko" else
-                   f"Okay, I'll interpret {nm} from now. Speak {hn} and I'll translate to {nm}; when the other person speaks, "
-                   f"I'll translate to {hn}. To finish, say 'stop interpreting'.")
+            say = tr("네, 지금부터 {0} 통역할게요. {1}로 말씀하시면 {2}로, 상대가 말하면 {3}로 옮겨 드려요. "
+                     "끝내실 땐 통역 그만, 이라고 해 주세요.", **{"0": nm, "1": hn, "2": nm, "3": hn})
             yield TTSSpeakFrame(say, append_to_context=False)
             return
         yield TranscriptionFrame(text=text, user_id="", timestamp=time_now_iso8601(), language=self._plang, finalized=True)
