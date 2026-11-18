@@ -123,6 +123,47 @@ def test_voice_link_sends_lang_only_outside_korean():
     assert seen[2]["lang"] == "zh" and seen[2]["text"] == "你好"
 
 
+def test_language_defaults_ko_unchanged():
+    """언어별 기본값 파일이 한국어 기본값을 바꾸지 않는다(0.1.17 까지와 같은 설정)."""
+    d = C.defaults("ko")
+    assert d["언어"] == "ko"
+    assert d["비서"]["이름"] == "김비서" and d["비서"]["인사"] == "네, {이름}입니다. 말씀하세요."
+    assert d["대화"]["멈춤말"][:3] == ["잠깐", "그만", "멈춰"]
+    assert d["통역"]["기본상대"] == "en" and d["사용자"]["기본장소"] == "서울"
+
+
+def test_language_defaults_en_ja_zh():
+    want = {"en": ("KimBiseo", "Seoul", "Yes, this is KimBiseo. How can I help you?"),
+            "ja": ("キム秘書", "ソウル", "はい、キム秘書です。どうぞ。"),
+            "zh": ("金秘书", "首尔", "在，我是金秘书。请讲。")}
+    for code, (name, place, hello) in want.items():
+        d = C.defaults(code)
+        assert d["언어"] == code
+        assert d["비서"]["이름"] == name and d["사용자"]["기본장소"] == place
+        assert C.fill(d, d["비서"]["인사"]) == hello
+        assert d["통역"]["기본상대"] == "ko", "외국어 앱은 통역 기본 상대가 한국어"
+        assert d["대화"]["멈춤말"] and d["귀"]["환각문구"] and d["도구"]["먼저할말"]
+        assert set(d["도구"]["먼저할말"]) == {"web_search", "read_page", "get_weather"}
+
+
+def test_language_defaults_use_by_name_and_sites():
+    from app.core.wake import NameMatcher
+    from app.tools.basic import pc_action
+    for code, name, alias, sites in (
+            ("en", "KimBiseo", "Kim Biseo", ["YouTube", "Google Maps", "Wikipedia"]),
+            ("ja", "キム秘書", "キムヒショ", ["ユーチューブ", "グーグルマップ"]),
+            ("zh", "金秘书", "金祕書", ["百度", "谷歌地图"])):
+        d = C.defaults(code)
+        names, aliases = C.names(d)
+        assert names == name and alias in aliases, (code, names, aliases)
+        if code == "en":   # 가나·한자 호출어 인식은 7단계(wake.compact)에서 — 지금은 영어 이름만 확인
+            assert "kimbiseo" in NameMatcher(names, aliases).words
+        table = d["도구"]["컴퓨터조작"]
+        for site in sites:
+            url, why = pc_action.resolve_site(site, table["사이트"], table["별명"])
+            assert url and url.startswith("https://"), (code, site, why)
+
+
 def main():
     fails = 0
     for k, f in list(globals().items()):

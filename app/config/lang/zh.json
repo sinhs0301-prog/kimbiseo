@@ -1,0 +1,62 @@
+{
+  "_설명": "中文 기본값(0.1.18~) — app/config/default.json 위에 덮는다. 말로 나가는 고정 문구·호출 이름·사이트 이름만. 화면 문구는 app/i18n/zh.json.",
+  "비서": {
+    "이름": "金秘书",
+    "별칭": ["金祕書", "金秘書", "金秘书呀", "jinmishu", "jin mishu", "Jin Mishu"],
+    "인사": "在，我是{이름}。请讲。",
+    "부름_대답": "在，请讲。",
+    "생각_먼저할말": ["请稍等。", "我想一想。"]
+  },
+  "사용자": {
+    "기본장소": "首尔"
+  },
+  "대화": {
+    "멈춤말": ["停下", "停一下", "别说了", "安静", "够了", "取消"]
+  },
+  "귀": {
+    "환각문구": ["感谢观看", "谢谢观看", "感謝觀看", "謝謝觀看", "感谢您的观看", "谢谢大家观看",
+              "请订阅频道", "請訂閱頻道", "订阅频道", "字幕由", "字幕提供", "我们下期再见", "下次再见", "谢谢大家"]
+  },
+  "도구": {
+    "먼저할말": {
+      "web_search": ["我查一下。", "让我查一查。"],
+      "read_page": ["我看一下这个页面。", "我确认一下内容。"],
+      "get_weather": ["我查一下天气。"]
+    },
+    "컴퓨터조작": {
+      "사이트": {
+        "Naver": "https://www.naver.com",
+        "谷歌": "https://www.google.com",
+        "Google": "https://www.google.com",
+        "YouTube": "https://www.youtube.com",
+        "油管": "https://www.youtube.com",
+        "百度": "https://www.baidu.com",
+        "谷歌地图": "https://www.google.com/maps",
+        "NAVER 地图": "https://map.naver.com",
+        "NAVER 新聞": "https://news.naver.com",
+        "Papago": "https://papago.naver.com",
+        "Kakao 地图": "https://map.kakao.com",
+        "Namuwiki": "https://namu.wiki",
+        "维基百科": "https://zh.wikipedia.org",
+        "Gmail": "https://mail.google.com",
+        "谷歌云端硬盘": "https://drive.google.com"
+      },
+      "별명": {
+        "guge": "谷歌",
+        "google": "Google",
+        "youtube": "YouTube",
+        "baidu": "百度",
+        "百度地图": "谷歌地图",
+        "谷歌地图": "谷歌地图",
+        "naver地图": "NAVER 地图",
+        "naver新闻": "NAVER 新聞",
+        "维基百科": "维基百科",
+        "维基": "维基百科",
+        "谷歌云端硬盘": "谷歌云端硬盘"
+      }
+    }
+  },
+  "통역": {
+    "기본상대": "ko"
+  }
+}

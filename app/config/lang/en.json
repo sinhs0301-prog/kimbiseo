@@ -1,0 +1,61 @@
+{
+  "_설명": "English 기본값(0.1.18~) — app/config/default.json 위에 덮는다. 말로 나가는 고정 문구·호출 이름·사이트 이름만. 화면 문구는 app/i18n/en.json.",
+  "비서": {
+    "이름": "KimBiseo",
+    "별칭": ["Kim Biseo", "Kim Bi Seo", "Kim Bee Seo", "Kimbiseo", "Kim Bisso", "Kim Beeso"],
+    "인사": "Yes, this is {이름}. How can I help you?",
+    "부름_대답": "Yes, I'm here.",
+    "생각_먼저할말": ["Just a moment.", "Let me think."]
+  },
+  "사용자": {
+    "기본장소": "Seoul"
+  },
+  "대화": {
+    "멈춤말": ["stop", "quiet", "enough", "cancel", "hold on", "never mind", "be quiet"]
+  },
+  "귀": {
+    "환각문구": ["Thank you for watching.", "Thanks for watching.", "Thank you for watching", "Thanks for watching",
+              "Please subscribe to my channel.", "Subscribe to my channel.", "Like and subscribe.",
+              "Subtitles by", "See you in the next video.", "See you next time.", "Thank you.", "Thanks."]
+  },
+  "도구": {
+    "먼저할말": {
+      "web_search": ["Let me check.", "Let me look that up."],
+      "read_page": ["Let me read the page.", "Let me take a look."],
+      "get_weather": ["Let me check the weather."]
+    },
+    "컴퓨터조작": {
+      "사이트": {
+        "Naver": "https://www.naver.com",
+        "Google": "https://www.google.com",
+        "YouTube": "https://www.youtube.com",
+        "Daum": "https://www.daum.net",
+        "Google Maps": "https://www.google.com/maps",
+        "Naver Map": "https://map.naver.com",
+        "Naver News": "https://news.naver.com",
+        "Papago": "https://papago.naver.com",
+        "Kakao Map": "https://map.kakao.com",
+        "Namuwiki": "https://namu.wiki",
+        "Wikipedia": "https://en.wikipedia.org",
+        "Gmail": "https://mail.google.com",
+        "Google Drive": "https://drive.google.com"
+      },
+      "별명": {
+        "googlemaps": "Google Maps",
+        "googlemap": "Google Maps",
+        "navermap": "Naver Map",
+        "navermaps": "Naver Map",
+        "navernews": "Naver News",
+        "kakaomap": "Kakao Map",
+        "kakaomaps": "Kakao Map",
+        "gmail": "Gmail",
+        "googledrive": "Google Drive",
+        "wikipedia": "Wikipedia",
+        "wiki": "Wikipedia"
+      }
+    }
+  },
+  "통역": {
+    "기본상대": "ko"
+  }
+}
