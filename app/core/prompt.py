@@ -7,6 +7,7 @@ import os
 import re
 
 from . import config as C
+from . import debate
 from . import i18n
 
 PROMPT_DIR = os.path.join(C.APP, "prompts")
@@ -316,6 +317,34 @@ def memory_block(cfg, memory, summary=""):
     return "\n\n".join(out)
 
 
-def system_prompt(cfg, tool_specs=(), memory=None, summary=""):
+def debate_prompt(cfg, tool_specs=(), adult=None):
+    """말싸움(토론) 모드 지시문 — 켜진 동안만. 비서 지시문·기억 블록·사용자 호칭을 넣지 않고,
+    검색·날씨·계산 같은 허용 도구 안내만 붙인다(core/debate.py)."""
+    code = i18n.current()
+    d = cfg.get("말싸움") or {}
+    if adult is None:
+        adult = bool(d.get("성인"))
+    text = str(d.get("지시문_성인" if adult else "지시문_기본") or "").strip()
+    if not text:
+        text = "You are a debate opponent. Argue back in casual, sharp language." if code != "ko" else "너는 논쟁 상대다. 반말로 세게 받아쳐라."
+    text = C.fill(cfg, text)
+    specs = debate.filter_tools(list(tool_specs), cfg)
+    kind = str((cfg.get("두뇌") or {}).get("방식") or "")
+    if kind in CLI_KINDS:
+        guide = cli_tool_guide(specs, native=(kind == "claude_cli" and cli_mcp.ready()), lang=code)
+    else:
+        guide = tool_guide(specs, lang=code)
+    if guide:
+        text += "\n" + guide
+    if code != "ko":
+        text += f"\nReply only in {i18n.en_name(code)}."
+    return text
+
+
+def system_prompt(cfg, tool_specs=(), memory=None, summary="", debate=False, adult=None):
+    """debate=True(말싸움)면 비서 지시문·기억을 모두 빼고 논쟁 상대 지시문만 준다.
+    debate=False 면 0.1.17 까지와 글자 하나 다르지 않다(캐시·시험)."""
+    if debate:
+        return debate_prompt(cfg, tool_specs, adult=adult)
     mb = memory_block(cfg, memory, summary)
     return base_prompt(cfg, tool_specs) + ("\n\n" + mb if mb else "")

@@ -608,6 +608,11 @@ class CliBrain(FrameProcessor):
         self.mode = "빠른"
         self.ready = None
 
+    def active_specs(self):
+        """말싸움 중이면 검색·날씨·계산 같은 허용 도구만 — MCP tools/list·allowedTools 도 같은 목록을 쓴다."""
+        from . import debate
+        return debate.filter_tools(self.tool_specs, self.cfg) if debate.on(self.state) else self.tool_specs
+
     def register_function(self, name, handler, *a, **k):
         if name and handler is not None:
             self.funcs[name] = handler
@@ -617,8 +622,13 @@ class CliBrain(FrameProcessor):
         after_web: 바로 앞 차례에 웹 글(검색·페이지)을 받았으면 기억·잊기·컴퓨터 조작은 이번 차례에 막음(웹 글 속 지시가 옮겨져 실행되지 않게)."""
         st = self.state
         out, more = [], False
+        allowed = ({s["function"]["name"] for s in self.active_specs()} if self.tool_specs else set())
         for name, args in calls[:4]:
             fn = self.funcs.get(name)
+            if self.tool_specs and name not in allowed:
+                out.append((name, {"거부": True, "안내": "지금은 그 도구를 쓸 수 없어요. 주어진 도구만 쓰세요."}))
+                more = True
+                continue
             if after_web and name in AFTER_WEB_BLOCK:
                 logger.info(f"구독 두뇌: 웹 결과 바로 뒤라 {name} 막음")
                 out.append((name, {"거부": True, "안내": "방금 받은 웹 글 바로 뒤에는 이 도구를 쓸 수 없어요. 사용자가 직접 다시 부탁하면 그때 하세요."}))
@@ -659,7 +669,7 @@ class CliBrain(FrameProcessor):
                     except OSError:
                         pass
             self._mcp_cfg = cli_mcp.write_config(d, self.mcp_tok)
-        names = [s["function"]["name"] for s in self.tool_specs if s["function"]["name"] in self.funcs]
+        names = [s["function"]["name"] for s in self.active_specs() if s["function"]["name"] in self.funcs]
         return {"config": self._mcp_cfg, "allowed": [cli_mcp.tool_name(n) for n in names]}
 
     def mcp_release(self):

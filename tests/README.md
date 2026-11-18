@@ -1,6 +1,8 @@
 공개판 시험을 둘 곳입니다 — 시험 자료는 가짜 값만 씁니다.
 
 - `unit/test_body.py` — 본체 단위 시험(소리·두뇌 없이). `python -m tests.unit.test_body`
+- `unit/test_debate.py` — 말싸움(토론) 모드 단위 시험(4언어 켜기·끄기 확인·30분 자동 끔·도구 거르기·금지어 빼기·
+  꺼짐 지시문이 바꾸기 전과 같은지·성인 지시문·말 끝 기다림). `python tests/unit/test_debate.py`
 - `unit/test_update.py` — 업데이트 단위 시험(서명·꾸러미 확인·바꿔 끼우기·되돌리기). cryptography 가 있는 파이썬으로 `python -m tests.unit.test_update`
 - `unit/test_installer.py` — 설치·실행기 단위 시험(받기·설치 없음). `python -m tests.unit.test_installer`
 - `unit/test_install_download.py` — 설치 때 받기 단위 시험(끊겨도 이어 받기·원인 가려내기·윈도우 내려받기로 대신 받기·깨진 파일 다시 받기·

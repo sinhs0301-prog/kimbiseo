@@ -194,7 +194,12 @@ function setTop(text, cls) {
 
 function onEvent(ev) {
   const t = ev.type;
-  if (t === "hello") { setName(ev["이름"]); return; }
+  if (t === "hello") {
+    setName(ev["이름"]);
+    const db = document.getElementById("debate-badge");
+    if (db) { db.hidden = true; db.dataset.adult = "0"; }
+    return;
+  }
   if (t === "status") {
     K.lastStatus = ev.state;
     const face = document.getElementById("talk-face");
@@ -216,6 +221,11 @@ function onEvent(ev) {
   if (t === "names") { setName(ev.name); return; }
   if (t === "settings") { loadSettings().catch(() => {}); return; }
   if (t === "update") { Update.onEvent(ev); return; }
+  if (t === "debate") {
+    const db = document.getElementById("debate-badge");
+    if (db) { db.hidden = !ev.on; db.dataset.adult = ev.adult ? "1" : "0"; }
+    return;
+  }
   if (t === "interp") { Interp.onEvent(ev); return; }
   if (t === "confirm") { ToolConfirm.ask(ev); return; }
   if (t === "confirm_done") { ToolConfirm.done(ev); return; }

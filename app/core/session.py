@@ -24,7 +24,7 @@ from pipecat.processors.aggregators.llm_response_universal import LLMContextAggr
 from pipecat.turns.user_turn_strategies import UserTurnStrategies
 
 from . import config as C
-from . import interp, prompt, turns
+from . import debate, interp, prompt, turns
 from .i18n import tr
 from .audio_smooth import Ducker
 from .brain import NoBrain, make_llm, simple_text
@@ -80,6 +80,9 @@ class Session:
         dc = cfg["대화"]
         turns.WIDE.update(dict(dc.get("말끝_넓게") or {}))
         link = self.opts.get("phone")          # 폰 앱으로 대화(core/phone.PhoneLink) — 폰 도구 묶음을 더 붙임
+        st.debate_memory = self.memory
+        st.debate_adult_allowed = link is None     # 폰 앱(전체 이용가)은 성인 말싸움 항상 끔 — PC 판만
+        st.on_debate_change = self._refresh_system
         if link is not None:                   # 폰은 앱의 마이크 단추가 부르는 몫 — 이름을 불러야 대답하는 모드는 끔
             st.always_name = False
             st.set_wake(False, why="폰 대화")
@@ -96,7 +99,8 @@ class Session:
         if self.memory is not None and rc.get("이어가기", True) and not self.opts.get("새대화"):
             restored, summary = self.memory.load_context(float(rc.get("이어가기_시간", 6)))
         self.restored_n, self.summary_in = len(restored), summary
-        sysmsg = prompt.system_prompt(cfg, specs, memory=self.memory, summary=summary)
+        sysmsg = prompt.system_prompt(cfg, specs, memory=self.memory, summary=summary,
+                                      debate=debate.on(st), adult=debate.adult(st))
         self.context = LLMContext(messages=[{"role": "system", "content": sysmsg}] + list(restored),
                                   tools=tools_schema(specs))
         try:
@@ -116,13 +120,18 @@ class Session:
         self._tts = tts
         self._stt = stt
         vad_stop = float(dc.get("말끝_무음_초", 0.2))
+        vad_an = SileroVADAnalyzer(params=VADParams(stop_secs=vad_stop))
+        turn_an = LocalSmartTurnAnalyzerV3()
+        st.vad, st.vad_stop_base = vad_an, vad_stop      # 말싸움: 켜면 말 끝 기다림을 늘리고 끄면 원래 값
+        st.smart_turn = turn_an
+        st.smart_stop_base = float(getattr(getattr(turn_an, "params", None), "stop_secs", 3.0) or 3.0)
         pair = LLMContextAggregatorPair(
             self.context,
             user_params=LLMUserAggregatorParams(
-                vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=vad_stop)),
+                vad_analyzer=vad_an,
                 user_turn_strategies=UserTurnStrategies(
                     start=[turns.BargeStrategy(st)],
-                    stop=[turns.KoreanEndStrategy(turn_analyzer=LocalSmartTurnAnalyzerV3())]),
+                    stop=[turns.KoreanEndStrategy(state=st, turn_analyzer=turn_an)]),
                 empty_user_turn=None))
         self.pair = pair
         self._asst_stopped = asyncio.Event()
@@ -141,6 +150,23 @@ class Session:
                  tools=names, name=st.names.name)
         return self
 
+    # ---- 말싸움 켜기/끄기·성인 단계 — 지시문을 지금 대화에 바로 바꾼다(구독 두뇌는 세션도 다시)
+    def _refresh_system(self):
+        if self.context is None:
+            return
+        msgs = list(self.context.messages)
+        if not msgs or not isinstance(msgs[0], dict) or msgs[0].get("role") != "system":
+            return
+        msgs[0] = {**msgs[0], "content": prompt.system_prompt(
+            self.cfg, getattr(self, "specs", ()), memory=self.memory, summary=self.summary_in,
+            debate=debate.on(self.state), adult=debate.adult(self.state))}
+        self.context.set_messages(msgs)
+        if getattr(self, "cli", False) and hasattr(self.llm, "prepare"):
+            try:
+                asyncio.ensure_future(self.llm.prepare(msgs[0]["content"], list(self.llm.be.history)))
+            except Exception as ex:  # noqa: BLE001
+                logger.warning(f"말싸움 지시문으로 구독 두뇌 다시 띄우기 실패: {ex.__class__.__name__}")
+
     # ---- 화면에서 설정을 바꿨을 때(self.cfg 는 이미 새 값) — '즉시' 항목만 지금 대화에 반영
     def apply_settings(self, keys):
         """keys = 바뀐 설정 경로들('비서.이름' 등). 반영한 것의 이름 목록을 돌려줌."""
@@ -151,16 +177,10 @@ class Session:
             if st.pet is not None:
                 st.pet.names = [st.names.name] + [a for a in C.names(cfg)[1]]
             done.append("깨우는 이름")
-        if self.context is not None and keys & {"비서.이름", "비서.말투", "비서.성격", "비서.답길이", "사용자.호칭", "사용자.기본장소", "화면.얼굴"}:
-            # 지시문(자기소개·호칭·말투·성격·답 길이)을 새로 — 앞부분이 바뀌므로 두뇌 캐시는 한 번 다시 읽음(캐시 가드는 공통 앞부분만 허용)
-            msgs = list(self.context.messages)
-            if msgs and isinstance(msgs[0], dict) and msgs[0].get("role") == "system":
-                msgs[0] = {"role": "system", "content": prompt.system_prompt(cfg, getattr(self, "specs", ()),
-                                                                             memory=self.memory, summary=self.summary_in)}
-                self.context.set_messages(msgs)
-                if getattr(self, "cli", False) and hasattr(self.llm, "prepare"):   # 구독 두뇌: 새 지시문으로 세션을 다시(지금까지 대화는 이어서)
-                    asyncio.ensure_future(self.llm.prepare(msgs[0]["content"], list(self.llm.be.history)))
-                done.append("자기소개·호칭·말투")
+        if self.context is not None and keys & {"비서.이름", "비서.말투", "비서.성격", "비서.답길이", "사용자.호칭", "사용자.기본장소", "화면.얼굴", "말싸움.성인"}:
+            # 지시문(자기소개·호칭·말투·성격·답 길이·말싸움 단계)을 새로 — 앞부분이 바뀌므로 두뇌 캐시는 한 번 다시 읽음
+            self._refresh_system()
+            done.append("자기소개·호칭·말투")
         if "목소리.말속도" in keys:
             st.speed = float((cfg.get("목소리") or {}).get("말속도", 1.0) or 1.0)
             done.append("말 빠르기")
@@ -267,6 +287,10 @@ class Session:
         if interp.enabled(self.cfg) and interp.active(self.cfg):
             await self._interp_text(text)    # 통역 중 글 = 말소리와 같은 규칙(번역만 · 두뇌 대화·도구로 안 넘김)
             return True
+        say = debate.command(st, text, typed=True)    # 말싸움 켜기/끄기 — 두뇌로 안 넘기고 바로 바꿈
+        if say:
+            await self.worker.queue_frame(TTSSpeakFrame(say, append_to_context=False))
+            return True
         if st.wake and not st.always_name:
             st.set_wake(False, why="글 입력")
         if st.bot_speaking or st.thinking:
@@ -283,6 +307,7 @@ class Session:
                 logger.info("글 입력: 끊긴 비서 말 정리를 1초 기다렸지만 안 옴 — 그대로 넣음")
             except Exception as ex:  # noqa: BLE001
                 logger.warning(f"글 입력 끼어들기 실패: {ex}")
+        debate.touch(st)     # 말싸움 중 사용자 말 = 30분 자동 끔 기준 갱신
         st.turn_no += 1
         st.thinking, st.thinking_t = True, time.time()
         st.event("status", state="생각 중")
@@ -344,6 +369,7 @@ class Session:
     async def _autosave_loop(self):
         while True:
             await asyncio.sleep(2.0)
+            debate.tick(self.state)      # 말싸움: 30분 사용자 말이 없으면 자동 끔
             self.autosave()
 
     # ---- 끝 정리

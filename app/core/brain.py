@@ -36,6 +36,7 @@ from pipecat.processors.frame_processor import FrameProcessor
 from pipecat.services.openai.llm import OpenAILLMService
 
 from . import config as C
+from . import debate
 from . import i18n, keystore
 from .filters import HanziFilter, ThinkFilter
 from .memory import TIME_TAG
@@ -185,6 +186,17 @@ class BrainLLM(OpenAILLMService):
         b = self.cfg["두뇌"]
         eb = dict(b.get("추가") or {})
         st = self.state
+        if debate.on(st):
+            # 말싸움: 지난 기록·도구 결과의 개인 값과 개인 도구를 두뇌에 안 넘긴다(core/debate.py).
+            if isinstance(params.get("messages"), list):
+                params["messages"] = debate.filter_messages(params["messages"], st)
+            if isinstance(params.get("tools"), list):
+                kept = debate.filter_tools(params["tools"], self.cfg)
+                if kept:
+                    params["tools"] = kept
+                else:
+                    params.pop("tools", None)
+                    params.pop("tool_choice", None)
         if params.get("tools") and (getattr(st, "stop_now", False)
                                     or (st.no_tools_key is not None and st.no_tools_key == self.cur_user_key)):
             params["tool_choice"] = "none"   # '그만' 뒤·도구 폭주로 멈춘 그 질문: 도구 없이 답하게(서버에서 강제)
@@ -438,7 +450,8 @@ class BrainLLM(OpenAILLMService):
         """한 번 묻고 답을 내보냄(글로 쓴 호출 건지기 포함)."""
         self._think = ThinkFilter()
         self._hanzi = HanziFilter()
-        self._split = RESCUE.CallSplitter(self.tool_names, self.tool_first) if (self.do_rescue and self.tool_names) else None
+        names = [n for n in self.tool_names if n in debate.allowed_names(self.cfg)] if debate.on(self.state) else self.tool_names
+        self._split = RESCUE.CallSplitter(names, self.tool_first) if (self.do_rescue and names) else None
         self._said, self._raw = [], []
         self._called = False
         self._dropped = False

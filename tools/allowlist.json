@@ -43,7 +43,7 @@
       "path": "README.en.md",
       "origin": "new",
       "treatment": "new",
-      "sha256": "47de2fe3adab5b369cebe3fd0a13bf34e1472ab2fcaffae89eca866bf1ed8f53",
+      "sha256": "21f0188856993c1fc763e587ed06eb93dd6546c5a24bec30b29c972c3f4d0cd0",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -57,7 +57,7 @@
       "path": "README.ja.md",
       "origin": "new",
       "treatment": "new",
-      "sha256": "10822bbc1ea13344fe76250b9518a939d5cdc2d521da31a4b99888c99e49c3ba",
+      "sha256": "6201145fd9b8095035c0b2f0906395b8f9a0b11575b8613bbf0b830db8383b81",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -71,7 +71,7 @@
       "path": "README.md",
       "origin": "new",
       "treatment": "new",
-      "sha256": "8237a59d38e0b2841652f28f5aa276d0323025decd17f9bf7f79a60718787830",
+      "sha256": "963d957d47a68770435fc55a71d035ff1d7e101fac1abd2828268876a37912d8",
       "exceptions": [
         {
           "line": 8,
@@ -84,7 +84,7 @@
       "path": "README.zh.md",
       "origin": "new",
       "treatment": "new",
-      "sha256": "7f58ed368ea2b78c7f01c15741691a346d0c395ed08954bed5da02789d90ec88",
+      "sha256": "d369e05053f6447e0966613e11340daa40783bc1be75bd6390a31fea305a5516",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -432,28 +432,28 @@
       "path": "app/config/default.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "83a9e189228c9c83ce115dc74b916da3e47cf58db953110161bd1014c3b007ca",
+      "sha256": "f20fcbf828909f835649e9d43f9b8588982362034610f59733c39171de15bdea",
       "note": "기본 설정(개인 값 없음, 실행·펫 옷 칸) — 7단계"
     },
     {
       "path": "app/config/lang/en.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "b320d4868c5253f6c7b0fee487c99339040e80eebe1671321887a5162805351d",
+      "sha256": "1fcfb46c018c76f71fcffffec55897a8279f1cb508288cae7ae6056875115764",
       "note": "0.1.18 다국어"
     },
     {
       "path": "app/config/lang/ja.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "6bae5f1a9df686eb955ebb3d55700f253aac25559369d7b6c599b22360a8875e",
+      "sha256": "136b6234658ed03631515bb6d9d30c524939093eb0a0f960c3e01ab2098e004c",
       "note": "0.1.18 다국어"
     },
     {
       "path": "app/config/lang/zh.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "724b21184ff567ac2eb14fe65e7b3050181aa0f1003205c6891479059b0f90ac",
+      "sha256": "147022a744a09cdae588e4c20d3ce18defcdba129cef44ef69119afc45ca0398",
       "note": "0.1.18 다국어"
     },
     {
@@ -474,14 +474,14 @@
       "path": "app/core/brain.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "114a3ce0782c5f3721f0a94ccd8c1b5e721e4505e6a5d2cbc2be7ebbc8b6a585",
+      "sha256": "d6dc17aeeb9e71b13ecaaefe51c1c88cfc3c6a19b755317b65083af88d39e07e",
       "note": "두뇌 제공자 4가지·캐시 가드·글 도구 건지기 연결"
     },
     {
       "path": "app/core/cli_brain.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "9950bd1115953f7c85c7819eeb2170ad19248b3a8544ea96cb7085688f74996f"
+      "sha256": "a903e30ef5a78aa1ae495899b78c20a95a5e27a94fa685a707539050bd102451"
     },
     {
       "path": "app/core/cli_detect.py",
@@ -493,7 +493,7 @@
       "path": "app/core/cli_mcp.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "5de3aa250c90731424a49132511440b6ee5cc6619e2ab5ec4e4384aeb7b98fae",
+      "sha256": "8f81535c3de70a388a1d082082f8561d728afc53a96b335e68d2fdc70a32b34a",
       "note": "0.1.9 17단계"
     },
     {
@@ -502,6 +502,13 @@
       "treatment": "new",
       "sha256": "13c64266b05019670bec380dea96fc328061e07f430b38e1ef6fa6ec1a050080",
       "note": "설정 읽기·깊은 병합·이름 설정"
+    },
+    {
+      "path": "app/core/debate.py",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "2ef5443f59840255566c67eeb6175e94b9b453e7e0996cc1c7246d8f8d1263d6",
+      "note": "말싸움 모드(켜기·정보 차단·금지어·말 끝)"
     },
     {
       "path": "app/core/filters.py",
@@ -554,7 +561,7 @@
       "path": "app/core/observer.py",
       "origin": "derived:운영판 비서 부품을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "a0d689d9a3dea777ca91773744f6f735b86f227b2dd9029bcda6ff56518fecbd",
+      "sha256": "c62295800c289af312ddddd67c68e198e87c81880b24b0c58830c7dd5b69b0ab",
       "note": "관찰자(지연·메아리 상관) 부분만 옮겨 고침"
     },
     {
@@ -609,7 +616,7 @@
       "path": "app/core/prompt.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "1bbc3eaaefe06d6744201412b7ae15b248af84523aad2b9e6ec814386e367c57",
+      "sha256": "d3d156912b33c7e00ffa64ef9479ecef7506376103de616e51c3af538f21983e",
       "note": "고정 앞부분 지시문·도구 안내"
     },
     {
@@ -637,14 +644,14 @@
       "path": "app/core/session.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "38fda745c4924cdd729e27d098efe858482b97b941567ffe2cabca34bbbfc6d1",
+      "sha256": "bf51525137e4ddc8767ed6cc379fec06bc976acce5999a1377c661e7d2b89b9d",
       "note": "파이프라인 묶기·글 입력·저장"
     },
     {
       "path": "app/core/settings_api.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "414e0a971f2c992e2f737a18348f6d5313e30abbbd1ce35c39c717dd24fe12af",
+      "sha256": "3edc1d75a9fa106f759f621c6835f398d3f671386d00fbe89b7172554e9c2d77",
       "note": "설정 화면 값 검사·반영 시점·열쇠 저장·두뇌 연결 시험·펫 옷 받기 — 7단계"
     },
     {
@@ -658,14 +665,14 @@
       "path": "app/core/state.py",
       "origin": "derived:운영판 비서 부품을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "0c092c8fbb31e0553578212a8740d2634bbeca40f4787dcd5a94c9c86737200a",
+      "sha256": "b8aeb2c4ec98f1a85606b9c836ff2e97764673af35d8a12a7d3ea81eb7e38978",
       "note": "대화 상태·환각 거름 부분만 옮겨 고침"
     },
     {
       "path": "app/core/stt.py",
       "origin": "derived:운영판 비서 부품을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "280bf73b64ece715c519aa79cf09f7e1d504007d5140a30082fbb958a57d611c",
+      "sha256": "018375c74437752f1656b7c36c4300ea73f54dd4b796773b659cca7c19a87547",
       "note": "귀 연결·메아리 판정 부분만 옮겨 고침"
     },
     {
@@ -679,14 +686,14 @@
       "path": "app/core/tts.py",
       "origin": "derived:운영판 비서 부품을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "9370ef102bee72639c1c7f21330292de360d3d6060d3421bd7b44b22f83400c1",
+      "sha256": "3958fcece83db0b0d7baab37db13887ef3fc8a6136700689b2ff09ab8d0dfd11",
       "note": "목소리 연결 부분만 옮겨 고침"
     },
     {
       "path": "app/core/turns.py",
       "origin": "derived:운영판 비서 부품을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "3d3efdeb080146e40e0c6edd9fbcace735c197a4e3042681bd4b971f3eec16b8",
+      "sha256": "625e96fd77a8cc80023e56150e983488835a6bff6f996fda139142abe8b43248",
       "note": "말끝 판정 부분만 옮겨 고침('때' 추가)"
     },
     {
@@ -741,7 +748,7 @@
       "path": "app/i18n/en.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "1fa753ad7c460507e087b2afe026ee9627d5c5932cd2691b00c06daafdbd750e",
+      "sha256": "7d887b679493fb9efcae4810ed89ce6175f482c6ca75637d83818a36212a98fc",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -765,7 +772,7 @@
       "path": "app/i18n/ja.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "a6d97de8c70eca768eaecc2a101e4745b533f193075423ccef2818052eb0e214",
+      "sha256": "75ca2fa14ca44ff470580518faf02a0379ee8f2fe2532bfde4825cb16259f0b9",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -789,7 +796,7 @@
       "path": "app/i18n/zh.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "a5f2fe1a5b664b6aee75822b086548405466ea2647e229e6bc5a09865a86a6e9",
+      "sha256": "c8305acc4330f353b2026a9e0b3b678cb3712886454743f67057ca26568cd904",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -958,7 +965,7 @@
       "path": "app/ui/app.js",
       "origin": "new",
       "treatment": "new",
-      "sha256": "4a4e99432d157732706eb8bb3fb7a7241ce7a8070c29ece9d3dd3bbdbd833545",
+      "sha256": "c6c05979e30c7aa04100344dabe106d9e96ba6052f54deb0c3b26dcbdbae01ab",
       "note": "화면(처음 화면·대화·기억·설정) — 5단계"
     },
     {
@@ -992,7 +999,7 @@
       "path": "app/ui/index.html",
       "origin": "new",
       "treatment": "new",
-      "sha256": "3372bd2fa49b594fded7c2726fa5f7cadd2ee10cbe7d25e6cfcd73b11ca2ba4d",
+      "sha256": "d3d1a9a694f73879b1263731a574c24e9edf24ff1ad972157ee4cb480ecbc5d4",
       "note": "화면(처음 화면·대화·기억·설정) — 5단계"
     },
     {
@@ -1017,7 +1024,7 @@
       "path": "app/ui/settings.js",
       "origin": "new",
       "treatment": "new",
-      "sha256": "ae4d84a578dc88f1829a291d34a51ea083029d3eb4ad7692b8c1bff94c3c5e1e",
+      "sha256": "e8ae67cebc7810f59824e9afb8f1333b2cc47cc13559981ea804604106099296",
       "note": "화면(처음 화면·대화·기억·설정) — 5단계"
     },
     {
@@ -1031,7 +1038,7 @@
       "path": "app/ui/style.css",
       "origin": "new",
       "treatment": "new",
-      "sha256": "f9707f401514c2a5c32fdce6048445593e1ccc0fd00ae96ce1742b1c382607f5",
+      "sha256": "4c31288ad0d59160a72af34722c2fcc316082b9a8cf77801f54d466006ffb555",
       "note": "화면(처음 화면·대화·기억·설정) — 5단계"
     },
     {
@@ -1567,7 +1574,7 @@
       "path": "tests/README.md",
       "origin": "new",
       "treatment": "new",
-      "sha256": "797c208305bb493d1096bcfaa6bc5e0c493e9cf68c9b781b81cb4a46ff323fe0"
+      "sha256": "8de2256e3df280375fd7b640ce0af9a3de9ea5328009e6b46b8eec613e1dad8a"
     },
     {
       "path": "tests/brain_eval/cases_ko.json",
@@ -1620,6 +1627,13 @@
       "origin": "new",
       "treatment": "new",
       "sha256": "cc5971d639470454b921e1543cddf2d36a7dcd035db8092bb586fd66994bbbbc"
+    },
+    {
+      "path": "tests/unit/test_debate.py",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "5300dfc93c85d6b77cdbba02bef41085a1cc142beb4f6ea4ac6ac86c78e1e96c",
+      "note": "말싸움 단위 시험"
     },
     {
       "path": "tests/unit/test_i18n.py",

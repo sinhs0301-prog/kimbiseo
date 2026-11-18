@@ -28,7 +28,7 @@ from pipecat.transcriptions.language import Language
 from pipecat.utils.time import time_now_iso8601
 
 from . import config as C
-from . import interp
+from . import debate, interp
 from .i18n import ear_request_lang, lang_of, pipecat_lang, tr
 from .state import approx_substring_similarity, apply_fixes, is_hallucination, is_repeat_junk, norm_text
 from .turns import confirm_barge
@@ -105,7 +105,7 @@ class EarSTT(SegmentedSTTService):
             self.state.mic.append((now, 20 * np.log10(max(float(np.sqrt(np.mean(a * a))), 1e-9))))
             self.state.mic_env.add(now, a, 16000)
         await super().process_audio_frame(frame, direction)
-        if (self._user_speaking and self.state.bot_speaking and confirm_barge(self.cfg)
+        if (self._user_speaking and self.state.bot_speaking and (confirm_barge(self.cfg) or debate.on(self.state))
                 and (self._peek_task is None or self._peek_task.done())):
             now = time.time()
             first = float(self.cfg["대화"].get("엿듣기_초", 0.4))
@@ -183,6 +183,19 @@ class EarSTT(SegmentedSTTService):
         verdict = self._combine(r["text"], verdict, corr, active)
         shown = r["text"]
         st = self.state
+        if verdict == "pass" and st.bot_speaking and debate.on(st):
+            # 말싸움: 끊을 수 있는 건 등록한 목소리뿐. 등록이 없으면 아무도 못 끊고 하던 답을 끝까지 한다.
+            gate_on = self.vp is not None and self.vp.gate_on()
+            owner = False
+            if gate_on:
+                try:
+                    sr2 = await asyncio.to_thread(self.vp.score_pcm, pcm)
+                    owner = self.vp.is_me(sr2)
+                except Exception as ex:  # noqa: BLE001
+                    logger.warning(f"말싸움 끼어들기 목소리 확인 실패: {ex.__class__.__name__}")
+            if not owner:
+                verdict = "other"
+                st.event("debate_barge", text=r["text"][:40], owner=False)
         if st.wake and verdict == "pass" and not (st.addressed(r["text"]) or self._stop(r["text"])) and not st.in_follow():
             verdict, shown = "ambient", "(주변 말)"
         import re
@@ -305,6 +318,7 @@ class EarSTT(SegmentedSTTService):
         if verdict == "noise":
             st.event("unduck")
             return
+        gate_on = self.vp is not None and self.vp.gate_on()
         me, sr = await self._spk_is_me(spk)
         if not me:
             # 등록한 목소리만 명령 받기: 다른 사람 말(또는 점수를 못 낸 아주 짧은 말)은 두뇌로 안 넘김. 화면엔 '안 들음' 표시만.
@@ -312,7 +326,18 @@ class EarSTT(SegmentedSTTService):
             st.event("voice_gate", text=text[:60], score=(sr or {}).get("점수"), short=bool((sr or {}).get("짧음")))
             st.event("unduck")
             return
+        if debate.on(st) and meta.get("bot_speaking") and not (gate_on and me):
+            # 말싸움: 상대가 끼어들어도 하던 답은 끝까지 — 겹친 말은 버린다(등록한 목소리만 끊을 수 있음).
+            logger.info(f"말싸움: 다른 목소리 끼어들기 → 버림({len(text)}자)")
+            st.event("debate_barge", text=text[:40], owner=False)
+            st.event("unduck")
+            return
         text = apply_fixes(text, st.fixes)
+        say = debate.command(st, text, typed=False, voice_ok=me, gate_on=gate_on)
+        if say:   # 켜기/끄기 말 — 두뇌로 안 넘기고 바로 바꿔 말한다
+            st.event("user", text=text)
+            yield TTSSpeakFrame(say, append_to_context=False)
+            return
         called = st.wake and (st.names.call(text) or st.names.near(text))
         if called:
             st.wake_until = time.time() + 8.0   # 부른 뒤 8초는 이어지는 말도 사용자 말로
@@ -343,6 +368,7 @@ class EarSTT(SegmentedSTTService):
             if amb:
                 text = (f"[주변 대화(최근 {int(st.ambient_keep // 60)}분, 참고용 — 사용자가 비서에게 한 말이 아님): {amb}]\n"
                         + text)
+        debate.touch(st)   # 말싸움 중 사용자 말 = 30분 자동 끔 기준 갱신
         cmd = interp.L.parse_command(self.cfg, text) if interp.enabled(self.cfg) else None
         if cmd and cmd[0] == "on":   # "태국어 통역해 줘" → 통역 모드(두뇌로 안 넘김)
             code = interp.turn_on(self.cfg, cmd[1])

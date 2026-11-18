@@ -177,6 +177,18 @@ class SessionState:
         self.fixes = dict(cfg.get("받아쓰기_교정") or {})
         self.last_typed = None
         self.speed = float((cfg.get("목소리") or {}).get("말속도", 1.0) or 1.0)
+        # 말싸움(토론) 모드 — 대화(연결) 상태에만 둔다. 재시작·새 연결이면 꺼진 상태(core/debate.py).
+        self.debate = False
+        self.debate_t = 0.0
+        self.debate_confirm_off_t = 0.0
+        self.debate_adult_allowed = True       # 폰 앱 대화면 False(성인 말싸움 항상 끔)
+        self.debate_ban = None                # (금지 낱말, 정규식) — 값은 이 메모리에만
+        self.debate_memory = None             # 대화의 기억(금지어를 실행 때 만드는 데 씀)
+        self.on_debate_change = None          # 켜기/끄기 때 지시문을 다시 만드는 Session 함수
+        self.vad = None                        # 말 끝 기다림 늘리기용(켜면 늘리고 끄면 원래 값)
+        self.vad_stop_base = None
+        self.smart_turn = None
+        self.smart_stop_base = None
 
     # ---- 사건(화면·펫·시험 기록)
     def event(self, kind, **kw):

@@ -24,7 +24,7 @@ from pipecat.utils.text.base_text_aggregator import Aggregation, TextType
 from pipecat.utils.text.simple_text_aggregator import SimpleTextAggregator
 
 from .audio_smooth import SeamSmoother
-from . import i18n, interp, voice_choice
+from . import debate, i18n, interp, voice_choice
 from .filters import app_clean, foreign_clean, lang_active, mostly_english, tts_clean
 from .voice_link import EarLink, VoiceLink, speech_rate, text_norm
 
@@ -197,7 +197,13 @@ class VoiceTTS(TTSService):
 
     async def run_tts(self, text: str, context_id: str):
         text = text.strip()
-        lang = interp.speak_lang(text, i18n.lang_of(self.state.cfg))
+        st = self.state
+        if debate.on(st):
+            text = debate.filter_text(text, st)     # 말싸움: 개인 값이 든 문장은 읽지 않는다(화면도 observer 가 거른다)
+            if not text.strip():
+                yield self._hush(context_id)
+                return
+        lang = interp.speak_lang(text, i18n.lang_of(st.cfg))
         if lang:
             async for fr in self._interp_say(text, lang, context_id):
                 yield fr

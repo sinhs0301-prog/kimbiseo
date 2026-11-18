@@ -27,6 +27,7 @@ This project is made by HighlifePC.
 - **Pet**: A desktop character — KimBiseo (female) and KimBiseo (male). If you agree on the first screen, it downloads the
   outfit for the character you chose; other outfits are picked individually from **Get more outfits** in the pet menu
   (outfit list = [kimbiseo-outfits](https://github.com/sinhs0301-prog/kimbiseo-outfits)).
+- **Debate mode** (0.1.18+): Say "let's argue" or "debate mode" and it argues with another AI using claims only, without personal context. While it is on, your name, address, phone number, memories, and mail/file/PC-control tools are not sent to the brain — only search, weather, and calculation tools are used. Say "stop arguing" or "normal mode" to end it; it also turns off after 30 minutes with no speech. The default is casual, sharp, sarcastic, and provocative; turn on **Adult debate (19+)** (PC version) in Settings → Conversation to allow real profanity, insults, exaggerated threat jokes, and sexual jokes.
 - **Interpretation** (0.1.15+): Say "interpret to Thai" or just "interpret" (auto-detect) and it translates between Korean
   and 13 languages (English, Thai, Japanese, Chinese, Indonesian, Vietnamese, German, Greek, Turkish, Russian, French,
   Spanish, Italian). It recognizes the language the other person is speaking, and while interpreting, speech is **translated

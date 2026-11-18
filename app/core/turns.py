@@ -22,6 +22,8 @@ from pipecat.turns.types import ProcessFrameResult
 from pipecat.turns.user_start.base_user_turn_start_strategy import BaseUserTurnStartStrategy
 from pipecat.turns.user_stop.turn_analyzer_user_turn_stop_strategy import TurnAnalyzerUserTurnStopStrategy
 
+from . import debate
+
 
 def confirm_barge(cfg):
     dc = cfg["대화"]
@@ -67,10 +69,11 @@ class BargeStrategy(BaseUserTurnStartStrategy):
             if since < float(dc.get("첫소리_무시_초", 0.3)) and st.mic_db() < float(dc.get("큰소리_기준_dBFS", -18)):
                 st.event("vad_ignored", reason="비서 첫소리 안", since=round(since, 2), mic_db=round(st.mic_db(), 1))
                 return ProcessFrameResult.STOP
-            if not confirm_barge(self.cfg):
+            if not confirm_barge(self.cfg) and not debate.on(st):
                 st.event("barge", how="즉시")
                 await self.trigger_user_turn_started()
                 return ProcessFrameResult.STOP
+            # 말싸움: 바로 끊지 않고 엿듣기(확인) 길로 — 등록한 목소리일 때만 끊는다(stt._peek).
             self.cand = True
             st.event("duck", volume=float(dc.get("줄일_볼륨", 0.3)))
             return ProcessFrameResult.STOP
@@ -113,9 +116,10 @@ def looks_final(text):
 
 
 class KoreanEndStrategy(TurnAnalyzerUserTurnStopStrategy):
-    def __init__(self, *, fallback_secs=0.4, **kw):
+    def __init__(self, *, fallback_secs=0.4, state=None, **kw):
         super().__init__(**kw)
         self.fallback_secs = fallback_secs
+        self.state = state
         self._fb_task = None
         self._gen = 0
 
@@ -129,6 +133,8 @@ class KoreanEndStrategy(TurnAnalyzerUserTurnStopStrategy):
     async def _handle_transcription(self, frame):
         await super()._handle_transcription(frame)
         wait = looks_final(frame.text)
+        if wait is not None and debate.on(self.state):   # 말싸움: 말 끝을 더 기다린다(상대 말을 끊지 않게)
+            wait = debate.silence(wait, getattr(self.state, "cfg", None))
         if (self._vad_stopped and not self._vad_user_speaking and not self._turn_complete
                 and wait is not None and self._fb_task is None):
             gen = self._gen

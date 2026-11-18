@@ -67,6 +67,11 @@ svg { display: block; }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: #555a63; flex: none; }
 .dot.on { background: var(--green); }
 .dot.busy { background: var(--accent); }
+/* 말싸움 중 표시 — 대화 화면 위 작은 표시(켜짐 이벤트로 보이고 꺼지면 숨김) */
+.debate-badge { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; font-size: .8rem;
+  border: 1px solid rgba(255, 123, 114, .55); color: #ffb4ae; vertical-align: middle; }
+.debate-badge[data-adult="1"]::after { content: " 19+"; }
+.debate-badge[hidden] { display: none; }
 .tagline { margin-left: auto; text-align: right; color: var(--muted); font-size: .933rem; white-space: nowrap; }
 
 /* 말풍선 */

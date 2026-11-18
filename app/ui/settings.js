@@ -381,6 +381,16 @@ const Settings = {
     const [l3, i3] = box("set-mem-diary", "대화가 끝나면 짧은 일기 남기기", "기억.일기");
     s4.append(l1, l2, l3, h("div", {class: "row"}, h("button", {class: "btn", type: "button", text: "기억 보기·지우기", onclick: () => show("memory")})),
       this.saveRow("set-mem-save", () => ({기억: {켜기: i1.checked, 자동: i2.checked, 일기: i3.checked}})));
+    const s5 = this.section(card, "말싸움(토론)", ["말싸움.성인"]);
+    const adultBox = h("input", {type: "checkbox", id: "set-debate-adult"});
+    adultBox.checked = !!get(c, "말싸움.성인", false);
+    adultBox.addEventListener("change", () => {
+      if (adultBox.checked && !confirm("성인 말싸움은 19세 이상만 쓰세요. 욕설·막말·섹드립이 나옵니다. 켤까요?")) adultBox.checked = false;
+    });
+    s5.append(h("p", {class: "hint", text: "말로 '말싸움 하자'라고 하면 켜지고, '말싸움 그만'·'평소로'라고 하면 꺼져요. 켜진 동안에는 이름·주소·전화·기억 같은 개인 정보를 두뇌에 넘기지 않고, 검색·날씨·계산 도구만 써요. 30분 동안 말이 없으면 저절로 꺼져요."}),
+      h("p", {class: "hint", text: "말싸움 중에는 반말·센 말·비꼬기·도발로 받아쳐요. 아래를 켜면 실제 욕설·막말·과장된 위협 드립·섹드립까지 허용해요(PC 판만, 폰 앱 대화에서는 항상 꺼져요)."}),
+      h("label", {class: "toggle", for: "set-debate-adult"}, adultBox, "성인 말싸움(19세 이상)"),
+      this.saveRow("set-debate-save", () => ({말싸움: {성인: adultBox.checked}})));
   },
 
   // 통역(interp.js)
