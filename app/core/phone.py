@@ -565,11 +565,13 @@ class PhoneLink:
 PAIR_MAX_BYTES = 2048
 
 
-def make_gateway_app(cfg, auth, on_ws, status):
+def make_gateway_app(cfg, auth, on_ws, status, pet=None):
     """폰 관문 앱. on_ws(websocket, 기기, 첫 메시지) = 대화 시작(본체가 줌), status(기기) = 폰에 보여 줄 상태 dict.
-    길: POST /phone/pair · GET /phone/api/status(토큰) · WS /phone/ws(첫 메시지에 토큰). 나머지는 404."""
+    pet = core/petphone.PetPhone(있으면 폰 대화 화면의 펫 클립을 건넨다).
+    길: POST /phone/pair · GET /phone/api/status(토큰) · GET /phone/api/pet(토큰) · GET /phone/api/pet/clip(토큰)
+        · WS /phone/ws(첫 메시지에 토큰). 나머지는 404."""
     from fastapi import FastAPI, Request, WebSocket
-    from fastapi.responses import JSONResponse
+    from fastapi.responses import FileResponse, JSONResponse
     from starlette.websockets import WebSocketDisconnect
 
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
@@ -577,13 +579,15 @@ def make_gateway_app(cfg, auth, on_ws, status):
     def ts_ok():
         return bool(conf(cfg).get("테일스케일_허용"))
 
+    P = ("/phone/pair", "/phone/api/status", "/phone/api/pet", "/phone/api/pet/clip")
+
     @app.middleware("http")
     async def gate(request: Request, call_next):
         ip = request.client.host if request.client else ""
         if not allowed_ip(ip, ts_ok()):
             return JSONResponse({"ok": False, "왜": "주소_거절", "오류": "집 안 네트워크에서만 연결돼요. 테일스케일로 연결하려면 PC 김비서 설정 → "
                                  "폰 연결 → '테일스케일로도 연결 받기'를 켜 주세요."}, status_code=403)
-        if request.url.path not in ("/phone/pair", "/phone/api/status"):
+        if request.url.path not in P:
             return JSONResponse({"ok": False}, status_code=404)
         resp = await call_next(request)
         resp.headers["Cache-Control"] = "no-store"
@@ -617,6 +621,51 @@ def make_gateway_app(cfg, auth, on_ws, status):
             return JSONResponse({"ok": False, "오류": "등록되지 않은 기기예요. 다시 연결해 주세요."}, status_code=401)
         return {"ok": True, "기기": did, **status(did)}
 
+    def pet_auth(request):
+        ip = request.client.host if request.client else ""
+        did = auth.check(request.headers.get(TOKEN_HEADER), ip, "펫")
+        if not did:
+            return None, JSONResponse({"ok": False, "오류": "등록되지 않은 기기예요. 다시 연결해 주세요."}, status_code=401)
+        return did, None
+
+    @app.get("/phone/api/pet")
+    async def phone_pet(request: Request):
+        """지금 펫(옷) 정보 + 폰에 필요한 클립 목록(이름·sha256·크기). outfit= 이 있으면 그 옷(폰에서 따로 고르기)."""
+        _did, err = pet_auth(request)
+        if err is not None:
+            return err
+        if pet is None:
+            return {"ok": True, "옷": None, "고른옷": "", "지금옷": "", "옷목록": [], "동작": []}
+        selected = str(request.query_params.get("outfit") or "")[:40]
+        try:
+            data = await asyncio.to_thread(pet.manifest, selected)
+        except Exception as ex:  # noqa: BLE001
+            logger.warning(f"폰 펫 목록 오류: {ex.__class__.__name__}")
+            return JSONResponse({"ok": False, "오류": "펫 정보를 읽지 못했어요"}, status_code=500)
+        return {"ok": True, **data}
+
+    @app.get("/phone/api/pet/clip")
+    async def phone_pet_clip(request: Request):
+        """클립 한 개(작은 판이 있으면 그것). motion = idle·talk·hello·wave. sha256 은 머리글에도 넣는다."""
+        _did, err = pet_auth(request)
+        if err is not None:
+            return err
+        selected = str(request.query_params.get("outfit") or "")[:40]
+        motion = str(request.query_params.get("motion") or "")[:20]
+        if pet is None:
+            return JSONResponse({"ok": False, "오류": "펫이 없어요"}, status_code=404)
+        try:
+            r = await asyncio.to_thread(pet.clip, selected, motion)
+        except Exception as ex:  # noqa: BLE001
+            logger.warning(f"폰 펫 클립 오류: {ex.__class__.__name__}")
+            r = None
+        if r is None:
+            return JSONResponse({"ok": False, "오류": "그 클립이 없어요"}, status_code=404)
+        path, media, sha = r
+        resp = FileResponse(path, media_type=media)
+        resp.headers["X-Content-SHA256"] = sha
+        return resp
+
     @app.websocket("/phone/ws")
     async def phone_ws(websocket: WebSocket):
         ip = websocket.client.host if websocket.client else ""
@@ -648,8 +697,8 @@ def make_gateway_app(cfg, auth, on_ws, status):
 class Gateway:
     """폰 관문 켜기·끄기(설정 폰.켜기 를 바꾸면 본체가 restart). 끄면 포트를 닫는다."""
 
-    def __init__(self, cfg, auth, on_ws, status):
-        self.cfg, self.auth, self.on_ws, self.status = cfg, auth, on_ws, status
+    def __init__(self, cfg, auth, on_ws, status, pet=None):
+        self.cfg, self.auth, self.on_ws, self.status, self.pet = cfg, auth, on_ws, status, pet
         self.server = None
         self.task = None
         self.error = ""
@@ -678,7 +727,7 @@ class Gateway:
             self.error = f"인증서를 만들지 못했어요({ex.__class__.__name__})"
             logger.warning(f"폰 관문: {self.error}")
             return False
-        app = make_gateway_app(self.cfg, self.auth, self.on_ws, self.status)
+        app = make_gateway_app(self.cfg, self.auth, self.on_ws, self.status, self.pet)
         conf_ = uvicorn.Config(app, host="0.0.0.0", port=port(self.cfg), log_level="warning", lifespan="off",
                                ssl_certfile=cert, ssl_keyfile=key, ssl_keyfile_password=pw,
                                ws_ping_interval=20, ws_ping_timeout=20, ws_max_size=1 << 20)

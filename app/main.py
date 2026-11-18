@@ -870,8 +870,10 @@ def make_app():
         return {"ok": True, "PID": interp_job["proc"].pid}
 
     # ---------------------------------------------------------------- 폰 연결(선택, 기본 꺼짐) — core/phone.py
+    from .core import petphone as PP
     from .core import phone as PH
     auth = PHONE["auth"]
+    pet_phone = PP.PetPhone(CFG)
 
     def phone_status(_did=None):
         """폰 앱에 보여 줄 것(비밀값·주소 없음)."""
@@ -930,7 +932,7 @@ def make_app():
             broadcast({"type": "phone", "state": "off", "name": name})
             logger.info(f"폰 대화 끝: {did}")
 
-    gw = PHONE["gw"] = PH.Gateway(CFG, auth, run_phone, phone_status)
+    gw = PHONE["gw"] = PH.Gateway(CFG, auth, run_phone, phone_status, pet=pet_phone)
 
     @app.on_event("startup")
     async def _phone_start():
