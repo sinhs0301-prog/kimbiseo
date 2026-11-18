@@ -104,10 +104,12 @@ async function loadSettings() {
 }
 
 function setName(name) {
-  document.getElementById("top-name").textContent = name;
-  document.getElementById("talk-title").textContent = name;
+  // 영어 화면의 기본 이름은 'Kimmy (KimBiseo)' 로 보여 준다(사용자가 다른 이름을 넣으면 그대로).
+  const shown = (window.I18N && I18N.lang === "en" && name === "Kimmy") ? "Kimmy (KimBiseo)" : name;
+  document.getElementById("top-name").textContent = shown;
+  document.getElementById("talk-title").textContent = shown;
   document.getElementById("talk-initial").textContent = (name || "김").slice(0, 1);
-  document.title = name;
+  document.title = shown;
 }
 
 // 저장 결과 → 쉬운 안내 한 줄

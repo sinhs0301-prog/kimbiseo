@@ -2,7 +2,7 @@
 "use strict";
 const Settings = {
   tab: "name",
-  tabs: [["name", "이름·호칭"], ["pet", "펫"], ["brain", "두뇌"], ["voice", "목소리"], ["mic", "마이크·스피커"], ["talk", "대화"], ["interp", "통역"], ["phone", "폰 연결"], ["myvoice", "내 목소리"], ["about", "정보"]],
+  tabs: [["general", "일반"], ["name", "이름·호칭"], ["pet", "펫"], ["brain", "두뇌"], ["voice", "목소리"], ["mic", "마이크·스피커"], ["talk", "대화"], ["interp", "통역"], ["phone", "폰 연결"], ["myvoice", "내 목소리"], ["about", "정보"]],
 
   async render() {
     await loadSettings().catch(() => {});
@@ -44,6 +44,27 @@ const Settings = {
       try { const c = collect(); if (c) await saveSettings(c); } catch (err) { toast("저장하지 못했어요: " + err.message, 7000); }
       finally { e.target.disabled = false; }
     }}));
+  },
+
+  // 일반 — 언어(앱 화면·대화·받아쓰기). 바꾸면 저장한 뒤 화면을 다시 불러온다.
+  t_general(card) {
+    const c = K.cfg;
+    card.appendChild(h("h1", {text: "일반"}));
+    const s1 = this.section(card, "언어", ["언어"]);
+    let lang = get(c, "언어", "ko");
+    s1.append(h("p", {class: "hint", text: "화면과 대화에 쓰는 언어예요. 고르면 저장하고 화면을 다시 불러옵니다. 기존 사용자는 한국어 그대로예요."}),
+      choiceGroup(Object.entries(I18N.NAMES).map(([code, name]) => ({값: code, 이름: name})), lang, async (v) => {
+        if (v === lang) return;
+        try { await saveSettings({언어: v}); location.reload(); }
+        catch (err) { toast("저장하지 못했어요: " + err.message, 7000); }
+      }, {wide: true, idp: "set-lang"}));
+    const s2 = this.section(card, "받아쓰기 언어", ["귀.받아쓰기_언어"]);
+    let ear = get(c, "귀.받아쓰기_언어", "");
+    const items = [{값: "", 이름: "앱 언어 따름"}, {값: "auto", 이름: "자동 감지"}]
+      .concat(Object.entries(I18N.NAMES).map(([code, name]) => ({값: code, 이름: name})));
+    s2.append(h("p", {class: "hint", text: "말을 글로 바꿀 때 쓰는 언어예요. 보통은 '앱 언어 따름'이 좋아요."}),
+      choiceGroup(items, ear, (v) => { ear = v; }, {wide: true, idp: "set-earlang"}),
+      this.saveRow("set-earlang-save", () => ({귀: {받아쓰기_언어: ear}})));
   },
 
   // 이름·호칭

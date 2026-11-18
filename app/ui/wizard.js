@@ -71,7 +71,7 @@ function subText(st) {
 // ---------------------------------------------------------------- 마법사
 const Wizard = {
   i: 0, d: null, sys: null, brainTest: null,
-  steps: ["사양 보기", "펫", "이름·호칭", "두뇌", "목소리", "마이크·스피커", "부르는 방식", "끝"],
+  steps: ["언어·사양 보기", "펫", "이름·호칭", "두뇌", "목소리", "마이크·스피커", "부르는 방식", "끝"],
 
   start() {
     const c = K.cfg;
@@ -117,8 +117,16 @@ const Wizard = {
     this.render();
   },
 
-  // 0. 사양
+  // 0. 언어 → 사양
   async s0(b) {
+    const cur = get(K.cfg, "언어", "ko");
+    b.append(h("h1", {text: "언어를 골라 주세요"}),
+      h("p", {text: "화면과 대화에 쓸 언어예요. 고르면 저장하고 화면을 다시 불러옵니다. 나중에 설정의 '일반'에서 바꿀 수 있어요."}),
+      choiceGroup(Object.entries(I18N.NAMES).map(([code, name]) => ({값: code, 이름: name})), cur, async (v) => {
+        if (v === cur) return;
+        try { await saveSettings({언어: v}); location.reload(); }
+        catch (e) { toast("저장하지 못했어요: " + e.message, 7000); }
+      }, {wide: true, idp: "wz-lang"}));
     b.append(h("h1", {text: "반가워요. 김비서를 준비할게요"}),
       h("p", {text: "몇 가지만 고르면 바로 쓸 수 있어요. 모든 것은 나중에 설정에서 바꿀 수 있어요."}),
       h("p", {class: "big-q", text: "이 PC 를 살펴봤어요"}));

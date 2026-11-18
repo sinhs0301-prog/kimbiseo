@@ -390,6 +390,15 @@ def make_app():
     async def ui_file(name: str):
         return _ui(name)
 
+    @app.get("/api/i18n.js")
+    async def i18n_js():
+        """화면 번역 사전(0.1.18) — app/i18n/<언어>.json 을 화면 번역기(app/ui/i18n.js)에 넣고 시작.
+        한국어면 빈 사전이라 화면 번역기가 아무것도 바꾸지 않는다."""
+        code = i18n.lang_of(CFG)
+        data = json.dumps({"lang": code, "dict": i18n.table(code)}, ensure_ascii=False, separators=(",", ":"))
+        js = ("window.I18N&&I18N.load(" + data + ");window.I18N&&I18N.start();\n")
+        return Response(js, media_type="text/javascript; charset=utf-8")
+
     # ---------------------------------------------------------------- 대화 연결
     async def kick(who="PC 창"):
         """한 번에 한 기기만 대화 — 새 연결(PC 창·폰)이 오면 앞 대화를 끝냄. 앞이 폰이면 폰에 먼저 알림."""
