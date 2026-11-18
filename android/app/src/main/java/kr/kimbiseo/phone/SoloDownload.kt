@@ -71,7 +71,7 @@ class SoloDownload(private val c: Context) {
         var have = if (part.isFile) part.length() else 0L
 
         if (have < SoloModel.SIZE) {
-            onState("download")
+            main.post { onState("download") }
             val req = Request.Builder().url(SoloModel.URL)
                 .header("Range", "bytes=$have-")
                 .header("User-Agent", "KimBiseo-phone/" + BuildConfig.VERSION_NAME)
@@ -116,7 +116,7 @@ class SoloDownload(private val c: Context) {
             lastWhy = if (part.length() < SoloModel.SIZE) HTTP else IO
             return false
         }
-        onState("verify")
+        main.post { onState("verify") }
         val sha = SoloModel.sha256(part)
         if (sha != SoloModel.SHA256) { part.delete(); lastWhy = SHA; return false }
         if (!part.renameTo(f)) {
@@ -124,7 +124,7 @@ class SoloDownload(private val c: Context) {
             try { part.copyTo(f, overwrite = true); part.delete() } catch (_: Throwable) { lastWhy = IO; return false }
         }
         try { SoloModel.marker(c).writeText(sha) } catch (_: Throwable) {}
-        onState("ok")
+        main.post { onState("ok") }
         return true
     }
 }

@@ -96,6 +96,49 @@ class SoloRulesTest {
         assertTrue(SoloPrompt.system("zh").contains("金秘书"))
     }
 
+    @Test fun user_command_fallback_korean() {
+        val open = SoloAction.fromUser("설정 앱을 열어 줘.")
+        assertEquals("open_app", open?.optString("do"))
+        assertEquals("설정", open?.optString("app"))
+        val nav = SoloAction.fromUser("강남역 가는 길 안내해 줘.")
+        assertEquals("navigate", nav?.optString("do"))
+        assertEquals("강남역", nav?.optString("destination"))
+        val dial = SoloAction.fromUser("엄마한테 전화해 줘.")
+        assertEquals("dial", dial?.optString("do"))
+        assertEquals("엄마", dial?.optString("contact"))
+        val sms = SoloAction.fromUser("엄마한테 문자해 줘.")
+        assertEquals("sms", sms?.optString("do"))
+        assertEquals("엄마", sms?.optString("contact"))
+    }
+
+    @Test fun user_command_fallback_other_languages() {
+        assertEquals("open_app", SoloAction.fromUser("Open Settings")?.optString("do"))
+        assertEquals("navigate", SoloAction.fromUser("Navigate to Seoul Station")?.optString("do"))
+        assertEquals("dial", SoloAction.fromUser("Call Mom")?.optString("do"))
+        assertEquals("open_app", SoloAction.fromUser("設定アプリを開いて")?.optString("do"))
+        assertEquals("navigate", SoloAction.fromUser("東京駅へ行きたい")?.optString("do"))
+        assertEquals("open_app", SoloAction.fromUser("打开设置")?.optString("do"))
+        assertEquals("navigate", SoloAction.fromUser("导航到首尔站")?.optString("do"))
+        assertNull(SoloAction.fromUser("오늘 날씨 어때?"))
+    }
+
+    @Test fun detect_language_by_script() {
+        assertEquals("ko", SoloLang.detect("안녕하세요"))
+        assertEquals("ja", SoloLang.detect("こんにちは、元気ですか"))
+        assertEquals("ja", SoloLang.detect("カタカナです"))
+        assertEquals("zh", SoloLang.detect("你好，你是谁"))
+        assertEquals("en", SoloLang.detect("Hello, how are you?"))
+        assertEquals("ko", SoloLang.detect("2 더하기 2는?"))
+    }
+
+    @Test fun reply_directive_is_clear() {
+        for (code in Lang.CODES) assertTrue(code, SoloLang.directive(code).isNotBlank())
+        assertTrue(SoloLang.directive("en").contains("English"))
+        assertTrue(SoloLang.directive("ko").contains("한국어"))
+        assertTrue(SoloLang.directive("ja").contains("日本語"))
+        assertTrue(SoloLang.directive("zh").contains("中文"))
+    }
+
     @Test fun language_resolution() {
         assertEquals("ko", Lang.resolve("ko-KR"))
         assertEquals("ja", Lang.resolve("ja-JP"))

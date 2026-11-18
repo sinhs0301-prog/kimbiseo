@@ -1,11 +1,9 @@
 package kr.kimbiseo.phone
 
-import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
@@ -55,11 +53,14 @@ class SoloActivity : Activity() {
     private var download: SoloDownload? = null
     private var brainReady = false
     private var brainLoading = false
+    private var brainError = ""
+    private var retryBtn: android.widget.Button? = null
     private var generating = false
     private var sendGen = 0
     private var liveView: TextView? = null
     private var liveBuf = ""
     private var pendingText: String? = null
+    private var userAction: JSONObject? = null
     private var tts: TextToSpeech? = null
     private var ttsOk = false
     private var ttsLang = ""
@@ -100,17 +101,17 @@ class SoloActivity : Activity() {
                 else -> {}
             }
         }
-        if (screen == "chat") { drawState(); drawPetlessLog() }
+        if (screen == "chat") { drawState(); if (!generating) drawPetlessLog() }
     }
 
     override fun onPause() {
         Bus.visible = false; Bus.listener = null
-        if (downloading) download?.stop()
         super.onPause()
     }
 
     override fun onDestroy() {
         sendGen++
+        download?.stop()
         try { tts?.stop(); tts?.shutdown() } catch (_: Throwable) {}
         tts = null
         SoloBrain.close()
@@ -126,16 +127,20 @@ class SoloActivity : Activity() {
             recreate(); return
         }
         i.getStringExtra("test_solo_text")?.let { t -> i.removeExtra("test_solo_text"); pendingText = t; if (screen == "chat") sendText(t) }
-        if (i.getBooleanExtra("test_solo_settings", false)) { i.removeExtra("test_solo_settings"); screen = "settings"; show() }
-        if (i.getBooleanExtra("test_solo_chat", false)) { i.removeExtra("test_solo_chat"); screen = "chat"; show() }
-        if (i.getBooleanExtra("test_solo_model", false)) { i.removeExtra("test_solo_model"); screen = "model"; show() }
-        if (i.getBooleanExtra("test_solo_delete", false)) { i.removeExtra("test_solo_delete"); SoloModel.delete(this); screen = "model"; show() }
-        if (i.getBooleanExtra("test_solo_download", false)) {
+        if (tb(i, "test_solo_settings")) { i.removeExtra("test_solo_settings"); screen = "settings"; show() }
+        if (tb(i, "test_solo_chat")) { i.removeExtra("test_solo_chat"); screen = "chat"; show() }
+        if (tb(i, "test_solo_model")) { i.removeExtra("test_solo_model"); screen = "model"; show() }
+        if (tb(i, "test_solo_delete")) { i.removeExtra("test_solo_delete"); SoloModel.delete(this); screen = "model"; show() }
+        if (tb(i, "test_solo_download")) {
             i.removeExtra("test_solo_download")
             Store.setFlag(this, "solo_consent", true); consent = true; screen = "model"; show(); startDownload()
         }
-        if (i.getBooleanExtra("test_solo_new", false)) { i.removeExtra("test_solo_new"); newChat() }
+        if (tb(i, "test_solo_new")) { i.removeExtra("test_solo_new"); newChat() }
     }
+
+    /** adb `--es key 1`(문자)과 `--ez key true`(참/거짓) 둘 다 알아듣는다. */
+    private fun tb(i: Intent, k: String): Boolean =
+        i.getBooleanExtra(k, false) || (i.getStringExtra(k) ?: "").lowercase() in listOf("1", "true", "yes")
 
     private fun fitKeyboard() {
         if (Build.VERSION.SDK_INT < 30) return
@@ -324,31 +329,42 @@ class SoloActivity : Activity() {
             if (!on) try { tts?.stop() } catch (_: Throwable) {}
         }
         stopBtn = Ui.button(this, getString(R.string.solo_stop), Ui.Kind.DANGER) { stopReply() }
+        retryBtn = Ui.button(this, getString(R.string.solo_retry), Ui.Kind.SECONDARY) {
+            brainError = ""; ensureBrain()
+        }
         br.addView(micBtn, lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         br.addView(speakBtn, lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         br.addView(stopBtn, lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        br.addView(retryBtn, lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         bottom.addView(br, lp())
         whole.addView(bottom, lp())
         root.addView(whole, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         drawPetlessLog(); drawState()
+        Log.i(TAG, "recognizer available=${recognizerAvailable()}")
         ensureBrain()
     }
 
     private fun ensureBrain() {
+        Log.i(TAG, "ensureBrain ready=$brainReady loading=$brainLoading lang=$lang/${brainLang} pending=${pendingText != null}")
         if (SoloModel.present(this) == null) { screen = "model"; show(); return }
         if (brainReady && lang == brainLang) { flushPending(); return }
         if (brainLoading) return
-        brainLoading = true; drawState()
+        brainLoading = true; brainError = ""; drawState()
         SoloBrain.load(this, lang, history?.context() ?: emptyList(), onReady = {
-            brainLoading = false; brainReady = true; brainLang = lang; drawState(); flushPending()
+            Log.i(TAG, "brain ready lang=$lang pending=${pendingText != null}")
+            brainLoading = false; brainReady = true; brainLang = lang; brainError = ""; drawState(); flushPending()
         }, onError = { e ->
-            brainLoading = false; brainReady = false
+            brainLoading = false; brainReady = false; brainError = e
             Bus.line("sys", getString(R.string.solo_load_fail, e)); drawState()
         })
     }
 
     private var brainLang = ""
-    private fun flushPending() { pendingText?.let { t -> pendingText = null; sendText(t) } }
+    private fun flushPending() {
+        val t = pendingText
+        Log.i(TAG, "flush pending=${t != null} ready=$brainReady")
+        if (t != null) { pendingText = null; sendText(t) }
+    }
 
     private fun sendInput() {
         val t = input?.text?.toString()?.trim() ?: return
@@ -358,6 +374,7 @@ class SoloActivity : Activity() {
     }
 
     private fun sendText(t: String) {
+        Log.i(TAG, "sendText ready=$brainReady loading=$brainLoading gen=$generating: $t")
         if (t.isBlank()) return
         if (!brainReady) {
             pendingText = t
@@ -367,6 +384,7 @@ class SoloActivity : Activity() {
         if (generating) { toast(getString(R.string.solo_busy)); return }
         generating = true
         val my = ++sendGen
+        userAction = SoloAction.fromUser(t)   // 모델이 PHONE 줄을 빠뜨려도 폰 일은 되게(안전망)
         liveBuf = ""
         history?.add("me", t)
         addLineView("me", t)
@@ -382,10 +400,10 @@ class SoloActivity : Activity() {
             scrollDown()
         }, onDone = { full ->
             if (my != sendGen) return@send
-            finishReply(full, my)
+            finishReply(full)
         }, onError = { e ->
             if (my != sendGen) return@send
-            generating = false; window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            generating = false; userAction = null; window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             val m = getString(R.string.solo_error, e)
             liveView?.text = m
             liveView = null
@@ -394,11 +412,23 @@ class SoloActivity : Activity() {
         })
     }
 
-    private fun finishReply(full: String, my: Int) {
+    private fun finishReply(full: String) {
         val p = SoloAction.parse(full)
-        val text = p.text
+        val fallback = userAction
+        userAction = null
+        var text = p.text
+        if (p.action == null && fallback != null) {
+            // 모델이 PHONE 줄을 안 붙였어도 사용자가 부탁한 폰 일은 한다. 답도 폰이 한 결과로 바꾼다.
+            try {
+                val r = Doer(this).run(fallback)
+                text = r.optString("말").ifBlank { p.text }
+                Log.i(TAG, "fallback action ${fallback.optString("do")} ok=${r.optBoolean("ok")} $text")
+            } catch (t: Throwable) {
+                Log.w(TAG, "fallback action failed", t)
+            }
+        }
         if (liveView != null) {
-            liveView?.text = text.ifBlank { if (p.action != null) "…" else getString(R.string.solo_history_empty) }
+            liveView?.text = text.ifBlank { "…" }
             liveView = null
         }
         if (text.isNotBlank()) { history?.add("bot", text); speak(text) }
@@ -414,6 +444,7 @@ class SoloActivity : Activity() {
         if (!generating) return
         sendGen++
         generating = false
+        userAction = null
         SoloBrain.stop()
         liveView?.text = visible(liveBuf).ifBlank { getString(R.string.solo_stopped) }
         liveView = null
@@ -442,10 +473,20 @@ class SoloActivity : Activity() {
     private fun newChat() {
         sendGen++
         generating = false
+        userAction = null
         SoloBrain.stop()
         history?.clear()
-        brainReady = false
-        screen = "chat"; show()
+        if (brainReady) {
+            SoloBrain.reset(lang, emptyList(), onReady = {
+                brainReady = true; brainLoading = false; screen = "chat"; show()
+            }, onError = { e ->
+                brainReady = false; brainLoading = false
+                Bus.line("sys", getString(R.string.solo_load_fail, e)); screen = "chat"; show()
+            })
+        } else {
+            brainReady = false
+            screen = "chat"; show()
+        }
     }
 
     private fun addLineView(who: String, text: String) {
@@ -483,6 +524,7 @@ class SoloActivity : Activity() {
             brainLoading -> getString(R.string.solo_loading)
             generating -> getString(R.string.solo_thinking)
             brainReady -> getString(R.string.solo_ready_state)
+            brainError.isNotEmpty() -> getString(R.string.solo_load_fail, brainError)
             else -> getString(R.string.solo_loading)
         }
         stateText?.text = st
@@ -493,6 +535,7 @@ class SoloActivity : Activity() {
         sendBtn?.alpha = if (sendBtn?.isEnabled == true) 1f else 0.5f
         micBtn?.alpha = if (micBtn?.isEnabled == true) 1f else 0.5f
         stopBtn?.visibility = if (generating) View.VISIBLE else View.GONE
+        retryBtn?.visibility = if (brainError.isNotEmpty()) View.VISIBLE else View.GONE
     }
 
     private val phoneLine = Regex("(?m)^[ \t]*`?PHONE.*$")
@@ -518,9 +561,10 @@ class SoloActivity : Activity() {
     private fun initTts() {
         try {
             tts = TextToSpeech(this) { st ->
+                Log.i(TAG, "tts init status=$st")
                 if (st == TextToSpeech.SUCCESS) { ttsOk = true; applyTtsLang() }
             }
-        } catch (_: Throwable) { tts = null }
+        } catch (_: Throwable) { tts = null; Log.w(TAG, "tts create failed") }
     }
 
     private fun applyTtsLang(): Boolean {
@@ -530,6 +574,7 @@ class SoloActivity : Activity() {
         ttsTried = true
         val r = try { t.setLanguage(Lang.locale(lang)) } catch (_: Throwable) { TextToSpeech.LANG_NOT_SUPPORTED }
         ttsLang = lang
+        Log.i(TAG, "tts lang=$lang result=$r")
         if (r == TextToSpeech.LANG_MISSING_DATA || r == TextToSpeech.LANG_NOT_SUPPORTED) {
             val r2 = try { t.setLanguage(Locale.getDefault()) } catch (_: Throwable) { TextToSpeech.LANG_NOT_SUPPORTED }
             if (r2 == TextToSpeech.LANG_MISSING_DATA || r2 == TextToSpeech.LANG_NOT_SUPPORTED) { ttsOk = false; return false }
@@ -557,10 +602,7 @@ class SoloActivity : Activity() {
 
     override fun onRequestPermissionsResult(req: Int, perms: Array<out String>, res: IntArray) {
         super.onRequestPermissionsResult(req, perms, res)
-        if (req == 30) {
-            val i = perms.indexOf(Manifest.permission.READ_CONTACTS)
-            if (i >= 0 && res.getOrNull(i) == PackageManager.PERMISSION_GRANTED) toast(getString(R.string.solo_action_result, ""))
-        }
+        // 연락처 권한을 허용하면 다음에 같은 부탁을 하면 된다(모델이 다시 부른다).
     }
 
     // ---------------------------------------------------------------- 설정
@@ -612,7 +654,8 @@ class SoloActivity : Activity() {
         p.addView(Ui.button(this, getString(R.string.solo_clear_history), Ui.Kind.DANGER) {
             AlertDialog.Builder(this).setMessage(getString(R.string.solo_new_chat_confirm))
                 .setPositiveButton(android.R.string.ok) { _, _ ->
-                    history?.clear(); brainReady = false; toast(getString(R.string.solo_clear_done))
+                    history?.clear(); toast(getString(R.string.solo_clear_done))
+                    if (brainReady) SoloBrain.reset(lang, emptyList(), onReady = {}, onError = {})
                 }.setNegativeButton(android.R.string.cancel, null).show()
         }, lp())
         p.addView(Ui.text(this, getString(R.string.solo_notice), 13f, Ui.MUTED))
@@ -628,7 +671,8 @@ class SoloActivity : Activity() {
 
     private fun switchToPc() {
         Store.setMode(this, "pc")
-        startActivity(Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+        startActivity(Intent(this, MainActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
         finish()
     }
 

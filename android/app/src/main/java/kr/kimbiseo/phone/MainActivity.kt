@@ -71,7 +71,16 @@ class MainActivity : Activity() {
     }
 
     private fun openSolo() {
-        startActivity(Intent(this, SoloActivity::class.java))
+        val i = Intent(this, SoloActivity::class.java)
+        val test = intent?.extras?.keySet()?.any { it.startsWith("test_solo_") } == true
+        intent?.extras?.let { i.putExtras(it) }    // 시험용 adb 값(test_solo_*)을 그대로 넘김
+        if (test) {
+            // 시험: 항상 새 화면으로(엔진을 다시 올림)
+            startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
+        } else {
+            // 평소: 이미 떠 있는 폰 단독 화면을 앞으로 — 모델을 다시 올리지 않는다.
+            startActivity(i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
+        }
         finish()
     }
 
@@ -276,6 +285,7 @@ class MainActivity : Activity() {
             runOnUiThread {
                 if (r.ok) {
                     Store.save(this, listOf(r.host) + info.hosts.filter { it != r.host }, info.port, r.fp.ifEmpty { info.fp }, r.device, r.pcName, r.token)
+                    Store.setMode(this, "pc")     // QR 로 연결했으면 PC 모드로
                     pending = null; Bus.lines.clear(); typed[2] = ""
                     Bus.line("sys", getString(R.string.pair_connected, r.pcName.ifEmpty { getString(R.string.common_pc) }))
                     show()

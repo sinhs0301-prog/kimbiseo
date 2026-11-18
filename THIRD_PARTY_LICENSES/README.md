@@ -4,6 +4,7 @@
 > 설치할 때 사용자 PC 가 각 부품의 **공식 배포처에서 직접** 받습니다(판 고정 + sha256 확인 — `installer/runtimes.json`·`installer/models.json`·`installer/locks/*.json`).
 > 각 부품은 자기 라이선스를 따르며, 라이선스 원문은 받은 부품 안(파이썬 꾸러미의 `*.dist-info`, 프로그램 폴더의 LICENSE 등)에 그대로 남겨 둡니다.
 > 아래 표는 안내용 요약이고, 서로 다르면 각 부품의 원문이 앞섭니다.
+> **폰 앱(APK)에는 LiteRT-LM 실행 코드가 들어가고, Gemma 4 E2B 모델 파일은 앱에 넣지 않고 처음 쓸 때 폰이 공식 배포처에서 직접 받습니다.** 둘 다 Apache License 2.0 입니다.
 
 ## 실행 프로그램
 
@@ -17,6 +18,7 @@
 | Electron | 45.2.3 | MIT (+ Chromium 등 고지 LICENSES.chromium.html 그대로) | github.com/electron/electron 릴리스 | 펫 창 |
 | 클로드 코드 · Codex | 사용자가 설치한 판 | 각 회사 약관(Anthropic · OpenAI) | 사용자가 직접 설치 | 구독 두뇌를 고를 때만 — 김비서는 설치하지 않음 |
 | Piper (piper-tts, 통역 목소리 읽기 프로그램) | 1.8.0 | **GPL-3.0** (espeak-ng 포함, GPL-3.0) | PyPI(`installer/locks/interp.json`, sha256 고정) | 통역 원어민 목소리(선택 — 설정 → 통역 '통역 목소리 받기'를 누를 때만 받음) |
+| LiteRT-LM Android (`litertlm-android`) | 0.19.1 | Apache-2.0 | Google Maven(`com.google.ai.edge.litertlm:litertlm-android`) | **폰 앱(APK) 안** — 폰 단독 AI 실행 엔진 |
 
 ## 모델
 
@@ -28,6 +30,7 @@
 | Whisper large-v3-turbo | MIT | huggingface.co/openai/whisper-large-v3-turbo | 받아쓰기(그래픽카드) |
 | Whisper small | Apache-2.0 (모델 카드 표시) | huggingface.co/openai/whisper-small | 받아쓰기(그래픽카드 없음) |
 | Qwen3-TTS-12Hz-0.6B-Base | Apache-2.0 | huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-Base | 김비서 목소리 |
+| Gemma 4 E2B — LiteRT-LM 판 (`gemma-4-E2B-it.litertlm`, 2,588,147,712바이트) | Apache-2.0 (모델 카드 표시) · https://gemma.ai/resources/apache-2/ | huggingface.co/litert-community/gemma-4-E2B-it-litert-lm (판 고정 sha256 `181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c`) | **폰 단독 두뇌** — APK 에 넣지 않고 처음 쓸 때 폰이 직접 받음 |
 | Qwen3-TTS-12Hz-0.6B-Base GGUF·ONNX 변환본 (라데온 판) | Apache-2.0 (원 모델과 같음 · 변환 = 형식 바꾸기·양자화만, 고지 NOTICE 같이 올림) | 원 모델 huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-Base 를 변환 도구 HaujetZhao/Qwen3-TTS-GGUF(MIT)로 바꿔 **김비서 저장소 릴리스 첨부로 올림**(`installer/radeon/models.json`, sha256 고정) — 위 '다시 나눠 주지 않음'의 예외(공식 변환본이 없어서) | 라데온 판 김비서 목소리 |
 | TitaNet small (sherpa-onnx 변환판) | Apache-2.0 — NVIDIA NGC 모델 카드(nvidia/nemo/titanet_small): "License to use this model is covered by the license of the NeMo Toolkit" = NeMo 저장소 Apache-2.0 · 변환(ONNX)은 sherpa-onnx(Apache-2.0) | github.com/k2-fsa/sherpa-onnx 릴리스(자산 고정·sha256) | 내 목소리 등록·등록한 목소리만 명령 받기(선택 — 설정 → 내 목소리 '확인 모델 받기'를 누를 때만 받음, 이 PC 안에서만 돌림) |
 | 윈도우 기본 음성(SAPI) | 윈도우 라이선스 | 윈도우에 들어 있음 | 예비 목소리 |

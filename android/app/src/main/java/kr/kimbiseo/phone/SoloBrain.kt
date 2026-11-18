@@ -3,6 +3,7 @@ package kr.kimbiseo.phone
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.google.ai.edge.litertlm.Backend
 import com.google.ai.edge.litertlm.Conversation
 import com.google.ai.edge.litertlm.ConversationConfig
@@ -19,6 +20,7 @@ import java.util.concurrent.Executors
  *  모델은 앱 저장소의 파일을 그대로 메모리에 매핑한다(인터넷 없음). 대화는 이 앱 안에만 있고 어디로도 안 보낸다.
  */
 object SoloBrain {
+    private const val TAG = "KimbiseoSoloBrain"
     private val main = Handler(Looper.getMainLooper())
     private val exec = Executors.newSingleThreadExecutor { r -> Thread(r, "solo-brain").apply { isDaemon = true } }
 
@@ -36,6 +38,7 @@ object SoloBrain {
         if (path == null) { main.post { onError("missing") }; return }
         exec.execute {
             try {
+                Log.i(TAG, "load start engine=${engine != null} conv=${conv != null} $lang")
                 if (engine == null) {
                     try { Engine.setNativeMinLogSeverity(LogSeverity.ERROR) } catch (_: Throwable) {}
                     val cfg = EngineConfig(
@@ -56,9 +59,11 @@ object SoloBrain {
                     gen++
                 }
                 loaded = true
+                Log.i(TAG, "load done conv=${conv != null} alive=${conv?.isAlive}")
                 main.post { onReady() }
             } catch (t: Throwable) {
                 loaded = false
+                Log.w(TAG, "load fail", t)
                 val msg = t.message ?: t.javaClass.simpleName
                 main.post { onError(msg) }
             }
@@ -66,11 +71,12 @@ object SoloBrain {
     }
 
     /** 새 대화(지난 대화를 모델 문맥에서 뺌). 화면 기록은 화면이 지운다. */
-    fun reset(lang: String, onReady: () -> Unit, onError: (String) -> Unit) {
+    fun reset(lang: String, history: List<Pair<String, String>>, onReady: () -> Unit, onError: (String) -> Unit) {
         exec.execute {
             try {
+                val e = engine ?: throw IllegalStateException("not loaded")
                 try { conv?.close() } catch (_: Throwable) {}
-                conv = engine?.createConversation(config(lang, emptyList()))
+                conv = e.createConversation(config(lang, history))
                 convLang = lang; gen++
                 main.post { onReady() }
             } catch (t: Throwable) {
@@ -81,14 +87,18 @@ object SoloBrain {
 
     /** 대답을 흘려 보낸다. onDelta 는 새로 나온 조각. 끝나면 onDone(전체). */
     fun send(text: String, onDelta: (String) -> Unit, onDone: (String) -> Unit, onError: (String) -> Unit) {
+        Log.i(TAG, "send() called busy=$busy gen=$gen")
         if (busy) { main.post { onError("busy") }; return }
         busy = true
         val my = ++gen
+        val prompt = text + "\n\n" + SoloLang.directive(SoloLang.detect(text))
         exec.execute {
+            Log.i(TAG, "send task gen=$my busy=$busy")
             val acc = StringBuilder()
             try {
                 val cv = conv ?: throw IllegalStateException("not loaded")
-                cv.sendMessageAsync(text, object : MessageCallback {
+                Log.i(TAG, "send start gen=$my alive=${cv.isAlive}")
+                cv.sendMessageAsync(prompt, object : MessageCallback {
                     override fun onMessage(message: Message) {
                         if (my != gen) return
                         val t = message.toString()
@@ -98,16 +108,19 @@ object SoloBrain {
                     }
                     override fun onDone() {
                         busy = false
+                        Log.i(TAG, "onDone gen=$my len=${acc.length}")
                         if (my != gen) return
                         val all = acc.toString()
                         main.post { if (my == gen) onDone(all) }
                     }
                     override fun onError(t: Throwable) {
                         busy = false
+                        Log.w(TAG, "onError gen=$my", t)
                         val m = t.message ?: t.javaClass.simpleName
                         main.post { if (my == gen) onError(m) }
                     }
                 })
+                Log.i(TAG, "send returned gen=$my")
             } catch (t: Throwable) {
                 busy = false
                 val m = t.message ?: t.javaClass.simpleName
@@ -124,10 +137,13 @@ object SoloBrain {
 
     /** 화면을 떠날 때 엔진을 닫아 메모리를 돌려준다. 다음에 다시 열면 모델을 다시 올린다(10초 안팎). */
     fun close() {
+        Log.i(TAG, "close() queued")
         exec.execute {
+            Log.i(TAG, "close() start")
             try { conv?.close() } catch (_: Throwable) {}
             try { engine?.close() } catch (_: Throwable) {}
             conv = null; engine = null; convLang = ""; loaded = false; busy = false; gen++
+            Log.i(TAG, "close() done")
         }
     }
 
@@ -153,9 +169,9 @@ object SoloPrompt {
     fun system(lang: String): String = when (lang) {
         "ko" -> """
             너는 '김비서'야. 이 폰 안에서만 돌아가는 작은 AI 비서야.
-            - 사용자가 말한 언어로 짧고 다정하게 2~3문장으로 답해.
-            - 아는 것만 말하고, 모르면 모른다고 해. PC 조작은 못 한다고 해.
-            - 길안내·전화·문자·앱 열기를 부탁하면 답의 맨 마지막 줄에 정확히 한 줄을 붙여.
+            - 사용자가 말한 언어로만, 짧고 다정하게 2~3문장으로 답해. 다른 언어를 섞지 마.
+            - 아는 것만 말하고, 모르면 모른다고 해. PC(컴퓨터) 조작은 못 하지만, 이 폰에서 길안내·전화 화면·문자 화면·앱 열기는 할 수 있어.
+            - 사용자가 길안내·전화·문자·앱 열기를 부탁하면 반드시 답의 맨 마지막 줄에 정확히 한 줄을 붙여. (예: "설정 앱을 열어 줘" → PHONE {"do":"open_app","app":"설정"})
               PHONE {"do":"navigate","destination":"목적지"}
               PHONE {"do":"dial","contact":"이름"}
               PHONE {"do":"sms","contact":"이름","message":"내용"}
@@ -164,9 +180,9 @@ object SoloPrompt {
         """.trimIndent()
         "ja" -> """
             あなたは「キム秘書」です。このスマートフォンの中だけで動く小さな AI 秘書です。
-            - ユーザーが使った言語で、短くやさしく 2〜3 文で答えてください。
-            - 知っていることだけを言い、わからなければわからないと言ってください。PC の操作はできません。
-            - 道案内・電話・メッセージ・アプリを開くことを頼まれたら、返事の最後の行に次の形を 1 行だけ付けてください。
+            - ユーザーが使った言語だけで、短くやさしく 2〜3 文で答えてください。ほかの言語を混ぜないでください。
+            - 知っていることだけを言い、わからなければわからないと言ってください。PC の操作はできませんが、このスマホで道案内・電話画面・メッセージ画面・アプリを開くことはできます。
+            - 道案内・電話・メッセージ・アプリを開くことを頼まれたら、必ず返事の最後の行に次の形を 1 行だけ付けてください。（例:「設定アプリを開いて」→ PHONE {"do":"open_app","app":"設定"}）
               PHONE {"do":"navigate","destination":"目的地"}
               PHONE {"do":"dial","contact":"名前"}
               PHONE {"do":"sms","contact":"名前","message":"内容"}
@@ -175,9 +191,9 @@ object SoloPrompt {
         """.trimIndent()
         "zh" -> """
             你是「金秘书」，一个只在这部手机里运行的小型 AI 助手。
-            - 用用户所说的语言，简短亲切地回答 2~3 句。
-            - 只说你确定的事，不知道就说不知道。你不能操作电脑。
-            - 当用户要求导航、打电话、发短信或打开应用时，在回答的最后一行准确加上一行：
+            - 只用用户所说的语言，简短亲切地回答 2~3 句。不要夹杂其他语言。
+            - 只说你确定的事，不知道就说不知道。你不能操作电脑，但可以在这部手机上导航、打开电话/短信界面、打开应用。
+            - 当用户要求导航、打电话、发短信或打开应用时，必须在回答的最后一行准确加上一行。（例如“打开设置”→ PHONE {"do":"open_app","app":"设置"}）
               PHONE {"do":"navigate","destination":"目的地"}
               PHONE {"do":"dial","contact":"姓名"}
               PHONE {"do":"sms","contact":"姓名","message":"内容"}
@@ -186,9 +202,9 @@ object SoloPrompt {
         """.trimIndent()
         else -> """
             You are Kim Biseo, a small assistant that runs entirely on this phone.
-            - Reply in the language the user used, in 2-3 short and friendly sentences.
-            - Say only what you know; say you do not know otherwise. You cannot control a PC.
-            - When the user asks for directions, a call, a text, or to open an app, end your reply with exactly one line:
+            - Reply only in the language the user used, in 2-3 short and friendly sentences. Do not mix languages.
+            - Say only what you know; say you do not know otherwise. You cannot control a PC, but on this phone you can navigate, open the call/text screen, and open apps.
+            - When the user asks for directions, a call, a text, or to open an app, you MUST end your reply with exactly one line. (Example: "Open Settings" -> PHONE {"do":"open_app","app":"Settings"})
               PHONE {"do":"navigate","destination":"place"}
               PHONE {"do":"dial","contact":"name"}
               PHONE {"do":"sms","contact":"name","message":"text"}
