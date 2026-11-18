@@ -63,8 +63,9 @@ function NamePractice(getName, onAliases, opts) {
 
 // 0단계에 보이는 '구독 두뇌' 한 줄
 function subText(st) {
-  if (!st) return "확인 못 함";
-  const one = (n, label) => { const x = st[n] || {}; return label + " " + (!x["있음"] ? "없음" : x["로그인"] === true ? "로그인됨" : "로그인 필요"); };
+  const T = (s) => (window.tr ? tr(s) : s);
+  if (!st) return T("확인 못 함");
+  const one = (n, label) => { const x = st[n] || {}; return T(label) + " " + T(!x["있음"] ? "없음" : x["로그인"] === true ? "로그인됨" : "로그인 필요"); };
   return one("claude", "클로드 코드") + " · " + one("codex", "Codex(GPT)");
 }
 
@@ -97,7 +98,7 @@ const Wizard = {
     const card = h("section", {class: "card", id: "wz-card", "data-step": String(this.i)});
     const bar = h("div", {class: "steps", "aria-hidden": "true"});
     this.steps.forEach((_, k) => bar.appendChild(h("span", {class: k < this.i ? "done" : k === this.i ? "now" : ""})));
-    card.append(bar, h("p", {class: "step-no", text: `${this.i + 1} / ${this.steps.length} · ${this.steps[this.i]}`}));
+    card.append(bar, h("p", {class: "step-no", text: (window.tr ? tr("{0} / {1} · {2}", {0: this.i + 1, 1: this.steps.length, 2: tr(this.steps[this.i])}) : `${this.i + 1} / ${this.steps.length} · ${this.steps[this.i]}`)}));
     const body = h("div", {id: "wz-body"});
     card.appendChild(body);
     const prev = h("button", {class: "btn", type: "button", id: "wz-prev", text: "이전", disabled: this.i === 0, onclick: () => this.go(-1)});
@@ -142,7 +143,8 @@ const Wizard = {
         h("dt", {text: "메모리"}), h("dd", {text: s["메모리_GB"] ? s["메모리_GB"] + "GB" : "알 수 없음"}),
         h("dt", {text: "남은 디스크"}), h("dd", {text: s["디스크_여유_GB"] ? s["디스크_여유_GB"] + "GB" : "알 수 없음"}),
         h("dt", {text: "구독 두뇌"}), h("dd", {text: subText(s["구독"])})),
-      notice("ok", "추천 구성: " + (rec["구성"] || ""), (rec["안내"] || []).join(" ")));
+      notice("ok", (window.tr ? tr("추천 구성: {0}", {0: tr(rec["구성"] || "")}) : "추천 구성: " + (rec["구성"] || "")),
+        (rec["안내"] || []).map((x) => (window.tr ? tr(x) : x)).join(" ")));
       if (!this.recApplied) {
         const st = rec["설정"] || {};
         if (st["목소리.엔진"]) this.d.목소리.엔진 = st["목소리.엔진"];

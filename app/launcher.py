@@ -271,6 +271,9 @@ class Launcher:
             if not exe or not os.path.isfile(exe) or not os.path.isfile(os.path.join(folder, "main.js")):
                 return None, None, None, "펫 프로그램이 설치되지 않았어요"
             cmd = [exe, folder, "--profile=" + os.path.join(self.data, "pet")]
+            lang = str(self.cfg.get("언어") or "ko")[:2]   # 펫 메뉴·알림 글 언어(0.1.18~)
+            if lang in ("en", "ja", "zh"):
+                cmd.append("--lang=" + lang)
             if pc.get("옷_받기") is True:
                 cmd.append("--auto-pack")
             want = str(pc.get("옷") or "").strip()

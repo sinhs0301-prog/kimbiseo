@@ -285,8 +285,8 @@ const Settings = {
         s4.appendChild(h("div", {class: "slider" + (off ? " off" : ""), "data-key": key},
           h("div", {class: "slider-head"}, h("label", {for: range.id, text: r["이름"]}), out),
           range,
-          h("div", {class: "slider-ends"}, h("span", {text: fmt(r, r.min)}), h("span", {text: "기본 " + fmt(r, r["기본"])}), h("span", {text: fmt(r, r.max)})),
-          h("p", {class: "hint", text: r["설명"] + (off ? " (지금 고른 윈도우 기본 음성에는 쓰이지 않아요.)" : "")})));
+          h("div", {class: "slider-ends"}, h("span", {text: fmt(r, r.min)}), h("span", {text: window.tr ? tr("기본 {0}", {0: fmt(r, r["기본"])}) : "기본 " + fmt(r, r["기본"])}), h("span", {text: fmt(r, r.max)})),
+          h("p", {class: "hint", text: (window.tr ? tr(r["설명"]) : r["설명"]) + (off ? (window.tr ? " " + tr("(지금 고른 윈도우 기본 음성에는 쓰이지 않아요.)") : " (지금 고른 윈도우 기본 음성에는 쓰이지 않아요.)") : "")})));
       });
       const st2 = h("p", {class: "hint", id: "set-vd-status"});
       const collect = () => { const o = {}; rows.forEach((r) => { o[r.key] = vals[r.key]; }); return {목소리: o}; };
@@ -414,7 +414,8 @@ const Settings = {
     card.appendChild(s);
     const out = h("div", {id: "set-update-result"});
     const last = Update.v && Update.v["마지막_확인"];
-    s.append(h("p", {class: "hint", text: "새 판이 나오면 김비서를 켤 때(하루 한 번) 알려 드려요. 대화 기억·설정·펫 옷·모델은 그대로 두고 프로그램만 바꿔요." + (last ? ` 마지막 확인: ${last}` : "")}),
+    s.append(h("p", {class: "hint", text: (window.tr ? tr("새 판이 나오면 김비서를 켤 때(하루 한 번) 알려 드려요. 대화 기억·설정·펫 옷·모델은 그대로 두고 프로그램만 바꿔요.") : "새 판이 나오면 김비서를 켤 때(하루 한 번) 알려 드려요. 대화 기억·설정·펫 옷·모델은 그대로 두고 프로그램만 바꿔요.")
+      + (last ? (window.tr ? " " + tr("마지막 확인: {0}", {0: last}) : ` 마지막 확인: ${last}`) : "")}),
       h("div", {class: "row"}, h("button", {class: "btn", type: "button", id: "set-update-check", text: "업데이트 확인", onclick: () => Update.check(out)})), out);
     if (!Update.v) Update.load().then(() => { const e = document.getElementById("set-version"); if (e && Update.v) e.textContent = Update.v["지금_판"]; });
   },

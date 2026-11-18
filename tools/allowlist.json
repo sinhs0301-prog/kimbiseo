@@ -748,7 +748,7 @@
       "path": "app/i18n/en.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "7d887b679493fb9efcae4810ed89ce6175f482c6ca75637d83818a36212a98fc",
+      "sha256": "31558953dbe6f50d3e4f3d96c6094f4a4a0314b6c4c85dc285750f9ffec9b4d3",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -772,7 +772,7 @@
       "path": "app/i18n/ja.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "75ca2fa14ca44ff470580518faf02a0379ee8f2fe2532bfde4825cb16259f0b9",
+      "sha256": "292cbf842e5a8e4246d1b771b81c280b5aa5f0b547758b3b8be36fa4b3952745",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -796,7 +796,7 @@
       "path": "app/i18n/zh.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "c8305acc4330f353b2026a9e0b3b678cb3712886454743f67057ca26568cd904",
+      "sha256": "2566f09511848bde26d15ed6da5a1712fd3971b6ae376902c8b97f91fc115c01",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -820,7 +820,7 @@
       "path": "app/launcher.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "95bee89f00c90ddb1e47f1fed10e2ac513e28ac21f782ca6a75087307c763aec",
+      "sha256": "704bc60ed590f32d1a6bf25021db40eca594157d846e931ca7ab779d1aedadbf",
       "note": "실행기(두뇌·귀·목소리·본체·펫 켜고 끄기, 자기 PID 만) — 7단계"
     },
     {
@@ -985,7 +985,7 @@
       "path": "app/ui/i18n.js",
       "origin": "new",
       "treatment": "new",
-      "sha256": "07dd02061d577b137a6bcebf69fbf11635a0606f690ca1baeadcb86245d53c20",
+      "sha256": "5d5e046c08252f4d989c9ad49aa6517163e5750ca680435fc3c8917a4c401aa9",
       "note": "0.1.18 다국어"
     },
     {
@@ -1018,13 +1018,13 @@
       "path": "app/ui/phone.js",
       "origin": "new",
       "treatment": "new",
-      "sha256": "53e7c3e45b559a5914d42bf53a6245937bccf85e7eed49aa8437ec96f872888f"
+      "sha256": "937d4ea971b17af8f8dc58be1d581ee215f117ae8fb67569fe0adbc17a990960"
     },
     {
       "path": "app/ui/settings.js",
       "origin": "new",
       "treatment": "new",
-      "sha256": "e8ae67cebc7810f59824e9afb8f1333b2cc47cc13559981ea804604106099296",
+      "sha256": "34c369f7beb22a393c0a193b046592f9f4aae490e0f873d010eaf6ff1397ce50",
       "note": "화면(처음 화면·대화·기억·설정) — 5단계"
     },
     {
@@ -1052,14 +1052,14 @@
       "path": "app/ui/wizard.js",
       "origin": "new",
       "treatment": "new",
-      "sha256": "cc78b1fd7bad04aa24c35a214ea7e78f67e852b7b270ff4f78e7308d64b91bc6",
+      "sha256": "bd0721ab57e283a0517e924dada57f806304b716b39785fe64318d5a88fac961",
       "note": "처음 화면(펫 옷 받기 묻기 포함) — 7단계"
     },
     {
       "path": "app/version.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "83ae0185ee4cc04feda35f705eb6491e27e71372f59de6ecdc8fb48b536d9774",
+      "sha256": "f92aaa7c79466f47b078fd617875d3e500128c4626d704312798b1f0f948f0c7",
       "note": "판 번호 한 곳 — 9단계"
     },
     {
@@ -1160,7 +1160,7 @@
       "path": "installer/install.ps1",
       "origin": "new",
       "treatment": "new",
-      "sha256": "d96f677b7f533587690de478adf6405455e35ab69bcf91829b48a084399ec7bc",
+      "sha256": "de9f135c4f18c791db4c1286a0125af06a91204ff327fece6260fcfc86142012",
       "note": "설치 창(설치 단추 하나·다시 하기·창 없이 일꾼 띄움) — 7단계"
     },
     {
@@ -1356,7 +1356,7 @@
       "path": "installer/setup_core.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "4a3d8316aa64393ca9b049099e0dc98b72a572d19d16365f469dd1de810f5135",
+      "sha256": "f025ad19ce2acfae0e5224a1559b42f44c8bbdead3c41a0bad6996a3da830688",
       "note": "설치 본체(부품·두뇌·모델·펫·아이콘·설정, 있으면 건너뜀) — 7단계"
     },
     {
@@ -1377,7 +1377,7 @@
       "path": "installer/worker.ps1",
       "origin": "new",
       "treatment": "new",
-      "sha256": "0cee44b94d036dd4b0c603499d16ae1ab42047c8b2db7ef1ab059aa4b6f494e4",
+      "sha256": "4349862da7a927f65f4cbc94340fd3b24a5a7c116228ef734afdaf6da6dc5671",
       "note": "설치 일꾼(공식 파이썬 판 고정·sha256·md5 → setup_core) — 7단계"
     },
     {
@@ -1403,7 +1403,7 @@
       "path": "pet/main.js",
       "origin": "derived:운영판 펫 부품을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "1ba8348e6d0bd9206274f5f17c87a82b8eabcede66167599713c8138f19433cc",
+      "sha256": "81b6c77fd13e2be7b15d5bc67fd261ca0228215706ceb9506b5ed26029a758d0",
       "note": "공개 펫 본체(옷 꾸러미만·17961·옷 받기·자동 옷 받기·자세별 동작·춤 노래 순서) — 7단계"
     },
     {
@@ -1466,7 +1466,7 @@
       "path": "pet/renderer/menu.js",
       "origin": "derived:운영판 펫 부품을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "fe3e58f064850252ceeb5e90252e44dfddb6e2b38c001e369188e2fc526cac6f",
+      "sha256": "13adeb0307609aaa3d89a9c00200c8c5c6bc797f3536c1ff8c805faf3a56eb91",
       "note": "메뉴 동작 — 6단계"
     },
     {
@@ -1639,7 +1639,7 @@
       "path": "tests/unit/test_i18n.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "39bec94dc1019b767bf5e092f6afa7dc7c860bd42986032bd459c146c818a310",
+      "sha256": "e5d53f01f83d9fa0923ed92149499fe0f1f4ba1f1ac6356c2c50f331178fb123",
       "note": "0.1.18 다국어"
     },
     {
@@ -1881,7 +1881,7 @@
       "path": "tools/i18n_scan.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "a8be53b9801e557ed0eea04f8c01570bd683afa311ec8424800157dde105f4fe",
+      "sha256": "2d1a4781cedee8d166945586127fd0b12f69adac7317f3db89a101189b9ee0e5",
       "note": "0.1.18 다국어"
     },
     {

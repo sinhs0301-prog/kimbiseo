@@ -289,6 +289,27 @@ def test_screen_dictionaries_cover_scan():
         assert d["설정"] == {"en": "Settings", "ja": "設定", "zh": "设置"}[code]
 
 
+def test_installer_language():
+    """설치기(installer/setup_core.py)도 같은 사전 — 영어로 고르면 단계 이름·진행 글이 영어가 되고, 조각을 이어 붙여도 한글이 남지 않는다."""
+    import re
+    sys.path.insert(0, os.path.join(ROOT, "installer"))
+    try:
+        import setup_core as SC
+    finally:
+        sys.path.pop(0)
+    old = SC.LANG
+    try:
+        assert SC.set_lang("en") == "en"
+        assert not re.search(r"[가-힣]", SC.L(dict(SC.STEPS)["python"]))
+        assert SC.L("프로그램 파일을 설치 폴더에 복사해요.") == "Copying program files to the install folder."
+        label = SC.T("{0} 부품 {1}/{2} {3}", SC.L("본체"), 51, 81, "packaging")
+        assert label == "Main app component 51/81 packaging", label
+        assert not re.search(r"[가-힣]", SC.T("{0} 확인 중(원본과 같은지)", label))
+        assert SC.L(SC.took(75)) == "1 min 15 sec"
+    finally:
+        SC.set_lang(old)
+
+
 def main():
     fails = 0
     for k, f in list(globals().items()):

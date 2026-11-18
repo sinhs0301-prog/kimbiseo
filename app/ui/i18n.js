@@ -126,4 +126,6 @@ const I18N = (() => {
   const NAMES = {ko: "한국어", en: "English", ja: "日本語", zh: "中文"};
   return {load, t, lookup, apply, start, get lang() { return lang; }, NAMES};
 })();
+window.I18N = I18N;     // /api/i18n.js 가 window.I18N&&I18N.load(...) 로 부르므로(window 속성에도 올려 둠 — const 는 window 에 안 붙음)
 const tr = I18N.t;
+window.tr = tr;          // 화면 코드에서 window.tr 로도 부를 수 있게

@@ -46,8 +46,46 @@ import zipfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC_ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
+sys.path.insert(0, SRC_ROOT)      # 이 꾸러미의 app(사전 포함)을 먼저 보게(설치된 옛 src 를 보지 않게)
 import get_models as GM  # noqa: E402
 import plan as PLAN  # noqa: E402
+
+# 설치 화면 언어(0.1.18~) — 사전은 app/i18n/<언어>.json(본체와 같은 파일). 한국어면 그대로.
+try:
+    from app.core import i18n as I18N  # noqa: E402
+except Exception:  # noqa: BLE001  (사전 파일이 없는 옛 꾸러미에서도 설치는 되게)
+    I18N = None
+LANG = "ko"
+
+
+def set_lang(code):
+    global LANG
+    LANG = (I18N.norm(code) if I18N else "ko") or "ko"
+    if I18N:
+        I18N.set_lang(LANG)
+    return LANG
+
+
+def L(text):
+    """사용자에게 보이는 한국어 글 → 고른 언어 글(사전·틀 대조). 없으면 한국어 그대로."""
+    s = str(text)
+    if LANG == "ko" or not I18N:
+        return s
+    try:
+        return I18N.lookup(s, LANG)
+    except Exception:  # noqa: BLE001
+        return s
+
+
+def T(text, *a):
+    """사전 열쇠(한국어 틀)를 고른 언어로 바꾸고 {0}·{1} 자리를 채운다 — 조각을 이어 붙이는 진행 글용."""
+    s = L(text)
+    if a:
+        try:
+            s = s.format(*a)
+        except (IndexError, KeyError, ValueError):
+            pass
+    return s
 
 def _read_version():
     import re
@@ -92,6 +130,8 @@ class Status:
             pass
         if not isinstance(self.d, dict) or [s.get("id") for s in self.d.get("단계", [])] != [s[0] for s in STEPS]:
             self.d = {"단계": [{"id": i, "이름": n, "상태": "기다림", "글": ""} for i, n in STEPS]}
+        for _s in self.d.get("단계") or []:          # 단계 이름은 고른 언어로(상태 값 '기다림'·'됨'은 설치 창이 쓰는 열쇠라 그대로)
+            _s["이름"] = L(dict(STEPS).get(_s.get("id"), _s.get("이름") or ""))
         self.d.update({"끝": False, "성공": False, "오류": None, "지금": "", "글": "", "진행": 0, "전체": 0, "주의": []})
         self.cur = None
         self._last = 0
@@ -154,7 +194,7 @@ class Status:
 
     def end(self, sid, state="됨", text=""):
         st = self.step(sid)
-        st["상태"], st["글"] = state, text
+        st["상태"], st["글"] = state, L(text)
         self.d["진행"] = 100
         self.touch()
         self.log(f"---- {st['이름']}: {state} {text}")
@@ -164,13 +204,13 @@ class Status:
         """alive=False = 글만 고침(지난 시간 표시처럼 진전이 아닌 것) — '조용_초'를 되돌리지 않음."""
         self.d["진행"] = max(0, min(100, round(frac * 100, 1)))
         if text:
-            self.d["글"] = text
+            self.d["글"] = L(text)
         if alive:
             self.touch()
         self.write()
 
     def say(self, text):
-        self.d["글"] = text
+        self.d["글"] = L(text)
         self.touch()
         self.log("  " + text)
         self.write()
@@ -213,10 +253,10 @@ def took(sec):
     """지난 시간 글: 45초 · 3분 20초 · 1시간 5분."""
     sec = int(sec)
     if sec < 60:
-        return f"{sec}초"
+        return T('{0}초', sec)
     if sec < 3600:
-        return f"{sec // 60}분 {sec % 60}초"
-    return f"{sec // 3600}시간 {sec % 3600 // 60}분"
+        return T('{0}분 {1}초', sec // 60, sec % 60)
+    return T('{0}시간 {1}분', sec // 3600, sec % 3600 // 60)
 
 
 # 받기 실패 까닭 한 줄(설치 창의 '까닭:' 줄) — 받기 원인은 get_models.WHY, 그 밖은 여기
@@ -319,8 +359,12 @@ class Fetcher:
         def prog(done, total, rate):
             t = total or size or 0
             f = (done / t) if t else 0
-            left = f" · 남은 시간 약 {eta(t - done, rate)}" if rate and t and t > done else ""
-            self.st.progress(a + (b - a) * f, f"{name} 받는 중 {human(done)} / {human(t)}" + (f" · {human(rate)}/초" if rate else "") + left)
+            msg = T('{0} 받는 중 {1} / {2}', L(name), human(done), human(t))
+            if rate:
+                msg += " " + T('· {0}/초', human(rate))
+            if rate and t and t > done:
+                msg += " " + T('· 남은 시간 약 {0}', eta(t - done, rate))
+            self.st.progress(a + (b - a) * f, msg)
         for round_ in (1, 2):
             try:
                 GM.download(url, dest, size, say=lambda m: self.st.log(m), progress=prog, hosts=self.hosts, native=True)
@@ -329,7 +373,7 @@ class Fetcher:
             except RuntimeError as ex:
                 raise Fail(f"{name} 을(를) 받지 못했어요. 인터넷 연결에 문제가 있어요.", str(ex),
                            원인="net", **info) from None
-            self.st.progress(b, f"{name} 확인 중(원본과 같은지)")
+            self.st.progress(b, T('{0} 확인 중(원본과 같은지)', L(name)))
             got = sha256_of(dest)
             if got == sha256:
                 return dest
@@ -369,7 +413,7 @@ class Fetcher:
         if size and n != size:
             raise Fail(f"고른 파일이 {name} 이(가) 아니에요(크기가 달라요 — {human(n)}, 받아야 할 파일은 {human(size)}). "
                        "받다가 끊긴 파일일 수 있으니 다시 받아 주세요.", f"{src} size {n} ≠ {size}", 원인="hash")
-        self.st.progress(0.2, f"{name}: 고른 파일을 확인하는 중")
+        self.st.progress(0.2, T('{0}: 고른 파일을 확인하는 중', L(name)))
         got = sha256_of(src)
         if got != sha256:
             raise Fail(f"고른 파일이 {name} 원본과 달라요. '직접 넣기'의 ①로 다시 받아 주세요.", f"{src} sha256 {got} ≠ {sha256}", 원인="hash")
@@ -383,10 +427,10 @@ class Fetcher:
 def eta(left_bytes, rate):
     sec = left_bytes / max(1.0, rate)
     if sec < 90:
-        return f"{max(1, int(sec))}초"
+        return T('{0}초', max(1, int(sec)))
     if sec < 5400:
-        return f"{int(round(sec / 60))}분"
-    return f"{sec / 3600:.1f}시간"
+        return T('{0}분', int(round(sec / 60)))
+    return T('{0}시간', f"{sec / 3600:.1f}")
 
 
 def extract_zip(zpath, dest, strip_single_root=False):
@@ -539,19 +583,22 @@ class Installer:
                                                      "llama", "모델", "필요_디스크_GB", "구독", "두뇌_제안")}, ensure_ascii=False))
         for line in p.get("판별") or []:
             self.st.log("판별:", line)
-        self.st.d["구성"] = {"이름": p["구성"], "그래픽카드": (g or {}).get("이름") or "엔비디아 그래픽카드 없음",
+        self.st.d["구성"] = {"이름": L(p["구성"]), "그래픽카드": (g or {}).get("이름") or L("엔비디아 그래픽카드 없음"),
                            "그래픽_GB": round((g or {}).get("전체_MiB", 0) / 1024, 1), "램_GB": p["램_GB"], "디스크_여유_GB": p["디스크_여유_GB"],
-                           "필요_GB": p["필요_디스크_GB"], "안내": p["안내"], "경고": p["경고"], "모델": p["모델"],
+                           "필요_GB": p["필요_디스크_GB"], "안내": [L(x) for x in p["안내"]], "경고": [L(x) for x in p["경고"]], "모델": p["모델"],
                            "두뇌": {"claude_cli": "클로드 코드(구독)", "codex_cli": "GPT·Codex(구독)"}.get(p.get("두뇌_제안") or "")
                            or (f"이 PC(Gemma · {p['llama']})" if p["llama"] else "바깥 AI"), "판별": p.get("판별") or []}
+        self.st.d["구성"]["두뇌"] = L(self.st.d["구성"]["두뇌"])
         if p.get("디스크_모자람"):
             raise Fail(f"디스크 공간이 모자라요. 약 {p['필요_디스크_GB']}GB 가 필요한데 {p['디스크_여유_GB']}GB 남았어요. "
                        "공간을 비우거나 다른 드라이브에 설치해 주세요.")
         self.state["plan"] = {k: p[k] for k in ("구성", "torch", "llama", "모델", "설정", "판", "목소리_gguf")}
         self.state["edition"] = p["판"]
-        self.st.d["구성"]["판"] = "라데온 판" if p["판"] == "radeon" else "엔비디아 판"
-        return (("라데온 판 · " if p["판"] == "radeon" else "") + p["구성"] + (" · 두뇌 = " + self.st.d["구성"]["두뇌"])
-                + (" · 목소리 = 김비서 목소리(GGUF)" if p.get("목소리_gguf") else ""))
+        self.st.d["구성"]["판"] = L("라데온 판" if p["판"] == "radeon" else "엔비디아 판")
+        bits = [(" · " + L("라데온 판")) if p["판"] == "radeon" else "", L(p["구성"]),
+                " " + T('· 두뇌 = {0}', self.st.d["구성"]["두뇌"]),
+                (" " + L("· 목소리 = 김비서 목소리(GGUF)")) if p.get("목소리_gguf") else ""]
+        return "".join(bits)
 
     # ---- 2. 프로그램 파일
     def do_files(self):
@@ -630,8 +677,11 @@ class Installer:
                 gap = max(3.0, min(20.0, (time.time() - t) * 4))     # 크기 재기가 느린 PC(백신 검사)에서는 덜 자주
                 el = time.time() - watch["t0"]
                 f = min(0.97, cur / expect) if expect else 0.5
-                self.st.progress(a + (b - a) * max(0.3, f), f"{label}: 디스크에 푸는 중 {human(cur)}" + (f" / 약 {human(expect)}" if expect else "")
-                                 + f" · {took(el)}째 — 큰 부품은 몇 분 걸려요(멈춘 것이 아니에요)", alive=cur != prev)
+                msg = T('{0}: 디스크에 푸는 중 {1}', L(label), human(cur))
+                if expect:
+                    msg += T(' / 약 {0}', human(expect))
+                msg += " " + T('· {0}째 — 큰 부품은 몇 분 걸려요(멈춘 것이 아니에요)', took(el))
+                self.st.progress(a + (b - a) * max(0.3, f), msg, alive=cur != prev)
                 prev = cur
                 if time.time() - watch["log_t"] >= 60:          # 기록에도 1분마다 한 줄(어디서 오래 걸렸는지 나중에 알 수 있게)
                     watch["log_t"] = time.time()
@@ -649,7 +699,7 @@ class Installer:
                 if line.startswith(("Processing ", "Building wheel", "Installing collected")):
                     seen += 1
                     nm = line.split()[1] if line.startswith("Processing") else ("부품을 디스크에 설치하는 중" if line.startswith("Installing") else line)
-                    self.st.progress(a + (b - a) * min(0.3, 0.3 * seen / max(1, count + 2)), f"{label}: {os.path.basename(nm)[:60]}")
+                    self.st.progress(a + (b - a) * min(0.3, 0.3 * seen / max(1, count + 2)), T('{0}: {1}', L(label), os.path.basename(nm)[:60]))
             rc = p.wait()
         finally:
             watch["on"] = False
@@ -675,15 +725,15 @@ class Installer:
             except subprocess.TimeoutExpired:
                 el = time.time() - t0
                 # 10분까지는 '하는 중'으로 침. 그보다 길면 진전 없음으로 두어 설치 창이 알려 주게 함(끊지는 않고 계속 기다림)
-                self.st.progress(self.st.d.get("진행", 0) / 100, f"{text} · {took(el)}째(처음에는 1~2분 걸려요)", alive=el < 600)
+                self.st.progress(self.st.d.get("진행", 0) / 100, T('{0} · {1}째(처음에는 1~2분 걸려요)', L(text), took(el)), alive=el < 600)
         return p.returncode, (err or b"").decode("utf-8", "replace")
 
     def env_ready(self, name, py, lock_path, probe):
         mark = os.path.join(os.path.dirname(py), f"kimbiseo_{name}_lock.txt")
         want = sha256_of(lock_path)
         if os.path.isfile(mark) and open(mark, encoding="utf-8").read().strip() == want:
-            self.st.say(f"이미 깔린 {name} 부품을 확인하는 중이에요.")
-            rc, err = self.try_import(py, probe, f"이미 깔린 {name} 부품을 확인하는 중")
+            self.st.say(T('이미 깔린 {0} 부품을 확인하는 중이에요.', L(name)))
+            rc, err = self.try_import(py, probe, T('이미 깔린 {0} 부품을 확인하는 중', L(name)))
             if rc == 0:
                 return True, mark, want
             self.st.log(f"  {name}: 기록은 있는데 불러오기 시험 실패 → 다시 설치", err[-300:])
@@ -697,7 +747,7 @@ class Installer:
             with open(lock_path, encoding="utf-8") as f:
                 pk = json.load(f)["packages"]
             for i, x in enumerate(pk):
-                self.fetch.get(x["url"], x["file"], x["sha256"], None, f"{name} 부품 {x['name']}=={x['version']}",
+                self.fetch.get(x["url"], x["file"], x["sha256"], None, T('{0} 부품 {1}', L(name), f"{x['name']}=={x['version']}"),
                                (a + (b - a) * i / len(pk), a + (b - a) * (i + 1) / len(pk)))
             if any(x["sdist"] for x in pk):
                 s_ = self.rt["setuptools"]
@@ -705,8 +755,8 @@ class Installer:
             return f"[시험] {len(pk)}개 주소 확인"
         ok, mark, want = self.env_ready(name, py, lock_path, probe)
         if ok:
-            self.st.progress(b, f"{name}: 이미 설치됨")
-            return "있음"
+            self.st.progress(b, T('{0}: 이미 설치됨', L(name)))
+            return "이미 설치됨"
         with open(lock_path, encoding="utf-8") as f:
             lock = json.load(f)
         pk = lock["packages"]
@@ -714,11 +764,11 @@ class Installer:
         mid = a + (b - a) * 0.6
         for i, x in enumerate(pk):
             self.fetch.get(x["url"], os.path.join(self.wheels, x["file"]), x["sha256"], None,
-                           f"{name} 부품 {i + 1}/{len(pk)} {x['name']}", (a + (mid - a) * i / len(pk), a + (mid - a) * (i + 1) / len(pk)))
+                           T('{0} 부품 {1}/{2} {3}', L(name), i + 1, len(pk), x['name']), (a + (mid - a) * i / len(pk), a + (mid - a) * (i + 1) / len(pk)))
         if any(x["sdist"] for x in pk):   # 소스판만 있는 작은 꾸러미 → setuptools 먼저(빌드 격리 없이 만듦)
             s = self.rt["setuptools"]
             w = self.fetch.get(s["url"], os.path.join(self.wheels, os.path.basename(s["url"])), s["sha256"], s["size"], "setuptools")
-            self.pip(py, ["install", "--no-index", "--no-deps", w], f"{name} 준비(setuptools)")
+            self.pip(py, ["install", "--no-index", "--no-deps", w], T('{0} 준비(setuptools)', L(name)))
         req = os.path.join(self.path("install"), f"req_{name}.txt")
         with open(req, "w", encoding="utf-8") as f:
             for x in pk:
@@ -727,9 +777,9 @@ class Installer:
         got = sum(os.path.getsize(f) for f in have)
         self.st.say(f"{name} 부품 {len(pk)}개를 다 받았어요({human(got)}). 이제 디스크에 풀어요 — 큰 부품이 있으면 몇 분 걸려요.")
         self.pip(py, ["install", "--no-index", "--find-links", self.wheels, "--no-deps", "--require-hashes", "--no-build-isolation",
-                      "-r", req], f"{name} 부품 설치", (mid, b), len(pk), expect=unpacked_size(have))
-        self.st.say(f"{name} 부품이 잘 깔렸는지 불러와 보는 중이에요(처음에는 1~2분 걸릴 수 있어요).")
-        rc, err = self.try_import(py, probe, f"{name} 부품이 잘 깔렸는지 불러와 보는 중")
+                      "-r", req], T('{0} 부품 설치', L(name)), (mid, b), len(pk), expect=unpacked_size(have))
+        self.st.say(T('{0} 부품이 잘 깔렸는지 불러와 보는 중이에요(처음에는 1~2분 걸릴 수 있어요).', L(name)))
+        rc, err = self.try_import(py, probe, T('{0} 부품이 잘 깔렸는지 불러와 보는 중', L(name)))
         if rc != 0:
             raise Fail(f"{name} 부품을 설치했지만 불러오지 못했어요. 백신이 파일을 지웠거나 막았을 수 있어요 — 백신 알림을 확인하고 '다시 하기'를 눌러 주세요.", err[-400:])
         with open(mark, "w", encoding="utf-8") as f:
@@ -747,8 +797,8 @@ class Installer:
         r2 = self.install_env("음성", self.path("runtime", "python-voice"), voice_lock, probe, (0.3, 0.9 if gg else 1.0))
         r3 = ""
         if gg:
-            r3 = " · 목소리 실행 파일 " + self.install_tts_runtime((0.9, 1.0))
-        return "됨", f"본체 {r1} · 음성 {r2}({'엔비디아' if p['torch'] == 'cu128' else 'CPU'} 판){r3}"
+            r3 = " " + T('· 목소리 실행 파일 {0}', L(self.install_tts_runtime((0.9, 1.0))))
+        return "됨", T('본체 {0} · 음성 {1}({2} 판){3}', L(r1), L(r2), T('엔비디아') if p['torch'] == 'cu128' else "CPU", r3)
 
     def install_tts_runtime(self, frac=(0.0, 1.0)):
         """라데온 판 목소리용 llama.cpp(b10621 불칸 — CPU 백엔드도 들어 있음)를 runtime/llama-tts 에. 두뇌(runtime/llama)와 따로."""
@@ -785,7 +835,7 @@ class Installer:
         v = self.state["plan"]["llama"]
         dest = self.path("runtime", "llama")
         if not v:   # 있던 두뇌 프로그램은 지우지 않음(설정에서 Gemma 로 돌아갈 수 있게 — 지우기는 'Gemma 삭제')
-            return "건너뜀", "두뇌 = 구독·바깥 AI(Gemma 안 받음)" + (" · 있던 두뇌 프로그램은 그대로" if os.path.isdir(dest) else "")
+            return "건너뜀", T('두뇌 = 구독·바깥 AI(Gemma 안 받음)') + ((" " + T('· 있던 두뇌 프로그램은 그대로')) if os.path.isdir(dest) else "")
         ll = self.rt["llama_cpp"]
         mark = os.path.join(dest, "kimbiseo_llama.txt")
         tag = f"{ll['version']} {v}"
@@ -829,9 +879,11 @@ class Installer:
             m = mf[n]
 
             def prog(done, tot, rate, what, _b=base, _n=n):
-                self.st.progress((_b + done) / total, f"{_n} {'받는 중' if what == '받기' else '확인 중'} {human(done)} / {human(tot)}"
-                                 + (f" · {human(rate)}/초" if rate else ""))
-            self.st.say(f"{n} ({human(m['size_total'])}) — {m['role']}")
+                msg = T('{0} {1} {2} / {3}', L(_n), T('받는 중' if what == '받기' else '확인 중'), human(done), human(tot))
+                if rate:
+                    msg += " " + T('· {0}/초', human(rate))
+                self.st.progress((_b + done) / total, msg)
+            self.st.say(T('{0} ({1}) — {2}', n, human(m['size_total']), L(m['role'])))
             ok, failed, got = GM.ensure_model(m, root, say=lambda x: self.st.log(x), progress=prog)
             got_all += got
             if not ok:
@@ -897,6 +949,8 @@ class Installer:
             cur = {}
         plan = self.state["plan"]
         first = not (cur.get("처음설정") or {}).get("끝")
+        if first or not cur.get("언어"):      # 설치 창에서 고른 언어 — 0.1.17 까지 쓰던 사람(언어 없음)은 고른 언어로
+            cur["언어"] = LANG
         for k, v in plan["설정"].items():          # 사양 추천은 처음 설치(처음 화면 전)이고 사용자가 정하지 않은 것만
             sec, key = k.split(".", 1)
             if sec == "실행":
@@ -955,11 +1009,11 @@ class Installer:
         links = []
         if not self.a.no_shortcuts:
             desk = self.a.desktop_dir or self.known_dir(0x10)            # CSIDL_DESKTOPDIRECTORY
-            menu = self.a.startmenu_dir or os.path.join(self.known_dir(0x02), "김비서")   # CSIDL_PROGRAMS
+            menu = self.a.startmenu_dir or os.path.join(self.known_dir(0x02), self.a.display_name)   # CSIDL_PROGRAMS
             name = self.a.display_name
-            for lnk, tgt, args, desc in [(os.path.join(desk, f"{name}.lnk"), pyw, launch_args, "김비서 켜기"),
-                                         (os.path.join(menu, f"{name}.lnk"), pyw, launch_args, "김비서 켜기"),
-                                         (os.path.join(menu, f"{name} 제거.lnk"), "powershell.exe", un_args, "김비서 지우기")]:
+            for lnk, tgt, args, desc in [(os.path.join(desk, f"{name}.lnk"), pyw, launch_args, L("김비서 켜기")),
+                                         (os.path.join(menu, f"{name}.lnk"), pyw, launch_args, L("김비서 켜기")),
+                                         (os.path.join(menu, f"{name} 제거.lnk"), "powershell.exe", un_args, L("김비서 지우기"))]:
                 self.make_shortcut(lnk, tgt, args, self.path("src"), icon, desc)
                 links.append(lnk)
             self.state["menu_dir"] = menu
@@ -985,7 +1039,7 @@ class Installer:
                 except OSError:
                     pass
         with winreg.CreateKey(winreg.HKEY_CURRENT_USER, key) as k:
-            for n, v in [("DisplayName", self.a.display_name), ("DisplayVersion", VERSION), ("Publisher", "김비서 프로젝트"),
+            for n, v in [("DisplayName", self.a.display_name), ("DisplayVersion", VERSION), ("Publisher", L("김비서 프로젝트")),
                          ("InstallLocation", self.P), ("DisplayIcon", icon.rsplit(",", 1)[0]),
                          ("UninstallString", f"powershell.exe {un_args}"), ("QuietUninstallString", f"powershell.exe {un_args} -Quiet"),
                          ("InstallDate", datetime.date.today().strftime("%Y%m%d"))]:
@@ -1022,7 +1076,7 @@ class Installer:
         self.state["skipped"] = sorted(self.skipped)
         self.save_state()
         done_text = "설치가 끝났어요." if not self.skipped else "설치가 끝났어요(펫은 아직 — 김비서는 지금 쓸 수 있어요)."
-        self.st.d.update({"끝": True, "성공": True, "지금": "", "글": done_text, "설정": self.settings_file(),
+        self.st.d.update({"끝": True, "성공": True, "지금": "", "글": L(done_text), "설정": self.settings_file(),
                           "주의": list(self.skipped.values()),
                           "실행": {"파이썬": self.path("runtime", "python-app", "pythonw.exe"), "작업폴더": self.path("src"),
                                  "인자": ["-B", "-X", "utf8", "-m", "app.launcher", "--settings", self.settings_file()]}})
@@ -1075,7 +1129,7 @@ class Installer:
             state, text = r if isinstance(r, tuple) else ("됨", r or "")
             self.st.end(sid, state, f"{text} ({time.time() - t0:.0f}초)")
         self.save_state()
-        self.st.d.update({"끝": True, "성공": True, "지금": "", "글": "Gemma 설치가 끝났어요."})
+        self.st.d.update({"끝": True, "성공": True, "지금": "", "글": L("Gemma 설치가 끝났어요.")})
         self.st.write(force=True)
         self.st.log("==== Gemma 설치 끝")
         return 0
@@ -1119,8 +1173,8 @@ class Installer:
     def skip(self, sid, why, detail, info=None):
         """선택 단계(펫)가 실패 → 설치는 계속. 무엇이 빠졌고 어떻게 넣는지를 상태 파일 '주의'에 남김."""
         name = dict(STEPS)[sid]
-        note = {"id": sid, "단계": name, "이유": why, "자세히": str(detail)[-800:], "기록": self.st.log_path, **(info or {})}
-        note["까닭"] = short_why(note.get("원인"), why)
+        note = {"id": sid, "단계": L(name), "이유": L(why), "자세히": str(detail)[-800:], "기록": self.st.log_path, **(info or {})}
+        note["까닭"] = L(short_why(note.get("원인"), why))
         if sid == "pet":
             note["직접받기"] = self.pet_help()
         self.skipped[sid] = note
@@ -1155,8 +1209,8 @@ class Installer:
 
     def fail(self, sid, why, detail, info=None):
         self.st.end(sid, "실패", why)
-        err = {"id": sid, "단계": dict(STEPS)[sid], "이유": why, "자세히": str(detail)[-800:], "기록": self.st.log_path, **(info or {})}
-        err["까닭"] = short_why(err.get("원인"), why)
+        err = {"id": sid, "단계": L(dict(STEPS)[sid]), "이유": L(why), "자세히": str(detail)[-800:], "기록": self.st.log_path, **(info or {})}
+        err["까닭"] = L(short_why(err.get("원인"), why))
         self.st.d.update({"끝": True, "성공": False, "오류": err})
         self.st.write(force=True)
         self.st.log("!!!! 실패:", sid, why, "|", detail)
@@ -1220,7 +1274,7 @@ class Installer:
             state, text = r if isinstance(r, tuple) else ("됨", r or "")
             self.st.end(sid, state, f"{text} ({time.time() - t0:.0f}초)")
         self.save_state()
-        self.st.d.update({"끝": True, "성공": True, "지금": "", "글": "통역 목소리를 설치했어요. 다음 통역부터 그 나라 목소리로 읽어요.", "주의": []})
+        self.st.d.update({"끝": True, "성공": True, "지금": "", "글": L("통역 목소리를 설치했어요. 다음 통역부터 그 나라 목소리로 읽어요."), "주의": []})
         self.st.write(force=True)
         self.st.log("==== 통역 목소리 설치 끝")
         return 0
@@ -1247,7 +1301,7 @@ class Installer:
             self.st.end(sid, state, f"{text} ({time.time() - t0:.0f}초)")
         self.st.end("finish", "됨", "받은 모델은 김비서가 바로 씀")
         self.save_state()
-        self.st.d.update({"끝": True, "성공": True, "지금": "", "글": "목소리 확인 모델을 받았어요. 이제 내 목소리를 등록할 수 있어요.", "주의": []})
+        self.st.d.update({"끝": True, "성공": True, "지금": "", "글": L("목소리 확인 모델을 받았어요. 이제 내 목소리를 등록할 수 있어요."), "주의": []})
         self.st.write(force=True)
         self.st.log("==== 목소리 확인 모델 받기 끝")
         return 0
@@ -1272,7 +1326,7 @@ class Installer:
             self.st.end(sid, state, f"{text} ({time.time() - t0:.0f}초)")
         self.state["skipped"] = [x for x in self.state.get("skipped") or [] if x != "pet"]
         self.save_state()
-        self.st.d.update({"끝": True, "성공": True, "지금": "", "글": "펫을 설치했어요. 김비서를 다시 켜면 펫이 나와요.", "주의": []})
+        self.st.d.update({"끝": True, "성공": True, "지금": "", "글": L("펫을 설치했어요. 김비서를 다시 켜면 펫이 나와요."), "주의": []})
         self.st.write(force=True)
         self.st.log("==== 펫 다시 설치 끝")
         return 0
@@ -1311,7 +1365,9 @@ def main():
     ap.add_argument("--no-register", action="store_true")
     ap.add_argument("--dry-run", action="store_true", help="시험: 받기·설치 없이 차례만(받을 주소는 크기만 물어 확인)")
     ap.add_argument("--file", default="", help="pet-install: 직접 받아 둔 펫 실행 틀 압축 파일(크기·sha256 이 목록과 같아야 씀)")
+    ap.add_argument("--lang", default="ko", help="설치 화면 언어: ko | en | ja | zh (기본 ko — 0.1.17 까지 그대로)")
     a = ap.parse_args()
+    set_lang(a.lang)
     if a.packs_catalog is None:   # 옷 목록 주소 = install_config.json 한 줄(설치 창에서 따로 주지 않았을 때)
         try:
             with open(os.path.join(HERE, "install_config.json"), encoding="utf-8") as f:

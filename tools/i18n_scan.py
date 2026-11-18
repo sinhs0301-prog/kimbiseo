@@ -380,10 +380,13 @@ def scan_py(path, tr_only=False):
 def scan_ps(path):
     src = open(path, encoding="utf-8-sig").read()
     res = []
-    for m in re.finditer(r"""\bT\s+(?:'((?:[^']|'')*)'|"((?:[^"`]|`.)*)")""", src):
-        s = m.group(1).replace("''", "'") if m.group(1) is not None else m.group(2)
-        if HANGUL.search(s):
-            res.append((s.strip(), src.count("\n", 0, m.start()) + 1))
+    pats = (r"""\bT\s+(?:'((?:[^']|'')*)'|"((?:[^"`]|`.)*)")""",                 # T "…"
+            r"""\bSet-K\s+\S+\s+(?:'((?:[^']|'')*)'|"((?:[^"`]|`.)*)")""")         # Set-K $ctl "…"(화면 글 등록)
+    for rx in pats:
+        for m in re.finditer(rx, src):
+            s = m.group(1).replace("''", "'") if m.group(1) is not None else m.group(2)
+            if HANGUL.search(s):
+                res.append((s.strip(), src.count("\n", 0, m.start()) + 1))
     return res
 
 
