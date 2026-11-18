@@ -62,7 +62,7 @@ class FirstCommaAggregator(SimpleTextAggregator):
             return
         for ch in text:
             if ch in ",，" and not self._text[-1:].isdigit() and \
-                    len(re.sub(r"[^가-힣A-Za-z0-9]", "", self._text)) >= (self._min if self._first else self._long):
+                    len(re.sub(r"[^가-힣A-Za-z0-9぀-ヿ一-鿿]", "", self._text)) >= (self._min if self._first else self._long):
                 out = (self._text + ch).strip(" ").replace(NUM_DOT, ".")
                 self._text = ""
                 self._first = False
@@ -195,7 +195,7 @@ class VoiceTTS(TTSService):
             async for fr in self._interp_say(text, lang, context_id):
                 yield fr
             return
-        if not re.search(r"[0-9A-Za-z가-힣]", text):
+        if not re.search(r"[0-9A-Za-z가-힣぀-ヿ一-鿿]", text):
             yield self._hush(context_id)
             return
         st = self.state

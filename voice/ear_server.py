@@ -39,18 +39,29 @@ def recv_exact(f, n):
     return buf
 
 
-def hot_transcribe(ear, x):
+def req_language(msg):
+    """요청의 'lang'(0.1.18 다국어): 없으면 'default'(켤 때 언어) · 'auto' → None(자동 감지) · whisper 이름이나 코드."""
+    v = msg.get("lang")
+    if not isinstance(v, str) or not v.strip():
+        return "default"
+    v = v.strip().lower()
+    if v == "auto":
+        return None
+    return C.WHISPER_NAMES.get(v[:2], v) if len(v) <= 3 else v
+
+
+def hot_transcribe(ear, x, language="default"):
     """설정 '귀.핫워드' 를 whisper 앞글로 줘서 그 낱말을 더 잘 알아듣게.
     앞글이 결과에 그대로 새어 나오면(조용한 소리 등) 앞글 없이 다시."""
     words = [w for w in (STATE["cfg"]["귀"].get("핫워드") or []) if w]
     if not words or len(x) < 16000 * 0.4:
-        return ear.transcribe(x)
+        return ear.transcribe(x, language=language)
     if HOT["ids"] is None:
         HOT["text"] = ", ".join(words)
         HOT["ids"] = ear.prompt_ids(HOT["text"])
-    t = ear.transcribe(x, prompt_ids=HOT["ids"])
+    t = ear.transcribe(x, prompt_ids=HOT["ids"], language=language)
     if HOT["text"] in t or t.replace(" ", "") in HOT["text"].replace(" ", ""):
-        return ear.transcribe(x)
+        return ear.transcribe(x, language=language)
     return t
 
 
@@ -216,15 +227,16 @@ def handle(conn, ear):
                 try:
                     with GPU_LOCK, torch.inference_mode():
                         mt = int(msg.get("max_tokens") or 0)
+                        rl = req_language(msg)
                         if mt > 0:
-                            text = ear.transcribe(x, max_new_tokens=mt)
+                            text = ear.transcribe(x, max_new_tokens=mt, language=rl)
                         elif msg.get("langs"):
                             text, lang, conf, probs = lang_transcribe(ear, x, msg)
                             extra = {"lang": lang, "lang_conf": round(conf, 3),
                                      "lang_p": {**{k: round(v, 3) for k, v in sorted(probs.items(), key=lambda kv: -kv[1])[:4]},
                                                 "ko": round(probs.get("ko", 0.0), 3)}}
                         else:
-                            text = hot_transcribe(ear, x)
+                            text = hot_transcribe(ear, x, rl)
                 except Exception as ex:  # noqa: BLE001
                     log("받아쓰기 오류:", ex)
                     traceback.print_exc()
@@ -290,7 +302,7 @@ def main():
         import torch
         torch.set_num_threads(int(a.threads or cfg["귀"].get("CPU_스레드") or 8))
     log(f"귀 불러오는 중: whisper ({os.path.basename(model.rstrip(chr(92) + '/'))}) {device}")
-    ear = Ear(model=model, device=device, language=cfg["귀"].get("언어") or "korean", log=log)
+    ear = Ear(model=model, device=device, language=C.ear_language(cfg), log=log)
     STATE.update(ear=ear, model=model, device=device)
     log(f"준비 완료 127.0.0.1:{port} (PID {os.getpid()})")
     while True:

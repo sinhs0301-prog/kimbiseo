@@ -151,12 +151,12 @@ class VoiceCheck:
             self.p = None
 
 
-def pick_best(eng, judge, text, emotion, seed, tries=TRIES, threshold=THRESHOLD, voice=None):
+def pick_best(eng, judge, text, emotion, seed, tries=TRIES, threshold=THRESHOLD, voice=None, **kw):
     """한 문장을 만들고, 닮음이 기준값보다 낮으면 시드를 바꿔 다시. → (PCM16, 정보)"""
     best, info = None, dict(tries=[], seed=seed)
     for k in range(tries if judge is not None else 1):
         sd = seed + k * SEED_STEP
-        pcm = eng.to_int16(eng.speak(text, emotion, seed=sd, voice=voice))
+        pcm = eng.to_int16(eng.speak(text, emotion, seed=sd, voice=voice, **kw))
         s = judge.sim(pcm) if (judge is not None and len(pcm) >= MIN_SEC * 24000) else None
         info["tries"].append(dict(seed=sd, sim=s))
         if best is None or (s is not None and s > best[1]):

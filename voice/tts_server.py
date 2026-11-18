@@ -408,9 +408,22 @@ def _is_oom(ex):
     return "out of memory" in t or "outofmemory" in t
 
 
+WARM_TEXT = {"ko": "안녕하세요.", "en": "Hello.", "ja": "こんにちは。", "zh": "你好。"}
+
+
+def set_engine_lang(eng):
+    """엔진의 기본 말 언어 = 앱 언어(0.1.18). 요청마다 'lang' 으로 바꿀 수 있음."""
+    name = C.TTS_NAMES.get(STATE.get("lang") or "ko", "Korean")
+    if hasattr(eng, "set_language"):
+        eng.set_language(name)
+    elif hasattr(eng, "lang_name"):
+        eng.lang_name = name
+    return eng
+
+
 def load_windows(cfg):
     from sapi_engine import SapiVoice
-    eng = SapiVoice(voice_hint=str(cfg["목소리"].get("윈도우_목소리") or ""), log=log)
+    eng = SapiVoice(voice_hint=str(cfg["목소리"].get("윈도우_목소리") or ""), log=log, lang=STATE.get("lang") or "ko")
     STATE.update(engine=eng, engine_name="windows", judge=None, device="cpu(윈도우 음성)", dtype=None)
     return eng
 
@@ -420,7 +433,7 @@ def load_engine(cfg, engine, device, threads):
     STATE["wanted"] = engine
     if engine == "qwen":
         try:
-            eng = load_qwen(cfg, device, threads)
+            eng = set_engine_lang(load_qwen(cfg, device, threads))
             log(f"엔진 준비: qwen {STATE['device']} {STATE['dtype']} {eng.load_sec:.1f}초, 목소리 {STATE['default_voice']}, "
                 f"감정 {list(eng.prompts)}, 닮음검사 {'켬' if STATE['judge'] else '끔'}")
             return eng
@@ -435,15 +448,17 @@ def load_engine(cfg, engine, device, threads):
     return eng
 
 
-def cache_key(read, emotion, seed, voice=None):
+def cache_key(read, emotion, seed, voice=None, lang=None):
     eng = STATE["engine"]
+    if lang and lang != "ko":
+        read = f"{read}|lang={lang}"      # 다른 언어로 읽은 소리는 따로 캐시(한국어는 예전 열쇠 그대로)
     tag = eng.voice_tag(voice)   # 참고음성(목소리)·온도 같은 샘플링 값·닮음검사가 바뀌면 옛 캐시는 안 씀
     j = "j1" if STATE["judge"] is not None and STATE["judge"].ok and not voice else "j0"
     samp = eng.sampling_tag() if hasattr(eng, "sampling_tag") else f"t{getattr(eng, 'temp', '')}"
     return hashlib.sha1(f"{STATE['engine_name']}|{tag}|{samp}|{j}|{emotion}|{seed}|{read}".encode("utf-8")).hexdigest()[:24]
 
 
-def synth(read_sentences, emotion, seed=None, check=True, voice=None, speed=1.0):
+def synth(read_sentences, emotion, seed=None, check=True, voice=None, speed=1.0, lang=None):
     """문장들을 차례로 만들어 PCM16 조각을 내놓는다.
     check=True(/tts·/tts_lip·미리 만들기): 문장을 다 만든 뒤 닮음 검사 → 낮으면 다른 시드로 다시(voice_check.py, 켰을 때만).
     check=False(/tts_stream): 만들어지는 대로 조각 전송(검사는 끝난 뒤 하고, 기준 못 넘으면 캐시에 안 남김).
@@ -453,9 +468,12 @@ def synth(read_sentences, emotion, seed=None, check=True, voice=None, speed=1.0)
     eng, judge = STATE["engine"], (None if voice else STATE["judge"])
     native = getattr(eng, "native_speed", False)
     kw = {"speed": speed} if native else {}
+    lang = lang or STATE.get("lang") or "ko"
+    if not native:
+        kw["lang"] = C.TTS_NAMES.get(lang, "Korean")
     for i, s in enumerate(read_sentences):
         sd = eng.seed_for(s, emotion) if seed is None else int(seed) + i
-        key = cache_key(s + (f"|x{speed}" if native and speed != 1.0 else ""), emotion, sd, voice)
+        key = cache_key(s + (f"|x{speed}" if native and speed != 1.0 else ""), emotion, sd, voice, lang)
         fn = os.path.join(STATE["cache_dir"], key + ".wav") if STATE["cache_dir"] else ""
         if key in MEM:
             MEM.move_to_end(key)
@@ -470,7 +488,7 @@ def synth(read_sentences, emotion, seed=None, check=True, voice=None, speed=1.0)
         if pcm is not None:
             yield pcm, True
         elif check and judge is not None:
-            pcm, info = pick_best(eng, judge, s, emotion, sd, voice=voice)
+            pcm, info = pick_best(eng, judge, s, emotion, sd, voice=voice, **({"lang": kw["lang"]} if "lang" in kw else {}))
             if len(info["tries"]) > 1 or (info["sim"] is not None and info["sim"] < THRESHOLD):
                 log(f"닮음 검사 다시 만듦: {info['tries']} → 시드 {info['seed']} | {shown(s)}")
             yield pcm, False
@@ -538,9 +556,12 @@ def prepare(body):
         speed = 1.0
     body["_speed"] = speed
     yawn_word = has_yawn(text)
-    if body.get("raw"):   # 본체: 글 정리는 본체가 이미 함 → 하품만 빼고 그대로
+    lg = body.get("lang")
+    lg = lg.strip().lower()[:2] if isinstance(lg, str) and lg.strip() else ""
+    body["_lang"] = lg if lg in C.TTS_NAMES else (STATE.get("lang") or "ko")
+    if body.get("raw") or body["_lang"] != "ko":   # 본체: 글 정리는 본체가 이미 함 / 한국어가 아니면 한국어 읽기 변환(숫자→한글)을 안 함
         read = re.sub(r"\s+", " ", drop_yawn(text)).strip()
-        if not re.search(r"[0-9A-Za-z가-힣]", read):
+        if not re.search(r"[0-9A-Za-z가-힣\u3040-\u30ff\u4e00-\u9fff]", read):
             read = ""
     else:
         read = normalize(text)
@@ -706,7 +727,7 @@ class H(BaseHTTPRequestHandler):
 
         if path in ("/tts", "/tts_lip"):
             parts, hit = [], True
-            for p, cached in synth(sents, emo, seed, voice=voice, speed=eng_speed):
+            for p, cached in synth(sents, emo, seed, voice=voice, speed=eng_speed, lang=body.get("_lang")):
                 parts.append(stretched(p)); hit = hit and cached
             if stretch:
                 parts.append(np.frombuffer(stretch.flush(), np.int16))
@@ -758,7 +779,7 @@ class H(BaseHTTPRequestHandler):
                     self.wfile.flush()
             send(stream_header())
             first, total = None, 0
-            for p, _ in synth(sents, emo, seed, check=False, voice=voice, speed=eng_speed):
+            for p, _ in synth(sents, emo, seed, check=False, voice=voice, speed=eng_speed, lang=body.get("_lang")):
                 p = stretched(p)
                 if len(p) == 0:
                     continue
@@ -814,7 +835,7 @@ class H(BaseHTTPRequestHandler):
         if body.get("reset"):
             PLAY[sess] = 0.0
         trim = body.get("trim", True) is not False
-        kw = {"speed": eng_speed} if getattr(eng, "native_speed", False) else {}
+        kw = {"speed": eng_speed} if getattr(eng, "native_speed", False) else {"lang": C.TTS_NAMES.get(body.get("_lang") or "ko", "Korean")}
         self.send_response(200)
         self.send_header("Content-Type", "audio/wav")
         self.send_header("Transfer-Encoding", "chunked")
@@ -976,6 +997,7 @@ def main():
 
     cfg = C.load(a.settings)
     STATE["cfg"] = cfg
+    STATE["lang"] = C.app_lang(cfg)
     STATE["log"] = C.Logger("voice.log", C.path(cfg, "로그"), "[목소리 서버]")
     STATE["gen"] = C.gen_from_cfg(cfg, warn=log)
     STATE["show_text"] = bool(cfg["목소리"].get("로그_글_남기기"))
@@ -997,7 +1019,7 @@ def main():
             eng = load_engine(cfg, engine, device, threads)
             with GEN_LOCK:   # 첫 요청이 느리지 않게 짧은 말 하나로 예열(캐시에 남기지 않음)
                 t0 = time.perf_counter()
-                eng.speak("안녕하세요.")
+                eng.speak(WARM_TEXT.get(STATE.get("lang") or "ko", "안녕하세요."))
                 log(f"예열 {time.perf_counter() - t0:.1f}초")
             if not a.no_warm and cfg["목소리"].get("미리만들기", True):
                 warm_phrases()

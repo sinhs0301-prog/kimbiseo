@@ -28,7 +28,10 @@ $want = $env:KB_SAPI_VOICE
 $voices = @($s.GetInstalledVoices() | Where-Object { $_.Enabled } | ForEach-Object { $_.VoiceInfo })
 $pick = $null
 if ($want) { $pick = $voices | Where-Object { $_.Name -like ('*' + $want + '*') } | Select-Object -First 1 }
-if (-not $pick) { $pick = $voices | Where-Object { $_.Culture.Name -eq 'ko-KR' } | Select-Object -First 1 }
+$cul = $env:KB_SAPI_CULTURE
+if (-not $cul) { $cul = 'ko-KR' }
+if (-not $pick) { $pick = $voices | Where-Object { $_.Culture.Name -eq $cul } | Select-Object -First 1 }
+if (-not $pick) { $pre = $cul.Split('-')[0]; $pick = $voices | Where-Object { $_.Culture.Name -like ($pre + '-*') } | Select-Object -First 1 }
 if ($pick) { $s.SelectVoice($pick.Name) }
 $fmt = New-Object System.Speech.AudioFormat.SpeechAudioFormatInfo(24000, [System.Speech.AudioFormat.AudioBitsPerSample]::Sixteen, [System.Speech.AudioFormat.AudioChannel]::Mono)
 $out = [Console]::Out
@@ -69,10 +72,13 @@ class SapiVoice:
     temp = "sapi"
     native_speed = True
 
-    def __init__(self, voice_hint="", piece_sec=0.5, log=print, timeout=60):
+    CULTURES = {"ko": "ko-KR", "en": "en-US", "ja": "ja-JP", "zh": "zh-CN"}
+
+    def __init__(self, voice_hint="", piece_sec=0.5, log=print, timeout=60, lang="ko"):
         t0 = time.time()
         self.log = log
         self.hint = voice_hint or ""
+        self.want_culture = self.CULTURES.get(str(lang or "ko")[:2], "ko-KR")
         self.piece = int(piece_sec * SR)
         self.timeout = timeout
         self.lock = threading.Lock()
@@ -81,15 +87,15 @@ class SapiVoice:
         self.prompts = {"기본": None}   # 감정은 없음 — 모든 감정을 '기본'으로
         self.voices = {}
         self._start()
-        if self.culture != "ko-KR":
-            log(f"[윈도우 음성] 한국어 음성이 없음 → '{self.voice_name}'({self.culture}) 로 읽음. "
-                "설정 > 시간 및 언어 > 음성에서 한국어 음성을 추가하세요.")
+        if self.culture.split("-")[0] != self.want_culture.split("-")[0]:
+            log(f"[윈도우 음성] {self.want_culture} 음성이 없음 → '{self.voice_name}'({self.culture}) 로 읽음. "
+                "설정 > 시간 및 언어 > 음성에서 그 언어 음성을 추가하세요.")
         self.load_sec = time.time() - t0
         log(f"[윈도우 음성] 준비 {self.load_sec:.1f}초: {self.voice_name} ({self.culture}, 설치된 음성 {self.n_voices}개)")
 
     def _start(self):
         enc = base64.b64encode(_PS.encode("utf-16-le")).decode("ascii")
-        env = {**os.environ, "KB_SAPI_VOICE": self.hint}
+        env = {**os.environ, "KB_SAPI_VOICE": self.hint, "KB_SAPI_CULTURE": self.want_culture}
         flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
         exe = os.path.join(os.environ.get("SystemRoot", r"C:\Windows"), "System32", "WindowsPowerShell", "v1.0", "powershell.exe")
         if not os.path.isfile(exe):

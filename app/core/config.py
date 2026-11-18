@@ -9,6 +9,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 APP = os.path.dirname(HERE)
 REPO = os.path.dirname(APP)
 DEFAULT_FILE = os.path.join(APP, "config", "default.json")
+LANG_DIR = os.path.join(APP, "config", "lang")     # 언어별 기본값(0.1.18~) — lang/<언어>.json 을 기본 설정 위에 덮음(한국어는 없음)
 
 
 def deep_merge(base, over):
@@ -86,17 +87,56 @@ def apply_barge(cfg):
     return cfg
 
 
+def lang_code(v):
+    from .i18n import norm
+    return norm(v)
+
+
+def defaults(lang=None):
+    """기본 설정 + 그 언어의 기본값(app/config/lang/<언어>.json — 인사말·멈춤말·호출 이름·사이트 이름 등).
+    설정 파일에 '언어'가 없는 사람(0.1.17 까지)은 ko → 기본 설정 그대로."""
+    code = lang_code(lang)
+    f = os.path.join(LANG_DIR, code + ".json")
+    stamp = []
+    for x in (DEFAULT_FILE, f):
+        try:
+            stamp.append(os.path.getmtime(x))
+        except OSError:
+            stamp.append(None)
+    got = _DEFAULTS.get(code)
+    if got and got[0] == stamp:
+        return copy.deepcopy(got[1])
+    base = _read(DEFAULT_FILE)
+    if code != "ko" and os.path.isfile(f):
+        try:
+            over = {k: v for k, v in _read(f).items() if not k.startswith("_")}
+            base = deep_merge(base, over)
+        except (OSError, ValueError):
+            pass
+    base["언어"] = code
+    _DEFAULTS[code] = (stamp, base)
+    return copy.deepcopy(base)
+
+
+_DEFAULTS = {}
+
+
 def load(settings_path=None, warn=print):
-    cfg = _read(DEFAULT_FILE)
     p = user_settings_path(settings_path)
     user = None
     if os.path.isfile(p):
         try:
             user = _read(p)
+        except (OSError, ValueError) as ex:
+            warn(f"[설정] 사용자 설정을 못 읽음 → 기본값: {ex}")
+            user = None
+    cfg = defaults((user or {}).get("언어"))
+    if user is not None:
+        try:
             cfg = deep_merge(cfg, _check_types(cfg, user, "설정", warn))
         except (OSError, ValueError) as ex:
             warn(f"[설정] 사용자 설정을 못 읽음 → 기본값: {ex}")
-    elif settings_path:
+    elif settings_path and not os.path.isfile(p):
         warn("[설정] 사용자 설정 파일이 없음 → 기본값")
     apply_barge(cfg)
     # 목소리: 사용자 설정에 '목소리.목소리' 가 있으면 고정, 없으면 펫.성별(여/남)로 고른다.
@@ -106,6 +146,7 @@ def load(settings_path=None, warn=print):
     # 말투: 사용자 설정에 '비서.말투' 가 있으면 고정, 없으면 펫.성별(여: 존댓말, 남: 편한 존댓말)로 고른다.
     from .voice_choice import apply_tone
     apply_tone(cfg, user or {})
+    cfg["언어"] = lang_code(cfg.get("언어"))
     cfg["_settings_file"] = p if os.path.isfile(p) else ""
     return cfg
 
@@ -151,10 +192,10 @@ def path(cfg, key):
 def names(cfg):
     """(비서 이름, [별칭]) — 깨우는 이름 = 이름 + 별칭."""
     b = cfg.get("비서") or {}
-    name = str(b.get("이름") or "김비서").strip() or "김비서"
+    name = str(b.get("이름") or "").strip() or str((defaults(cfg.get("언어")).get("비서") or {}).get("이름") or "김비서")
     raw = list(b.get("별칭") or [])
     try:
-        d = _read(DEFAULT_FILE).get("비서") or {}
+        d = defaults(cfg.get("언어")).get("비서") or {}
         if name != d.get("이름") and raw == list(d.get("별칭") or []):
             raw = []   # 이름만 바꾸고 별칭은 안 건드렸으면 기본 이름의 별칭('김 비서' 등)은 버림 — 옛 이름으로 깨지 않게
     except (OSError, ValueError):
@@ -168,8 +209,10 @@ def honorific(cfg):
 
 
 def fill(cfg, text):
-    """'{이름}'·'{호칭}'·'{기본장소}' 바꾸기. 호칭이 비면 '{호칭}' 자리를 '사용자'로."""
+    """'{이름}'·'{호칭}'·'{기본장소}' 바꾸기. 호칭이 비면 '{호칭}' 자리를 '사용자'(그 언어 말)로."""
+    from .i18n import tr
     name, _ = names(cfg)
     u = cfg.get("사용자") or {}
-    return (str(text or "").replace("{이름}", name).replace("{호칭}", honorific(cfg) or "사용자")
-            .replace("{기본장소}", str(u.get("기본장소") or "서울")))
+    code = lang_code(cfg.get("언어"))
+    return (str(text or "").replace("{이름}", name).replace("{호칭}", honorific(cfg) or tr("사용자", lang=code))
+            .replace("{기본장소}", str(u.get("기본장소") or tr("서울", lang=code))))

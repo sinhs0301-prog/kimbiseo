@@ -57,9 +57,13 @@ class Ear:
             vram = f", 그래픽 메모리 {torch.cuda.memory_allocated() / 1e9:.2f}GB" if self.cuda else ""
             log(f"[귀/whisper] {self.dev} 준비 {self.load_sec:.1f}초{vram}")
 
-    def transcribe(self, wav16k, max_new_tokens=None, prompt_ids=None):
+    def transcribe(self, wav16k, max_new_tokens=None, prompt_ids=None, language="default"):
+        """language: 'default' = 켤 때 정한 언어 · None = 자동 감지 · 'english' 같은 whisper 이름(요청마다 — 0.1.18 다국어)."""
         wav = _f32(wav16k)
-        kw = {"language": self.language}
+        lang = self.language if language == "default" else language
+        kw = {"task": "transcribe"}
+        if lang:
+            kw["language"] = lang
         # 조용한·짧은 조각에서 위스퍼가 같은 말을 수백 자 되풀이하며(실기: 0.8초 조각 → 64초·443자) 귀를 막는 일 → 소리 길이에 맞춘 상한
         kw["max_new_tokens"] = int(max_new_tokens) if max_new_tokens else token_cap(len(wav) / SR)
         if prompt_ids is not None:

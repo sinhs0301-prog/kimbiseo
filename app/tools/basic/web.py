@@ -42,7 +42,7 @@ def _q_tokens(q):
     """관련성 검사용 낱말(2글자 이상, 조사·흔한 말 뺌)."""
     stop = {"검색", "정보", "후기", "알려", "찾아", "어때", "어떤지", "최근", "소식", "관련", "가게", "가격", "최저가", "얼마"}
     out = []
-    for w in re.findall(r"[0-9A-Za-z가-힣]+", q.lower()):
+    for w in re.findall(r"[0-9A-Za-z가-힣぀-ヿ一-鿿]+", q.lower()):
         w = re.sub(r"(에서|으로|에게|이랑|하고|이야|은|는|이|가|을|를|의|에|로|도|만)$", "", w) if _HANGUL.search(w) else w
         if len(w) >= 2 and w not in stop:
             out.append(w)

@@ -552,7 +552,9 @@ def normalize(text: str, dict_paths=None) -> str:
 
 def split_sentences(text: str, max_len=60):
     """문장 단위로 나눈다(먼저 말하기용). 너무 긴 문장은 쉼표에서 한 번 더 나눔."""
-    parts = re.split(r"(?<=[.!?。…])\s+|\n+", text.strip())
+    parts = re.split(r"(?<=[.!?。…])\s+|(?<=[。！？])|\n+", text.strip())
+    if not re.search(r"[가-힣぀-ヿ一-鿿]", text):
+        max_len = max(max_len, 110)      # 영어 등 라틴 글은 한 문장이 길어 쉼표에서 덜 자름(억양이 끊기지 않게)
     out = []
     for p in parts:
         p = p.strip()

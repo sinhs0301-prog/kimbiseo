@@ -297,7 +297,9 @@ class QwenVoice:
     def voice_tag(self, voice=None):
         return self.voices[voice][1] if voice and voice in self.voices else self.ref_tag
 
-    def _prompt(self, text, item):
+    lang_name = "Korean"     # 기본 말 언어(0.1.18 다국어 — 목소리 서버가 앱 언어로 정함). stream(lang=…) 로 문장마다 바꿀 수 있음
+
+    def _prompt(self, text, item, lang=None):
         cap = {}
 
         def fake(**kw):
@@ -306,7 +308,7 @@ class QwenVoice:
 
         self.tk.generate = fake
         try:
-            self.tts.generate_voice_clone(text=text, language="Korean", voice_clone_prompt=[item], non_streaming_mode=False)
+            self.tts.generate_voice_clone(text=text, language=lang or self.lang_name, voice_clone_prompt=[item], non_streaming_mode=False)
         except _Captured:
             pass
         finally:
@@ -411,9 +413,10 @@ class QwenVoice:
         return zlib.crc32(f"{emotion}|{text}".encode("utf-8")) & 0x7FFFFFFF
 
     @torch.inference_mode()
-    def stream(self, text, emotion="기본", seed=None, first_chunk=4, chunk=None, stats=None, voice=None):
+    def stream(self, text, emotion="기본", seed=None, first_chunk=4, chunk=None, stats=None, voice=None, lang=None):
         """float32 24kHz numpy 조각을 차례로 내놓는다. text 는 이미 읽기 변환된 글.
-        voice = add_voice 로 올린 목소리 이름(없으면 기본 목소리). 그 목소리에 없는 감정은 그 목소리의 기본."""
+        voice = add_voice 로 올린 목소리 이름(없으면 기본 목소리). 그 목소리에 없는 감정은 그 목소리의 기본.
+        lang = 'English' 같은 Qwen3-TTS 언어 이름(없으면 lang_name)."""
         emotion = emotion_name(emotion)
         prompts = self.voices[voice][0] if voice and voice in self.voices else self.prompts
         item = prompts.get(emotion) or prompts["기본"]
@@ -422,7 +425,7 @@ class QwenVoice:
         t0 = time.perf_counter()
         seed = self.seed_for(text, emotion) if seed is None else int(seed)
         torch.manual_seed(seed)
-        x, trailing, pad = (t.to(self.dev) for t in self._prompt(text, item))
+        x, trailing, pad = (t.to(self.dev) for t in self._prompt(text, item, lang))
         L = x.shape[1]
         n_chars = len(re.sub(r"\s", "", text))
         max_frames = min(40 + 6 * n_chars, self.max_len - L - 2)

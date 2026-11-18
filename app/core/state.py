@@ -24,7 +24,7 @@ def norm_text(s):
     except Exception:  # noqa: BLE001
         s = s or ""
     # 통역(0.1.15~): 태국·그리스·키릴·베트남 성조 글자·가나·한자도 남김 — 원어민 목소리 메아리를 알아보고, 외국어 말이 '빈 말'로 버려지지 않게
-    return re.sub(r"[^0-9A-Za-z가-힣\u00C0-\u024F\u0370-\u03FF\u0400-\u04FF\u0E00-\u0E7F\u1E00-\u1EFF\u3040-\u30FF\u4E00-\u9FFF]", "", s).lower()
+    return re.sub(r"[^0-9A-Za-z가-힣぀-ヿ一-鿿\u00C0-\u024F\u0370-\u03FF\u0400-\u04FF\u0E00-\u0E7F\u1E00-\u1EFF\u3040-\u30FF\u4E00-\u9FFF]", "", s).lower()
 
 
 def approx_substring_similarity(t, ref):
@@ -49,7 +49,7 @@ def is_repeat_junk(text, audio_sec=None):
     """받아쓰기 반복 환각(말 안 했는데 같은 낱말 수백 번) — 같은 낱말·구절이 4번 넘게 이어지거나,
     말 길이에 비해 글자가 비정상으로 많으면 True(버림)."""
     t = str(text or "")
-    toks = re.findall(r"[가-힣A-Za-z0-9]+", t)
+    toks = re.findall(r"[가-힣A-Za-z0-9぀-ヿ一-鿿]+", t)
     if len(toks) >= 4:
         run = best = 1
         for i in range(1, len(toks)):

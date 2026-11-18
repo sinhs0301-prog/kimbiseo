@@ -191,7 +191,7 @@ def _check(key, rule, v, ch):
     t = rule["t"]
     if t == "name":
         s = _clean_str(v, 12, False)
-        if not re.search(r"[0-9A-Za-z가-힣]", s):
+        if not re.search(r"[0-9A-Za-z가-힣぀-ヿ一-鿿]", s):
             raise ValueError("한글·영어·숫자가 들어간 이름이어야 해요.")
         return s
     if t == "str":

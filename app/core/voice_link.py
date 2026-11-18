@@ -28,11 +28,12 @@ speech_rate = _load("speech_rate")
 class EarLink:
     """귀 서버(127.0.0.1:포트.귀) — 한 줄 JSON + int16 16kHz PCM. 연결 하나를 잠금으로 나눠 씀."""
 
-    def __init__(self, port):
+    def __init__(self, port, lang=None):
         self.port = int(port)
         self.reader = self.writer = None
         self.lock = asyncio.Lock()
         self.n = 0
+        self.lang = lang      # 받아쓰기 언어(0.1.18): None = 귀 서버가 켤 때 정한 언어 · 'auto' · 'en' 같은 코드
 
     async def _ensure(self):
         if self.writer is None or self.writer.is_closing():
@@ -52,6 +53,8 @@ class EarLink:
                         req["max_tokens"] = int(max_tokens)
                     if quiet:
                         req["quiet"] = True
+                    if self.lang and not langs:
+                        req["lang"] = self.lang
                     if langs:
                         req.update({k: v for k, v in langs.items() if k in ("langs", "fixed", "last", "need")})
                     self.writer.write((json.dumps(req) + "\n").encode())

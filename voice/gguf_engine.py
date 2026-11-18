@@ -213,15 +213,20 @@ class GgufVoice:
         need = est * (1.0 - 1.0 / (r * 1.1)) + 6
         return int(min(est + 40, max(first_chunk, need)))
 
-    def stream(self, text, emotion="기본", seed=None, first_chunk=6, chunk=12, stats=None, voice=None):
-        """float32 24kHz 조각을 차례로. text 는 이미 읽기 변환된 글."""
+    def set_language(self, name):
+        """기본 말 언어(0.1.18) — 'English'·'japanese' 처럼. 모르면 그대로."""
+        self.lang = parts.LANGUAGE.get(str(name or "").lower(), self.lang)
+
+    def stream(self, text, emotion="기본", seed=None, first_chunk=6, chunk=12, stats=None, voice=None, lang=None):
+        """float32 24kHz 조각을 차례로. text 는 이미 읽기 변환된 글. lang = 'English' 같은 언어 이름(없으면 기본)."""
         emotion = emotion_name(emotion)
         prompts = self.voices[voice][0] if voice and voice in self.voices else self.prompts
         a = prompts.get(emotion) or prompts["기본"]
         t0 = time.perf_counter()
         seed = self.seed_for(text, emotion) if seed is None else int(seed)
         n_chars = len(re.sub(r"\s", "", text))
-        x, trailing = self.builder.clone(text, a.text, a.codes, a.spk, self.lang)
+        lid = parts.LANGUAGE.get(str(lang or "").lower(), self.lang)
+        x, trailing = self.builder.clone(text, a.text, a.codes, a.spk, lid)
         max_frames = min(40 + 6 * n_chars, self.talker.n_ctx - x.shape[0] - 4)
         if max_frames < 8:
             raise ValueError("글이 너무 깁니다(문장으로 나눠 주세요)")

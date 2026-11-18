@@ -43,7 +43,7 @@ _SUBJ = re.compile(r"^(?:사용자|[가-힣]{1,5}님)(?:께서는|께서|은|는
 
 
 def _words(text):
-    return [w for w in re.findall(r"[0-9A-Za-z가-힣]{2,}", _SUBJ.sub("", str(text or "").strip(), count=1))]
+    return [w for w in re.findall(r"[0-9A-Za-z가-힣぀-ヿ一-鿿]{2,}", _SUBJ.sub("", str(text or "").strip(), count=1))]
 
 
 def _covered(new, old):
@@ -59,7 +59,7 @@ def _covered(new, old):
 
 def _fact_key(text):
     """같은 사실 찾기용 — 글자·숫자만 남기고 앞의 주어('사용자는'·'사장님은')를 뗌."""
-    k = re.sub(r"[^0-9A-Za-z가-힣]", "", str(text or ""))
+    k = re.sub(r"[^0-9A-Za-z가-힣぀-ヿ一-鿿]", "", str(text or ""))
     return _SUBJ.sub("", k, count=1)
 
 
@@ -117,7 +117,7 @@ class Memory:
         return list(self.facts)
 
     def find(self, query):
-        ws = [w for w in re.findall(r"[0-9A-Za-z가-힣]{2,}", str(query or ""))
+        ws = [w for w in re.findall(r"[0-9A-Za-z가-힣぀-ヿ一-鿿]{2,}", str(query or ""))
               if w not in ("기억", "잊어", "지워", "그거", "내용", "기억해", "잊어줘")]
         if not ws:
             return []
@@ -287,7 +287,7 @@ class Memory:
 
     def search_archive(self, query=None, when=None, limit=6, cap=300):
         """원문 보관에서 찾기 — 낱말이 모두 든 말(최근 것부터), when 이면 그 날짜 범위 안만. [{시각, 누가, 말}]"""
-        ws = [w for w in re.findall(r"[0-9A-Za-z가-힣]{2,}", str(query or ""))
+        ws = [w for w in re.findall(r"[0-9A-Za-z가-힣぀-ヿ一-鿿]{2,}", str(query or ""))
               if w not in ("뭐라고", "했지", "했었지", "말했지", "얘기", "대화", "지난주", "어제", "오늘")][:4]
         rng = self.day_range(when) if when else None
         if not os.path.isfile(self.archive_path) or (not ws and not rng):
@@ -330,7 +330,7 @@ class Memory:
             res["일기"] = ds or "그때 일기가 없어요."
         if query:
             res["지식"] = [f["내용"] for f in self.find(query)][:8]
-            ws = [w for w in re.findall(r"[0-9A-Za-z가-힣]{2,}", str(query))][:4]
+            ws = [w for w in re.findall(r"[0-9A-Za-z가-힣぀-ヿ一-鿿]{2,}", str(query))][:4]
             hits = []
             for e in self.diary_list(60):
                 for blk in e["내용"].split("\n## ")[1:]:

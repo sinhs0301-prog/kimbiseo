@@ -17,6 +17,7 @@ DEFAULT_VOICE = "kimbiseo"
 GENDER_VOICES = {"여": "kimbiseo", "남": "kimbiseo_m"}
 
 DEFAULTS = {
+    "언어": "ko",                   # 앱 언어(0.1.18~) — 받아쓰기·목소리 기본 언어. ko·en·ja·zh
     "포트": {"목소리": 8871, "귀": 8872},
     "경로": {
         "자료": "%APPDATA%/KimBiseo",          # 읽을 때 abspath 가 윈도우 경로(\)로 바꿈
@@ -35,7 +36,8 @@ DEFAULTS = {
         "엔진": "whisper",
         "모델": "whisper-large-v3-turbo",
         "장치": "auto",            # auto | cuda | cpu
-        "언어": "korean",
+        "언어": "korean",           # 예전 칸(0.1.17 까지). 앱 언어가 ko 일 때만 씀 — 받아쓰기 언어는 ear_language()
+        "받아쓰기_언어": "",          # ""(앱 언어 따름) | auto(말마다 자동 감지) | ko·en·ja·zh
         "핫워드": [],              # 잘 못 알아듣는 낱말(예: 제품 이름)을 whisper 앞글로 줌
         "그래픽메모리_필요_GB": 2.2,   # auto 일 때 그래픽카드를 고르는 남은 메모리 기준
         "최대_초": 60,             # 한 번에 받는 소리 길이 상한
@@ -222,6 +224,30 @@ def load(settings_path=None, warn=print):
     cfg = resolve_voice(cfg, user or {}, log=warn)
     cfg["_settings_file"] = p if os.path.isfile(p) else ""
     return cfg
+
+
+WHISPER_NAMES = {"ko": "korean", "en": "english", "ja": "japanese", "zh": "chinese"}
+TTS_NAMES = {"ko": "Korean", "en": "English", "ja": "Japanese", "zh": "Chinese"}
+
+
+def app_lang(cfg):
+    v = str((cfg or {}).get("언어") or "ko").strip().lower()[:2]
+    return v if v in WHISPER_NAMES else "ko"
+
+
+def ear_language(cfg):
+    """받아쓰기 기본 언어(whisper 이름) — None 이면 자동 감지.
+    귀.받아쓰기_언어: ''(앱 언어) | 'auto' | 코드. 앱 언어가 ko 이고 칸이 비면 예전 칸 귀.언어(기본 korean)."""
+    e = (cfg or {}).get("귀") or {}
+    v = str(e.get("받아쓰기_언어") or "").strip().lower()
+    if v == "auto":
+        return None
+    if v[:2] in WHISPER_NAMES:
+        return WHISPER_NAMES[v[:2]]
+    lg = app_lang(cfg)
+    if lg == "ko":
+        return str(e.get("언어") or "korean")
+    return WHISPER_NAMES[lg]
 
 
 def path(cfg, key):

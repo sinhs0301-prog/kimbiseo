@@ -29,6 +29,7 @@ from pipecat.utils.time import time_now_iso8601
 
 from . import config as C
 from . import interp
+from .i18n import ear_request_lang, lang_of, pipecat_lang
 from .state import approx_substring_similarity, apply_fixes, is_hallucination, is_repeat_junk, norm_text
 from .turns import confirm_barge
 from .voice_link import EarLink
@@ -40,11 +41,12 @@ from .speech_gate import SpeechGate
 
 class EarSTT(SegmentedSTTService):
     def __init__(self, state, port, ear=None, voiceprint=None, **kw):
+        self._plang = pipecat_lang(lang_of(state.cfg))
         super().__init__(sample_rate=16000, ttfs_p99_latency=0.6, trailing_silence_secs=0.3,
-                         settings=STTSettings(model=None, language=Language.KO), **kw)
+                         settings=STTSettings(model=None, language=self._plang), **kw)
         self.state = state
         self.cfg = state.cfg
-        self.ear = ear or EarLink(port)
+        self.ear = ear or EarLink(port, lang=ear_request_lang(state.cfg))
         self._utt = 0
         self._utt_meta = {}
         self._meta_by_seg = {}
@@ -185,13 +187,13 @@ class EarSTT(SegmentedSTTService):
             verdict, shown = "ambient", "(주변 말)"
         import re
         if (verdict == "pass" and st.bot_speaking and not self._stop(r["text"])
-                and len(re.sub(r"[^가-힣A-Za-z0-9]", "", r["text"] or "")) < 2):
+                and len(re.sub(r"[^가-힣A-Za-z0-9぀-ヿ一-鿿]", "", r["text"] or "")) < 2):
             verdict = "wait"   # 숨소리·바람이 한 글자로 받아써진 것 — 끊지 않고 더 들어 봄
         st.event("peek", text=shown, verdict=verdict, sim=round(sim, 2), corr=round(corr, 2), asr_ms=round(r["sec"] * 1000))
         if verdict == "pass" and st.bot_speaking:
             meta["decided"] = "barge"
             await self.push_frame(InterimTranscriptionFrame(text=r["text"], user_id="", timestamp=time_now_iso8601(),
-                                                            language=Language.KO))
+                                                            language=self._plang))
         elif verdict == "wait":
             pass
         elif verdict != "pass":
@@ -351,7 +353,7 @@ class EarSTT(SegmentedSTTService):
             yield TTSSpeakFrame(f"네, 지금부터 {nm} 통역할게요. 한국어로 말씀하시면 {nm}로, 상대가 말하면 한국어로 옮겨 드려요. "
                                 "끝내실 땐 통역 그만, 이라고 해 주세요.", append_to_context=False)
             return
-        yield TranscriptionFrame(text=text, user_id="", timestamp=time_now_iso8601(), language=Language.KO, finalized=True)
+        yield TranscriptionFrame(text=text, user_id="", timestamp=time_now_iso8601(), language=self._plang, finalized=True)
 
     async def _interp_turn(self, audio, meta):
         """통역 모드 한 마디: 감지한 언어로 받아씀 → 번역(도구·대화 기록 없는 번역 전용 요청) → 그 언어 목소리로 말함(tts.py).
