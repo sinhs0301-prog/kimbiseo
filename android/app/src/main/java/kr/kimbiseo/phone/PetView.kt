@@ -3,6 +3,7 @@ package kr.kimbiseo.phone
 import android.content.Context
 import android.graphics.Color
 import android.media.MediaPlayer
+import android.view.Gravity
 import android.widget.FrameLayout
 import android.widget.VideoView
 import java.io.File
@@ -26,10 +27,26 @@ class PetView(c: Context) : FrameLayout(c) {
             try { mp.setVolume(0f, 0f) } catch (_: Throwable) {}
             try { mp.isLooping = looping } catch (_: Throwable) {}
             try { mp.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT) } catch (_: Throwable) {}
+            fit(mp)
             try { video.start() } catch (_: Throwable) {}
         }
         video.setOnCompletionListener { if (!looping) onEnded?.invoke() }
         video.setOnErrorListener { _, _, _ -> true }     // 깨진 클립 하나로 화면이 멈추지 않게
+    }
+
+    /** 영상 비율을 지키며 칸 가운데에 놓는다(VideoView 는 기본이 왼쪽 위). */
+    private fun fit(mp: MediaPlayer) {
+        val vw = mp.videoWidth
+        val vh = mp.videoHeight
+        val pw = width
+        val ph = height
+        if (vw <= 0 || vh <= 0 || pw <= 0 || ph <= 0) return
+        val s = minOf(pw.toFloat() / vw, ph.toFloat() / vh)
+        val lp = video.layoutParams as LayoutParams
+        lp.width = (vw * s).toInt()
+        lp.height = (vh * s).toInt()
+        lp.gravity = Gravity.CENTER
+        video.layoutParams = lp
     }
 
     fun play(file: File, loop: Boolean) {
@@ -39,7 +56,7 @@ class PetView(c: Context) : FrameLayout(c) {
         looping = loop
         try {
             video.stopPlayback()
-            video.setVideoPath(path)
+            video.setVideoURI(android.net.Uri.fromFile(file))     // file:// 로 넘겨야 안드로이드 15 에서도 연다
             video.start()
         } catch (_: Throwable) { /* 다음 그리기에서 다시 */ }
     }

@@ -46,7 +46,11 @@
       "sha256": "cb199241b7279082da1d4d6e6e45567c6659f83a008fd99af293119b472ae95c",
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충",
       "exceptions": [
-        {"line": null, "allow": "HighlifePC", "reason": "제작 표기(공개판 문서에 이미 보이는 값)"}
+        {
+          "line": null,
+          "allow": "HighlifePC",
+          "reason": "제작 표기(공개판 문서에 이미 보이는 값)"
+        }
       ]
     },
     {
@@ -56,7 +60,11 @@
       "sha256": "10822bbc1ea13344fe76250b9518a939d5cdc2d521da31a4b99888c99e49c3ba",
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충",
       "exceptions": [
-        {"line": null, "allow": "HighlifePC", "reason": "제작 표기(공개판 문서에 이미 보이는 값)"}
+        {
+          "line": null,
+          "allow": "HighlifePC",
+          "reason": "제작 표기(공개판 문서에 이미 보이는 값)"
+        }
       ]
     },
     {
@@ -79,7 +87,11 @@
       "sha256": "7f58ed368ea2b78c7f01c15741691a346d0c395ed08954bed5da02789d90ec88",
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충",
       "exceptions": [
-        {"line": null, "allow": "HighlifePC", "reason": "제작 표기(공개판 문서에 이미 보이는 값)"}
+        {
+          "line": null,
+          "allow": "HighlifePC",
+          "reason": "제작 표기(공개판 문서에 이미 보이는 값)"
+        }
       ]
     },
     {
@@ -167,7 +179,7 @@
       "path": "android/app/src/main/java/kr/kimbiseo/phone/PetView.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "703642e176fb61804a4bcf3cdd87eed5bcab970677626d7a4a8c8a94f0ed35f9",
+      "sha256": "fc875bf22284cf94841e0b9325730ea4471a11e7e4b903da256330436e0de1ea",
       "note": "0.1.18 폰 펫(대화 화면 펫·클립 받기) — 새 파일"
     },
     {
@@ -227,8 +239,16 @@
       "sha256": "68aa869d81ab8fce4bf646ef7148b33689d141c067e735051509bf9574592ca7",
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충",
       "exceptions": [
-        {"line": null, "allow": "192.168.1.23", "reason": "연결 안내에 든 시험용 사설 주소 예시(누구의 주소도 아님)"},
-        {"line": null, "allow": "HighLife PC", "reason": "제작 표기(공개판 화면에 이미 보이는 값)"}
+        {
+          "line": null,
+          "allow": "192.168.1.23",
+          "reason": "연결 안내에 든 시험용 사설 주소 예시(누구의 주소도 아님)"
+        },
+        {
+          "line": null,
+          "allow": "HighLife PC",
+          "reason": "제작 표기(공개판 화면에 이미 보이는 값)"
+        }
       ]
     },
     {
@@ -238,8 +258,16 @@
       "sha256": "bbc52672a8afc8437bd73e1a8b505fb61e3ed55197f38688f8b315d1e742a68c",
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충",
       "exceptions": [
-        {"line": null, "allow": "192.168.1.23", "reason": "연결 안내에 든 시험용 사설 주소 예시(누구의 주소도 아님)"},
-        {"line": null, "allow": "HighLife PC", "reason": "제작 표기(공개판 화면에 이미 보이는 값)"}
+        {
+          "line": null,
+          "allow": "192.168.1.23",
+          "reason": "연결 안내에 든 시험용 사설 주소 예시(누구의 주소도 아님)"
+        },
+        {
+          "line": null,
+          "allow": "HighLife PC",
+          "reason": "제작 표기(공개판 화면에 이미 보이는 값)"
+        }
       ]
     },
     {
@@ -249,8 +277,16 @@
       "sha256": "3ae2c4902e3b68427be3df55f253a684ee29a2d657496c91713a0931833827c5",
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충",
       "exceptions": [
-        {"line": null, "allow": "192.168.1.23", "reason": "연결 안내에 든 시험용 사설 주소 예시(누구의 주소도 아님)"},
-        {"line": null, "allow": "HighLife PC", "reason": "제작 표기(공개판 화면에 이미 보이는 값)"}
+        {
+          "line": null,
+          "allow": "192.168.1.23",
+          "reason": "연결 안내에 든 시험용 사설 주소 예시(누구의 주소도 아님)"
+        },
+        {
+          "line": null,
+          "allow": "HighLife PC",
+          "reason": "제작 표기(공개판 화면에 이미 보이는 값)"
+        }
       ]
     },
     {
@@ -266,8 +302,16 @@
       "sha256": "3aa48b23ac86626d711ae716da2c77be5250a37860122ea8177c98544bbe2137",
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충",
       "exceptions": [
-        {"line": null, "allow": "192.168.1.23", "reason": "연결 안내에 든 시험용 사설 주소 예시(누구의 주소도 아님)"},
-        {"line": null, "allow": "하이라이프", "reason": "제작 표기(공개판 화면에 이미 보이는 값)"}
+        {
+          "line": null,
+          "allow": "192.168.1.23",
+          "reason": "연결 안내에 든 시험용 사설 주소 예시(누구의 주소도 아님)"
+        },
+        {
+          "line": null,
+          "allow": "하이라이프",
+          "reason": "제작 표기(공개판 화면에 이미 보이는 값)"
+        }
       ]
     },
     {
@@ -735,9 +779,21 @@
       "sha256": "29cb03b2377ce76ca2130b368bdec3669cff7f3703ddaa4a58fe1302af978e19",
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충",
       "exceptions": [
-        {"line": null, "allow": "하이라이프", "reason": "제작 표기(공개판 화면에 이미 보이는 값)"},
-        {"line": null, "allow": "HighLifePC", "reason": "제작 표기(공개판 화면에 이미 보이는 값)"},
-        {"line": null, "allow": "대표님", "reason": "호칭(번역 사전 키)"}
+        {
+          "line": null,
+          "allow": "하이라이프",
+          "reason": "제작 표기(공개판 화면에 이미 보이는 값)"
+        },
+        {
+          "line": null,
+          "allow": "HighLifePC",
+          "reason": "제작 표기(공개판 화면에 이미 보이는 값)"
+        },
+        {
+          "line": null,
+          "allow": "대표님",
+          "reason": "호칭(번역 사전 키)"
+        }
       ]
     },
     {
@@ -747,9 +803,21 @@
       "sha256": "e2f65b80362e780a0b2ef24bcb904994b7a02ed74bbb7bf1e82bc01700db1084",
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충",
       "exceptions": [
-        {"line": null, "allow": "하이라이프", "reason": "제작 표기(공개판 화면에 이미 보이는 값)"},
-        {"line": null, "allow": "HighLifePC", "reason": "제작 표기(공개판 화면에 이미 보이는 값)"},
-        {"line": null, "allow": "대표님", "reason": "호칭(번역 사전 키)"}
+        {
+          "line": null,
+          "allow": "하이라이프",
+          "reason": "제작 표기(공개판 화면에 이미 보이는 값)"
+        },
+        {
+          "line": null,
+          "allow": "HighLifePC",
+          "reason": "제작 표기(공개판 화면에 이미 보이는 값)"
+        },
+        {
+          "line": null,
+          "allow": "대표님",
+          "reason": "호칭(번역 사전 키)"
+        }
       ]
     },
     {
@@ -759,11 +827,31 @@
       "sha256": "7197af4684925d2a42b6a23496951f11c0ecfc6588a96c36f347a2b99bcef88a",
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충",
       "exceptions": [
-        {"line": null, "allow": "하이라이프", "reason": "제작 표기(공개판 화면에 이미 보이는 값)"},
-        {"line": null, "allow": "海莱夫PC", "reason": "제작 표기의 중국어 번역(공개판 화면에 이미 보이는 값)"},
-        {"line": null, "allow": "HighLifePC", "reason": "제작 표기의 영문 표기(공개판 화면에 이미 보이는 값)"},
-        {"line": null, "allow": "대표님", "reason": "호칭(번역 사전 키)"},
-        {"line": null, "allow": "代表", "reason": "호칭의 중국어 번역(번역 사전 값)"}
+        {
+          "line": null,
+          "allow": "하이라이프",
+          "reason": "제작 표기(공개판 화면에 이미 보이는 값)"
+        },
+        {
+          "line": null,
+          "allow": "海莱夫PC",
+          "reason": "제작 표기의 중국어 번역(공개판 화면에 이미 보이는 값)"
+        },
+        {
+          "line": null,
+          "allow": "HighLifePC",
+          "reason": "제작 표기의 영문 표기(공개판 화면에 이미 보이는 값)"
+        },
+        {
+          "line": null,
+          "allow": "대표님",
+          "reason": "호칭(번역 사전 키)"
+        },
+        {
+          "line": null,
+          "allow": "代表",
+          "reason": "호칭의 중국어 번역(번역 사전 값)"
+        }
       ]
     },
     {
@@ -1813,15 +1901,51 @@
       "self": true,
       "note": "허용 목록 자신 — sha256 을 자기 안에 적을 수 없어 self",
       "exceptions": [
-        {"line": null, "allow": "하이라이프", "reason": "제작 표기 예외를 적은 줄"},
-        {"line": null, "allow": "HighLifePC", "reason": "제작 표기 예외를 적은 줄"},
-        {"line": null, "allow": "HighLife", "reason": "제작 표기 예외를 적은 줄"},
-        {"line": null, "allow": "HighLife PC", "reason": "제작 표기 예외를 적은 줄"},
-        {"line": null, "allow": "HighlifePC", "reason": "제작 표기 예외를 적은 줄"},
-        {"line": null, "allow": "192.168.1.23", "reason": "주소 예외를 적은 줄"},
-        {"line": null, "allow": "海莱夫PC", "reason": "제작 표기 예외를 적은 줄"},
-        {"line": null, "allow": "대표님", "reason": "호칭 예외를 적은 줄"},
-        {"line": null, "allow": "代表", "reason": "호칭 예외를 적은 줄"}
+        {
+          "line": null,
+          "allow": "하이라이프",
+          "reason": "제작 표기 예외를 적은 줄"
+        },
+        {
+          "line": null,
+          "allow": "HighLifePC",
+          "reason": "제작 표기 예외를 적은 줄"
+        },
+        {
+          "line": null,
+          "allow": "HighLife",
+          "reason": "제작 표기 예외를 적은 줄"
+        },
+        {
+          "line": null,
+          "allow": "HighLife PC",
+          "reason": "제작 표기 예외를 적은 줄"
+        },
+        {
+          "line": null,
+          "allow": "HighlifePC",
+          "reason": "제작 표기 예외를 적은 줄"
+        },
+        {
+          "line": null,
+          "allow": "192.168.1.23",
+          "reason": "주소 예외를 적은 줄"
+        },
+        {
+          "line": null,
+          "allow": "海莱夫PC",
+          "reason": "제작 표기 예외를 적은 줄"
+        },
+        {
+          "line": null,
+          "allow": "대표님",
+          "reason": "호칭 예외를 적은 줄"
+        },
+        {
+          "line": null,
+          "allow": "代表",
+          "reason": "호칭 예외를 적은 줄"
+        }
       ]
     },
     {
