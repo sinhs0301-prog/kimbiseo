@@ -2,6 +2,9 @@
 #   - 글 정리(filters.tts_clean)는 여기서 한 번만 하고 서버에는 raw 로 보낸다.
 #   - 첫 조각은 첫 쉼표에서 먼저 읽기(설정 목소리.첫쉼표_먼저읽기), 긴 문장(20글자+)은 쉼표에서 끊기(숫자 쉼표 제외).
 #   - 영어 문장(생각 글이 새어 나온 것)은 외국어 모드가 아니면 읽지 않음. 답 대부분이 막히면 한마디 안내.
+#     (0.1.18~ 앱 언어가 en·ja·zh 면 그 언어 답이 정상이므로 막지 않음 — 막기는 앱 언어가 ko 일 때만.)
+#   - 앱 언어(설정 "언어")가 ko 가 아니면 한자·가나를 지우지 않고(filters.app_clean) 숫자도 한국어로 읽지 않으며,
+#     요청마다 "lang" 을 목소리 서버에 보내 그 언어로 읽게 한다. ko 면 0.1.17 과 똑같이 돈다.
 #   - 말 빠르기(목소리.말속도 1.0/1.2/1.4): 서버가 줄였으면(X-Speed-Applied 1) 그대로, 아니면 여기서 줄임(PyAV 있을 때).
 #   - 목소리: 문장마다 다시 고름(voice_choice.voice_now) — 직접 고른 목소리 > 펫이 지금 입은 옷 > 펫 성별 설정.
 #     펫 옷을 갈아입으면 다음 문장부터 그 옷의 목소리. 서버가 그 이름을 거절하면 기본 목소리로 다시 말함(voice_link).
@@ -21,8 +24,8 @@ from pipecat.utils.text.base_text_aggregator import Aggregation, TextType
 from pipecat.utils.text.simple_text_aggregator import SimpleTextAggregator
 
 from .audio_smooth import SeamSmoother
-from . import interp, voice_choice
-from .filters import foreign_clean, lang_active, mostly_english, tts_clean
+from . import i18n, interp, voice_choice
+from .filters import app_clean, foreign_clean, lang_active, mostly_english, tts_clean
 from .voice_link import EarLink, VoiceLink, speech_rate, text_norm
 
 SR = 24000
@@ -94,18 +97,22 @@ class VoiceTTS(TTSService):
                 return re.sub(r"[*_#`~]+", " ", text).strip()
             if text_norm.has_yawn(text):
                 state.event("yawn", text=text[:60])
+            if i18n.lang_of(state.cfg) != "ko":   # 앱 언어가 외국어 — 그 언어 글자를 지우지 않음(한자·가나·숫자 그대로)
+                return app_clean(text)
             if lang_active(state) and not re.search(r"[가-힣]", text):
                 return foreign_clean(text)
             return tts_clean(text)
 
         vc = state.cfg.get("목소리") or {}
+        app_lang = i18n.lang_of(state.cfg)
         # 첫 소리 기다림: 파이프캣 기본은 3초 안에 소리가 없으면 '소리 없음'으로 치고, 3번 이어지면 목소리를 못 쓰게 막는다.
         #   김비서 목소리가 그래픽 메모리 부족으로 CPU 로 돌면 첫 소리가 13~15초 걸려 대화 중 목소리가 끊겼음(0.1.3 실측)
         #   → 기다림을 늘리고(목소리.첫소리_기다림_초, 기본 20초) 막기는 끔. 느린 목소리는 목소리 서버가 윈도우 음성으로 바꿈.
         super().__init__(push_start_frame=True, push_stop_frames=True, sample_rate=SR,
                          stop_frame_timeout_s=float(vc.get("첫소리_기다림_초", 20) or 20), max_consecutive_zero_audio_contexts=0,
                          text_transforms=[("*", _norm)],
-                         settings=TTSSettings(model=None, voice=str(vc.get("목소리") or "기본"), language=Language.KO), **kw)
+                         settings=TTSSettings(model=None, voice=str(vc.get("목소리") or "기본"),
+                                               language=i18n.pipecat_lang(app_lang)), **kw)
         self.state = state
         self.mouth = voice or VoiceLink(state.cfg, on_yawn=lambda: state.event("yawn", text="(서버 표시)"))
         old = self._text_aggregator
@@ -199,9 +206,10 @@ class VoiceTTS(TTSService):
             yield self._hush(context_id)
             return
         st = self.state
+        app_lang = i18n.lang_of(st.cfg)
         if self._turn_seen != st.turn_no:
             self._turn_seen, self._spoken_n, self._blocked_n, self._noticed = st.turn_no, 0, 0, False
-        if mostly_english(text) and not lang_active(st):
+        if app_lang == "ko" and mostly_english(text) and not lang_active(st):
             logger.warning(f"영어 문장이라 말하지 않음({len(text)}자)")
             self._blocked_n += 1
             if self._noticed or self._blocked_n < max(1, self._spoken_n):
@@ -223,7 +231,7 @@ class VoiceTTS(TTSService):
         if hasattr(self.mouth, "voice"):
             self.mouth.voice = await self._pick_voice()
         try:
-            async for msg, pcm in self.mouth.speak(text, speed):
+            async for msg, pcm in self.mouth.speak(text, speed, lang=app_lang):
                 kind = msg.get("type")
                 if kind == "head":
                     if speed != 1.0 and not msg.get("speed_applied"):

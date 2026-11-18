@@ -250,8 +250,14 @@ def tts_clean(text):
     return re.sub(r"\s{2,}", " ", t).strip()
 
 
-def foreign_clean(text):
-    """외국어 모드의 영어 문장: 숫자를 한국어로 바꾸지 않고 기호만 정리."""
+def app_clean(text):
+    """앱 언어가 한국어가 아닐 때(en·ja·zh): 한자·가나를 지우지 않고 숫자를 한국어로 읽지 않는다.
+    기호(마크다운·그림문자)와 하품만 정리 — 목소리 서버가 그 언어 그대로 읽는다(0.1.18)."""
     t = _MD.sub(" ", text_norm.drop_yawn(text or ""))
     t = re.sub(r"[🀀-🫿☀-➿]", "", t)
-    return re.sub(r"\s{2,}", " ", strip_hanzi(t)).strip()
+    return re.sub(r"\s{2,}", " ", t).strip()
+
+
+def foreign_clean(text):
+    """외국어 모드의 영어 문장: 숫자를 한국어로 바꾸지 않고 기호만 정리(한국어 앱 — 한자는 지움)."""
+    return strip_hanzi(app_clean(text)).strip()

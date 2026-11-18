@@ -40,6 +40,7 @@ from loguru import logger
 
 from .core import config as C
 from .core import guard as G
+from .core import i18n
 from .core.memory import Memory
 from .version import VERSION as APP_VERSION
 
@@ -76,6 +77,7 @@ def _setup(settings):
     SETTINGS_PATH = os.path.abspath(C.user_settings_path(settings))
     CFG = C.load(settings, warn=lambda m: logger.warning(m))
     CFG["_settings_path"] = SETTINGS_PATH
+    i18n.set_lang(CFG.get("언어"))       # 앱 언어(0.1.18) — 말·화면에 나가는 고정 문구(tr)가 이 언어를 씀
     data = C.path(CFG, "자료")
     os.makedirs(data, exist_ok=True)
     MEM = _make_memory()
@@ -102,6 +104,7 @@ def _setup(settings):
 def _reload():
     C.reload_into(CFG, SETTINGS_PATH, warn=lambda m: logger.warning(m))
     CFG["_settings_path"] = SETTINGS_PATH
+    i18n.set_lang(CFG.get("언어"))       # 설정에서 '언어'를 바꾸면 다음 문장·다음 화면부터
 
 
 def _restart_keys(what=None):

@@ -118,14 +118,15 @@ class VoiceLink:
         now = time.time()
         return {n for n, t in self._bad.items() if t > now}
 
-    async def speak(self, text, speed=1.0):
+    async def speak(self, text, speed=1.0, lang=None):
+        """lang: 앱 언어(0.1.18) — ko 가 아니면 요청에 실어 그 언어로 읽게 함(ko 는 예전 그대로 안 보냄)."""
         # 앱을 막 켰을 때 목소리 서버는 떠 있어도 엔진(Qwen)을 아직 읽는 중이면 503 '엔진 준비 중' → 오류 대신 기다렸다 다시(최대 목소리.엔진_기다림_초).
         wait = float((self.cfg.get("목소리") or {}).get("엔진_기다림_초", 90) or 90)
         t_end = asyncio.get_running_loop().time() + wait
         reset = self._reset
         voice = self.voice if self.voice not in self.bad_voices() else None
         while True:
-            agen = self._speak_once(text, speed, voice)
+            agen = self._speak_once(text, speed, voice, lang)
             retry = False
             try:
                 first = True
@@ -154,10 +155,12 @@ class VoiceLink:
                 logger.info("목소리 엔진 준비 중 — 1초 뒤 다시")
                 await asyncio.sleep(1.0)
 
-    async def _speak_once(self, text, speed=1.0, voice=None):
+    async def _speak_once(self, text, speed=1.0, voice=None, lang=None):
         req = {"text": text, "raw": True, "session": self.session, "pace": self.pace, "emotion": "기본"}
         if voice:
             req["voice"] = voice
+        if lang and lang != "ko":
+            req["lang"] = lang          # 앱 언어(0.1.18) — 한국어는 예전과 같은 요청 그대로
         if speed and abs(float(speed) - 1.0) > 1e-3:
             req["speed"] = float(speed)
             req["apply_speed"] = True
