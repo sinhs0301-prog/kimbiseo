@@ -166,12 +166,12 @@ class PetPhone:
                     return dst, True
             except OSError:
                 pass
-            tmp = dst + f".{os.getpid()}.tmp"
+            tmp = dst + f".{os.getpid()}.part.webm"
             try:
                 os.makedirs(d, exist_ok=True)
                 cmd = [ff, "-v", "error", "-y", "-i", src, "-vf", f"scale={SMALL_W}:-2",
                        "-c:v", "libvpx-vp9", "-b:v", "0", "-crf", "36", "-an",
-                       "-deadline", "realtime", "-cpu-used", "8", "-row-mt", "1", tmp]
+                       "-deadline", "realtime", "-cpu-used", "8", "-row-mt", "1", "-f", "webm", tmp]
                 flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
                 subprocess.run(cmd, timeout=60, check=True, creationflags=flags,
                                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
@@ -180,7 +180,9 @@ class PetPhone:
                     return dst, True
                 os.remove(tmp)
             except (OSError, subprocess.SubprocessError, ValueError) as ex:
-                logger.info(f"폰 펫 작은 판을 만들지 못해 원본을 보냅니다({motion}): {ex.__class__.__name__}")
+                err = getattr(ex, "stderr", b"") or b""
+                logger.info(f"폰 펫 작은 판을 만들지 못해 원본을 보냅니다({motion}): {ex.__class__.__name__} "
+                            f"{err[:200].decode('utf-8', 'replace')}")
                 try:
                     os.remove(tmp)
                 except OSError:
