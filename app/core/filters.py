@@ -4,6 +4,7 @@
 #   lang_request: '영어로 말해 줘' 같은 요청이면 잠깐 외국어 모드(영어 문장을 막지 않음)
 #   mostly_english: 한글 없는 긴 영어 문장(생각 글이 새어 나온 것) 판정 — 외국어 모드가 아니면 말하지 않음
 #   tts_clean   : 목소리에 넣기 직전 정리(하품·마크다운·그림문자·한자 → voice/text_norm 읽기 변환)
+#   app_clean   : 앱 언어가 ko 가 아닐 때(en·ja·zh) — 한자·가나·숫자를 그대로 두고 기호만 정리(0.1.18)
 import re
 import time
 

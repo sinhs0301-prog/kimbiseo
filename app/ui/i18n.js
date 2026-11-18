@@ -61,7 +61,7 @@ const I18N = (() => {
     s = String(s);
     if (lang !== "ko") {
       if (Object.prototype.hasOwnProperty.call(exact, s)) s = exact[s];
-      else if (!vars) s = lookup(s);
+      else s = lookup(s);      // 자리 이름이 달라도({n} ↔ {0}) 틀로 대조 — t("{n}개", {n:3})
     }
     return fill(s, vars);
   }

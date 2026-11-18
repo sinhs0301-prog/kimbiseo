@@ -138,8 +138,8 @@ def tr(text, lang=None, **kw):
         exact, _p = _load(code)
         if s in exact:
             s = exact[s]
-        elif not kw:
-            s = lookup(s, code)
+        else:
+            s = lookup(s, code)      # 자리 이름이 달라도({n} ↔ {0}) 틀로 대조해 바꾼 뒤 kw 로 채움
     return _fill(s, kw)
 
 

@@ -37,6 +37,9 @@ TR_FILES = ["app/**/*.py", "voice/*.py", "installer/*.py"]
 PS_FILES = ["installer/install.ps1", "installer/worker.ps1", "installer/uninstall.ps1"]
 JSON_FILES = {"app/config/choices.json": "values", "app/tools/basic/tools.json": "tooldesc", "app/tools/phone/tools.json": "tooldesc"}
 
+# 잡음 많은 파일은 tr()/T() 로 부른 글만 모은다(사전 열쇠·정규식·로그가 섞이는 곳)
+TR_ONLY_PY = {"app/tools/basic/web.py", "app/tools/basic/pc_action.py", "app/core/memory.py", "voice/interp_langs.py"}
+TR_ONLY_JS = {"pet/renderer/real/motion_names.js", "pet/main.js"}
 LOG_CALLS = {"log", "warn", "print", "info", "debug", "warning", "error", "exception", "critical", "_log", "logw", "say_log",
              "compile", "sub", "search", "match", "fullmatch", "findall", "finditer", "split", "join", "escape", "event",
              "startswith", "endswith", "replace", "get", "pop", "setdefault", "strip", "rstrip", "lstrip", "count", "index",
@@ -86,8 +89,24 @@ def segments(s):
 
 
 # ---------------------------------------------------------------- JS
+def _js_caller(src, i):
+    """문자열 바로 앞이 '이름(' 꼴이면 그 이름(T·tr·log …), 아니면 ''."""
+    j = i - 1
+    while j >= 0 and src[j] in " \t\r\n":
+        j -= 1
+    if j < 0 or src[j] != "(":
+        return ""
+    j -= 1
+    while j >= 0 and src[j] in " \t\r\n":
+        j -= 1
+    k = j
+    while k >= 0 and (src[k].isalnum() or src[k] in "_$"):
+        k -= 1
+    return src[k + 1:j + 1]
+
+
 def _js_literals(src):
-    """JS 소스 → [(줄, 문자열 내용)] — 주석·정규식은 건너뜀. 템플릿의 ${…} 는 {0}{1}… 로."""
+    """JS 소스 → [(줄, 문자열 내용, 부르는 함수 이름)] — 주석·정규식은 건너뜀. 템플릿의 ${…} 는 {0}{1}… 로."""
     out = []
     i, n, line = 0, len(src), 1
     prev = ""   # 마지막 의미 있는 글자(정규식 판정)
@@ -139,7 +158,7 @@ def _js_literals(src):
                     continue
                 buf.append(src[j])
                 j += 1
-            out.append((line, "".join(buf)))
+            out.append((line, "".join(buf), _js_caller(src, i)))
             i = j + 1
             prev = "x"
             continue
@@ -171,7 +190,7 @@ def _js_literals(src):
                     line += 1
                 buf.append(src[j])
                 j += 1
-            out.append((start_line, "".join(buf)))
+            out.append((start_line, "".join(buf), _js_caller(src, i)))
             i = j + 1
             prev = "x"
             continue
@@ -180,11 +199,25 @@ def _js_literals(src):
     return out
 
 
-def scan_js(path):
+_JS_LOG_LINE = re.compile(r"\bconsole\s*\.|\blog\s*\(")
+_TR_CALLS = {"T", "tr", "_t", "tr_lazy"}
+
+
+def _js_line_ok(lines, line):
+    """console./log( 줄은 기록·디버그 글 — 화면에 안 나오므로 뺀다."""
+    return not (0 < line <= len(lines) and _JS_LOG_LINE.search(lines[line - 1]))
+
+
+def scan_js(path, tr_only=False):
     src = open(path, encoding="utf-8").read()
+    lines = src.split("\n")
     res = []
-    for line, s in _js_literals(src):
+    for line, s, caller in _js_literals(src):
         if not HANGUL.search(s):
+            continue
+        if tr_only and caller not in _TR_CALLS:   # T("…")·tr("…") 로 부른 글만(동작 별명 같은 사전 열쇠는 뺌)
+            continue
+        if not _js_line_ok(lines, line):
             continue
         if KEYLIKE.match(s.strip()):
             continue
@@ -197,10 +230,11 @@ def scan_html(path):
     src = open(path, encoding="utf-8").read()
     res = []
     body = re.sub(r"<script\b[^>]*>.*?</script>|<style\b[^>]*>.*?</style>", lambda m: "\n" * m.group(0).count("\n"), src, flags=re.S | re.I)
+    lines = src.split("\n")
     for m in re.finditer(r"<script\b[^>]*>(.*?)</script>", src, flags=re.S | re.I):
         base = src.count("\n", 0, m.start(1))
-        for line, s in _js_literals(m.group(1)):
-            if HANGUL.search(s) and not KEYLIKE.match(s.strip()):
+        for line, s, _caller in _js_literals(m.group(1)):
+            if HANGUL.search(s) and not KEYLIKE.match(s.strip()) and _js_line_ok(lines, base + line):
                 for seg in segments(s):
                     res.append((seg, base + line))
     pos = 0
@@ -383,10 +417,13 @@ def collect():
         for s, line in items:
             found.setdefault(s, []).append(f"{rel(f)}:{line}")
     for f in _glob(UI_FILES):
-        add(scan_html(f) if f.endswith(".html") else scan_js(f), f)
+        if f.endswith(".html"):
+            add(scan_html(f), f)
+        else:
+            add(scan_js(f, tr_only=rel(f) in TR_ONLY_JS), f)
     pyset = set(_glob(PY_FILES))
     for f in pyset:
-        add(scan_py(f), f)
+        add(scan_py(f, tr_only=rel(f) in TR_ONLY_PY), f)
     for f in _glob(TR_FILES):
         if f not in pyset:
             add(scan_py(f, tr_only=True), f)
@@ -442,7 +479,7 @@ def cmd_check(langs):
         d = load_dict(lang)
         miss = [k for k in found if k not in d]
         ph = [k for k, v in d.items() if placeholders(k) != placeholders(v)]
-        left = [k for k, v in d.items() if HANGUL.search(v) and not re.search(r"한국어|한글", v)]
+        left = [k for k, v in d.items() if HANGUL.search(PH.sub("", v)) and not re.search(r"한국어|한글", v)]   # {이름} 같은 자리 안의 한글은 뺌
         empty = [k for k, v in d.items() if not str(v).strip()]
         print(f"[{lang}] 원문 {len(found)} · 사전 {len(d)} · 빠짐 {len(miss)} · 자리 안 맞음 {len(ph)} · 번역에 한글 {len(left)} · 빈 번역 {len(empty)}")
         for k in miss[:15]:
@@ -497,6 +534,7 @@ def main():
     if a.cmd == "merge":
         d = load_dict(a.lang)
         new = json.load(open(a.file, encoding="utf-8"))
+        new = {k: v for k, v in new.items() if not k.startswith("_")}
         bad = [k for k, v in new.items() if not isinstance(v, str) or placeholders(k) != placeholders(v)]
         for k in bad:
             print("   자리 안 맞아 건너뜀:", k[:60], "→", str(new[k])[:60])

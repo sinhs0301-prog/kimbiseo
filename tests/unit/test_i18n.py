@@ -164,6 +164,50 @@ def test_language_defaults_use_by_name_and_sites():
             assert url and url.startswith("https://"), (code, site, why)
 
 
+def test_tr_and_lookup_with_filled_placeholders():
+    """tr(틀) 과 lookup(이미 채워진 글) — 자리 {n}·{이름} 를 살려 바꾸고, ko 면 원문 그대로."""
+    d = tempfile.mkdtemp()
+    with open(os.path.join(d, "en.json"), "w", encoding="utf-8") as f:
+        json.dump({"오류": "Error", "{n}개 받음": "Received {n}", "{0}개 받음": "Received {0}",
+                   "{이름}입니다": "This is {이름}"}, f, ensure_ascii=False)
+    old = i18n.I18N_DIR
+    try:
+        i18n.I18N_DIR = d
+        i18n._CACHE.clear()
+        assert i18n.tr("오류", lang="en") == "Error"
+        assert i18n.tr("{n}개 받음", lang="en", n=3) == "Received 3"
+        assert i18n.tr("{m}개 받음", lang="en", m=4) == "Received 4"   # 이름이 다른 틀({0})도 대조
+        assert i18n.lookup("5개 받음", "en") == "Received 5"
+        assert i18n.lookup("김비서입니다", "en") == "This is 김비서"    # 안쪽 이름은 다시 lookup(사전에 없으면 원문)
+        assert i18n.tr("오류", lang="ko") == "오류"
+        assert i18n.lookup("오류", "ko") == "오류"
+    finally:
+        i18n.I18N_DIR = old
+        i18n._CACHE.clear()
+
+
+def test_screen_dictionaries_cover_scan():
+    """화면 사전(en·ja·zh)이 i18n_scan 이 찾은 원문을 모두 덮고, 자리·한글이 맞는지(tools/i18n_scan.py check 와 같은 규칙)."""
+    import re
+    sys.path.insert(0, os.path.join(ROOT, "tools"))
+    try:
+        import i18n_scan
+    finally:
+        sys.path.pop(0)
+    found = i18n_scan.collect()
+    assert len(found) > 1000, len(found)
+    for code in ("en", "ja", "zh"):
+        d = i18n_scan.load_dict(code)
+        assert set(found) <= set(d), (code, sorted(set(found) - set(d))[:3])
+        bad = [k for k, v in d.items() if i18n_scan.placeholders(k) != i18n_scan.placeholders(v)]
+        assert not bad, (code, bad[:3])
+        hangul = [k for k, v in d.items()
+                  if re.search(r"[가-힣]", re.sub(r"\{[^{}\s]{1,40}\}", "", v)) and not re.search(r"한국어|한글", v)]
+        assert not hangul, (code, hangul[:3])
+        assert d["김비서"] == {"en": "KimBiseo", "ja": "キム秘書", "zh": "金秘书"}[code]
+        assert d["설정"] == {"en": "Settings", "ja": "設定", "zh": "设置"}[code]
+
+
 def main():
     fails = 0
     for k, f in list(globals().items()):
