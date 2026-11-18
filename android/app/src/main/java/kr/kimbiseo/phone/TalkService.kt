@@ -73,20 +73,21 @@ class TalkService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        L.init(this)
         me = this
         val nm = getSystemService(NotificationManager::class.java)
-        nm.createNotificationChannel(NotificationChannel(CH, "대화 중", NotificationManager.IMPORTANCE_LOW))
-        nm.createNotificationChannel(NotificationChannel("ask", "실행 확인", NotificationManager.IMPORTANCE_HIGH))
+        nm.createNotificationChannel(NotificationChannel(CH, getString(R.string.notif_channel_talk), NotificationManager.IMPORTANCE_LOW))
+        nm.createNotificationChannel(NotificationChannel("ask", getString(R.string.notif_channel_ask), NotificationManager.IMPORTANCE_HIGH))
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val open = PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
-        val n = Notification.Builder(this, CH).setSmallIcon(R.drawable.ic_note).setContentTitle("김비서와 대화 중")
-            .setContentText("PC 의 김비서가 듣고 있어요").setContentIntent(open).setOngoing(true).build()
+        val n = Notification.Builder(this, CH).setSmallIcon(R.drawable.ic_note).setContentTitle(getString(R.string.notif_talk_title))
+            .setContentText(getString(R.string.notif_talk_text)).setContentIntent(open).setOngoing(true).build()
         try {
             if (Build.VERSION.SDK_INT >= 29) startForeground(NID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE) else startForeground(NID, n)
         } catch (e: Throwable) {
-            Bus.line("sys", "마이크 권한이 없어 대화를 시작하지 못했어요.")
+            Bus.line("sys", getString(R.string.mic_perm_missing))
             stopSelf(); return START_NOT_STICKY
         }
         ctl.post { if (ws == null) { userStop = false; retry = 0; connect() } }
@@ -97,19 +98,19 @@ class TalkService : Service() {
         me = null
         ctl.post { closeWs("bye"); stopAudio() }
         ctl.looper.quitSafely()
-        Bus.post(Bus.Ev.State(false, "대기", micOn))
+        Bus.post(Bus.Ev.State(false, getString(R.string.state_idle), micOn))
         super.onDestroy()
     }
 
     // ---------------------------------------------------------------- 화면에서 부름
-    fun stopTalk() = ctl.post { userStop = true; closeWs("bye"); finish("대화를 끝냈어요.") }
+    fun stopTalk() = ctl.post { userStop = true; closeWs("bye"); finish(getString(R.string.talk_ended)) }
     fun sendText(t: String) = ctl.post { send(JSONObject().put("type", "text").put("text", t.take(2000))) }   // 화면 줄은 PC 가 돌려주는 typed 로
-    fun setMic(on: Boolean) { micOn = on; Bus.post(Bus.Ev.State(authed, if (on) "듣는 중" else "마이크 꺼짐", on)) }
+    fun setMic(on: Boolean) { micOn = on; Bus.post(Bus.Ev.State(authed, getString(if (on) R.string.state_listening else R.string.state_mic_off), on)) }
     fun answer(id: String, ok: Boolean) = ctl.post {
         send(JSONObject().put("type", "confirm_result").put("id", id).put("result", JSONObject().put("ok", ok)))
         Bus.post(Bus.Ev.AskDone(id)); askTimer?.let { ctl.removeCallbacks(it) }
         getSystemService(NotificationManager::class.java).cancel(7)
-        Bus.line("sys", if (ok) "실행해요." else "실행하지 않았어요.")
+        Bus.line("sys", getString(if (ok) R.string.answer_yes else R.string.answer_no))
     }
     fun interp(on: Boolean?, lang: String) = ctl.post {
         val o = JSONObject().put("type", "interp").put("lang", lang)
@@ -126,8 +127,8 @@ class TalkService : Service() {
             var i = 0
             while (i < all.size) { feed.offer(all.copyOfRange(i, min(all.size, i + 320))); i += 320 }
             repeat(60) { feed.offer(ShortArray(320)) }   // 말 끝 1.2초 조용
-            Bus.line("sys", "시험 소리 %.1f초 넣음".format(all.size / 16000.0))
-        } catch (e: Throwable) { Bus.line("sys", "시험 소리를 못 읽었어요: ${e.javaClass.simpleName}") }
+            Bus.line("sys", getString(R.string.test_sound_added, "%.1f".format(all.size / 16000.0)))
+        } catch (e: Throwable) { Bus.line("sys", getString(R.string.test_sound_fail, e.javaClass.simpleName)) }
     }
 
     // ---------------------------------------------------------------- 연결
@@ -135,8 +136,8 @@ class TalkService : Service() {
 
     private fun connect() {
         val pc = Store.pc(this)
-        if (pc == null) { Bus.line("sys", "먼저 PC 와 연결해 주세요."); finish(null); return }
-        Bus.post(Bus.Ev.State(false, "연결 중", micOn))
+        if (pc == null) { Bus.line("sys", getString(R.string.connect_first)); finish(null); return }
+        Bus.post(Bus.Ev.State(false, getString(R.string.state_connecting), micOn))
         val http = Net.client(pc.fp, ws = true).first
         tryHost(pc, http, 0, ++gen)
     }
@@ -164,7 +165,7 @@ class TalkService : Service() {
                 ctl.post {
                     if (g != gen) return@post
                     if (!opened) {
-                        if (t is javax.net.ssl.SSLException) { lost(null, "PC 인증서가 연결할 때와 달라요. PC 를 바꿨다면 다시 연결해 주세요."); return@post }
+                        if (t is javax.net.ssl.SSLException) { lost(null, getString(R.string.cert_changed)); return@post }
                         tryHost(pc, http, i + 1, g)
                     } else closed(-1)
                 }
@@ -185,15 +186,15 @@ class TalkService : Service() {
         stopAudio()
         when {
             userStop -> finish(null)
-            code == 4401 -> { Store.clear(this); finish("이 폰의 연결이 PC 에서 지워졌어요. 다시 연결해 주세요.") }
-            code == 4403 -> finish("PC 가 이 연결을 받지 않아요. 집 밖이라면 PC 김비서 설정 → 폰 연결 → '테일스케일로도 연결 받기'가 켜져 있는지 확인해 주세요.")
+            code == 4401 -> { Store.clear(this); finish(getString(R.string.connection_removed)) }
+            code == 4403 -> finish(getString(R.string.not_accepted))
             was && retry < 3 -> {
                 retry++
-                if (retry == 1) Bus.line("sys", "PC 연결이 끊겨 다시 연결하는 중")
-                Bus.post(Bus.Ev.State(false, "다시 연결 중", micOn))
+                if (retry == 1) Bus.line("sys", getString(R.string.reconnecting_note))
+                Bus.post(Bus.Ev.State(false, getString(R.string.state_reconnecting), micOn))
                 ctl.postDelayed({ if (ws == null && !userStop) connect() }, longArrayOf(1000, 3000, 6000)[retry - 1])
             }
-            else -> finish(if (was) "PC 연결이 끊겼어요." else "PC 에 연결하지 못했어요.")
+            else -> finish(getString(if (was) R.string.connection_lost else R.string.connection_failed))
         }
     }
 
@@ -201,7 +202,7 @@ class TalkService : Service() {
 
     private fun finish(msg: String?) {
         if (msg != null) Bus.line("sys", msg)
-        Bus.post(Bus.Ev.State(false, "대기", micOn))
+        Bus.post(Bus.Ev.State(false, getString(R.string.state_idle), micOn))
         main.post { try { stopForeground(STOP_FOREGROUND_REMOVE) } catch (_: Throwable) {}; stopSelf() }
     }
 
@@ -211,21 +212,21 @@ class TalkService : Service() {
             "auth_ok" -> {
                 authed = true; retry = 0
                 Bus.post(Bus.Ev.Pc(m))
-                Bus.post(Bus.Ev.State(true, if (micOn) "듣는 중" else "마이크 꺼짐", micOn))
+                Bus.post(Bus.Ev.State(true, getString(if (micOn) R.string.state_listening else R.string.state_mic_off), micOn))
                 startAudio()
                 send(JSONObject().put("type", "interp_get"))
             }
-            "auth_fail" -> { userStop = true; Store.clear(this); Bus.line("sys", "이 폰의 연결이 PC 에서 지워졌어요. 다시 연결해 주세요.") }
-            "status" -> { val s = m.optString("state"); if (s.isNotEmpty()) Bus.post(Bus.Ev.State(true, s, micOn)) }
+            "auth_fail" -> { userStop = true; Store.clear(this); Bus.line("sys", getString(R.string.connection_removed)) }
+            "status" -> { val s = m.optString("state"); if (s.isNotEmpty()) Bus.post(Bus.Ev.State(true, pcState(s), micOn)) }
             "user", "typed" -> m.optString("text").takeIf { it.isNotBlank() }?.let { Bus.line("me", it) }
             "bot" -> m.optString("text").takeIf { it.isNotBlank() }?.let { Bus.line("bot", it) }
-            "brain_error" -> Bus.line("sys", m.optString("text", "김비서 두뇌가 답하지 못했어요."))
+            "brain_error" -> Bus.line("sys", m.optString("text", getString(R.string.brain_error)))
             "tool" -> toolLine(m)
-            "voice_gate" -> Bus.line("gate", "등록한 목소리가 아니라서 듣지 않았어요" + (m.optString("text").takeIf { it.isNotBlank() }?.let { ": $it" } ?: ""))
+            "voice_gate" -> Bus.line("gate", getString(R.string.voice_gate) + (m.optString("text").takeIf { it.isNotBlank() }?.let { ": $it" } ?: ""))
             "interp" -> Bus.post(Bus.Ev.Interp(m))
             "clear_audio", "interrupted" -> { playQ.clear(); try { track?.pause(); track?.flush(); track?.play() } catch (_: Throwable) {} }
-            "standby" -> { userStop = true; closeWs("standby"); finish("대화를 쉬어요. 다시 말하려면 '대화 시작'을 눌러 주세요.") }
-            "kicked" -> { userStop = true; closeWs("kicked"); finish("PC 화면이나 다른 폰에서 대화를 시작해서 여기는 끝났어요.") }
+            "standby" -> { userStop = true; closeWs("standby"); finish(getString(R.string.standby)) }
+            "kicked" -> { userStop = true; closeWs("kicked"); finish(getString(R.string.kicked)) }
             "confirm" -> ask(m.optString("id"), m.optString("text"))
             "phone_do" -> {
                 val id = m.optString("id")
@@ -237,13 +238,29 @@ class TalkService : Service() {
         }
     }
 
-    private val TOOLS = mapOf("web_search" to "PC 에서 검색하는 중", "read_page" to "PC 에서 페이지를 읽는 중", "get_weather" to "날씨 보는 중",
-        "pc_action" to "PC 에서 여는 중", "type_text" to "PC 메모장에 적는 중", "phone_action" to "폰에서 여는 중")
+    private fun toolLabel(name: String): String? = when (name) {
+        "web_search" -> getString(R.string.tool_web_search)
+        "read_page" -> getString(R.string.tool_read_page)
+        "get_weather" -> getString(R.string.tool_get_weather)
+        "pc_action" -> getString(R.string.tool_pc_action)
+        "type_text" -> getString(R.string.tool_type_text)
+        "phone_action" -> getString(R.string.tool_phone_action)
+        else -> null
+    }
 
     private fun toolLine(m: JSONObject) {
         val st = m.optString("state")
         if (st != "start" && st != "") return
-        TOOLS[m.optString("name")]?.let { Bus.line("tool", it) }
+        toolLabel(m.optString("name"))?.let { Bus.line("tool", it) }
+    }
+
+    /** PC 가 보낸 한국어 상태를 기기 언어로(모르는 상태는 그대로) */
+    private fun pcState(s: String): String = when (s) {
+        "듣는 중" -> getString(R.string.state_listening)
+        "마이크 꺼짐" -> getString(R.string.state_mic_off)
+        "생각 중" -> getString(R.string.state_thinking)
+        "도구 사용 중" -> getString(R.string.state_using_tool)
+        else -> s
     }
 
     /** 위험한 일 '실행할까요?' — 화면 단추(뒤에 있으면 알림으로 화면 열기). PC 가 45초 기다리므로 44초 뒤 단추를 거둠 */
@@ -254,12 +271,12 @@ class TalkService : Service() {
             val pi = PendingIntent.getActivity(this, 7, Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
                 PendingIntent.FLAG_IMMUTABLE)
             getSystemService(NotificationManager::class.java).notify(7, Notification.Builder(this, "ask").setSmallIcon(R.drawable.ic_note)
-                .setContentTitle("실행할까요?").setContentText(text).setContentIntent(pi).setAutoCancel(true).build())
+                .setContentTitle(getString(R.string.ask_title)).setContentText(text).setContentIntent(pi).setAutoCancel(true).build())
         }
         askTimer?.let { ctl.removeCallbacks(it) }
         val r = Runnable {
             Bus.post(Bus.Ev.AskDone(id)); getSystemService(NotificationManager::class.java).cancel(7)
-            Bus.line("sys", "답이 없어 실행하지 않았어요.")
+            Bus.line("sys", getString(R.string.ask_no_answer))
         }
         askTimer = r; ctl.postDelayed(r, 44000)
     }
@@ -283,7 +300,7 @@ class TalkService : Service() {
             AudioFormat.ENCODING_PCM_16BIT, max(minIn, 640 * 8)) } catch (_: Throwable) { null }
         if (r == null || r.state != AudioRecord.STATE_INITIALIZED) {
             try { r?.release() } catch (_: Throwable) {}
-            Bus.line("sys", "마이크를 열지 못했어요. 글로 대화할 수 있어요.")
+            Bus.line("sys", getString(R.string.mic_open_failed))
         } else {
             try { if (AcousticEchoCanceler.isAvailable()) AcousticEchoCanceler.create(r.audioSessionId)?.enabled = true } catch (_: Throwable) {}
             try { if (NoiseSuppressor.isAvailable()) NoiseSuppressor.create(r.audioSessionId)?.enabled = true } catch (_: Throwable) {}
@@ -302,7 +319,7 @@ class TalkService : Service() {
         playQ.clear()
         val sock = ws
         val mic = rec
-        try { mic?.startRecording() } catch (_: Throwable) { Bus.line("sys", "마이크를 열지 못했어요. 글로 대화할 수 있어요.") }
+        try { mic?.startRecording() } catch (_: Throwable) { Bus.line("sys", getString(R.string.mic_open_failed)) }
         Thread {   // 마이크 → PC (20ms). 마이크를 끄면 조용한 소리를 보냄(PC 쪽 말 끝 판단이 끊기지 않게)
             val b = ShortArray(320); val bb = ByteBuffer.allocate(640).order(ByteOrder.LITTLE_ENDIAN)
             var lvT = 0L

@@ -49,6 +49,7 @@ class MainActivity : Activity() {
 
     override fun onCreate(b: Bundle?) {
         super.onCreate(b)
+        L.init(this)
         window.statusBarColor = Ui.BG; window.navigationBarColor = Ui.BG
         root = FrameLayout(this).apply { setBackgroundColor(Ui.BG) }
         setContentView(root)
@@ -73,7 +74,7 @@ class MainActivity : Activity() {
         if (d != null && d.startsWith("kimbiseo://")) {
             val p = PairRules.parse(d)
             pending = p
-            screen = ""; show(if (p == null) "QR 내용이 김비서 연결 코드가 아니에요." else null)
+            screen = ""; show(if (p == null) getString(R.string.pair_qr_invalid) else null)
             return
         }
         if (BuildConfig.TEST_HOOKS && i != null) testHooks(i)
@@ -97,7 +98,7 @@ class MainActivity : Activity() {
             root.postDelayed({
                 val r = Doer(this).run(org.json.JSONObject(j))
                 android.util.Log.i("KimbiseoTest", "test_do " + r)
-                Bus.line("sys", "시험 폰 일: " + r.optString("말"))
+                Bus.line("sys", getString(R.string.test_do_prefix) + " " + r.optString("말"))
             }, 800)
         }
     }
@@ -151,57 +152,57 @@ class MainActivity : Activity() {
     private fun pairScreen(msg: String?) {
         screen = "pair"
         val p = page()
-        p.addView(Ui.text(this, "김비서", 14f, Ui.TEXT2, true))
-        p.addView(Ui.text(this, "내 PC 와 연결하기", 26f, Ui.TEXT, true))
-        p.addView(Ui.text(this, "PC 의 김비서에서 설정 → 폰 연결 → '연결 코드 만들기'를 누르면 QR 과 8자리 숫자가 나와요. 폰과 PC 가 같은 와이파이이거나, 둘 다 테일스케일이 켜져 있어야 해요.", 15f, Ui.TEXT2))
-        p.addView(Ui.button(this, "QR 찍기", Ui.Kind.PRIMARY) { scan() }, lp())
+        p.addView(Ui.text(this, getString(R.string.app_name), 14f, Ui.TEXT2, true))
+        p.addView(Ui.text(this, getString(R.string.pair_title), 26f, Ui.TEXT, true))
+        p.addView(Ui.text(this, getString(R.string.pair_intro), 15f, Ui.TEXT2))
+        p.addView(Ui.button(this, getString(R.string.pair_scan_qr), Ui.Kind.PRIMARY) { scan() }, lp())
         if (msg != null) p.addView(Ui.text(this, msg, 14f, Ui.BAD))
         val c = Ui.card(this)
-        c.addView(Ui.text(this, "QR 없이 직접 넣기", 16f, Ui.TEXT, true))
-        val host = Ui.field(this, "PC 주소 (예: 192.168.1.23 · 테일스케일 100.x.x.x)", value = typed[0], kind = Ui.In.HOST)
-        val port = Ui.field(this, "포트", true, typed[1].ifEmpty { "8874" })
-        val code = Ui.field(this, "연결 코드 8자리", true, typed[2])
-        val fp = Ui.field(this, "인증서 확인 글자 16자리 (예: 3F2A 91C0 …)", value = typed[3], kind = Ui.In.HEX)
+        c.addView(Ui.text(this, getString(R.string.pair_manual_title), 16f, Ui.TEXT, true))
+        val host = Ui.field(this, getString(R.string.pair_host_hint), value = typed[0], kind = Ui.In.HOST)
+        val port = Ui.field(this, getString(R.string.pair_port_hint), true, typed[1].ifEmpty { "8874" })
+        val code = Ui.field(this, getString(R.string.pair_code_hint), true, typed[2])
+        val fp = Ui.field(this, getString(R.string.pair_fp_hint), value = typed[3], kind = Ui.In.HEX)
         val fields = listOf(host, port, code, fp)
         for (f in fields) c.addView(f, lp())
         val err = Ui.text(this, "", 14f, Ui.BAD)
-        c.addView(Ui.button(this, "연결하기") {
+        c.addView(Ui.button(this, getString(R.string.pair_connect)) {
             for ((i, f) in fields.withIndex()) typed[i] = f.text.toString()   // 오류가 나도 넣은 값은 그대로 둠
             val h = PairRules.cleanHost(host.text.toString()); val pt = port.text.toString().trim().toIntOrNull() ?: 0
             if (h != host.text.toString()) { host.setText(h); typed[0] = h }
             val cd = PairRules.cleanCode(code.text.toString()); val f = PairRules.cleanFp(fp.text.toString())
             err.setTextColor(Ui.BAD)
             err.text = when {
-                h.isEmpty() -> "PC 주소를 넣어 주세요(PC 화면의 '연결 코드 만들기'에 나온 주소)."
+                h.isEmpty() -> getString(R.string.pair_err_host_empty)
                 !PairRules.lanHost(h) -> if (PairRules.publicV4(h))
-                    "그 주소는 인터넷 공인 주소라 안 돼요. 집 안 주소(192.168.x.x 같은 것)나 테일스케일 주소(100.x.x.x)를 넣어 주세요."
-                    else "PC 주소 모양이 아니에요. 192.168.x.x 같은 집 안 주소나 테일스케일 주소(100.x.x.x)를 숫자와 점으로 넣어 주세요."
-                pt !in 1..65535 -> "포트 숫자를 확인해 주세요(보통 8874)."
-                cd == null -> "연결 코드는 숫자 8자리예요."
-                f == null -> "인증서 확인 글자는 PC 화면에 나온 16자리(숫자·A~F)예요. 띄어쓰기는 상관없어요."
-                else -> { err.setTextColor(Ui.TEXT2); doPair(PairInfo(listOf(h), pt, cd, f, ""), err); "연결하는 중" }
+                    getString(R.string.pair_err_public)
+                    else getString(R.string.pair_err_host_shape)
+                pt !in 1..65535 -> getString(R.string.pair_err_port)
+                cd == null -> getString(R.string.pair_err_code)
+                f == null -> getString(R.string.pair_err_fp)
+                else -> { err.setTextColor(Ui.TEXT2); doPair(PairInfo(listOf(h), pt, cd, f, ""), err); getString(R.string.pair_connecting) }
             }
             if (err.text.isNotEmpty()) err.post { val r = Rect(); err.getDrawingRect(r); err.requestRectangleOnScreen(r, false) }
         }, lp())
         c.addView(err)
         p.addView(c, lp())
-        p.addView(Ui.text(this, "연결한 폰만 PC 김비서와 대화할 수 있어요. 대화는 집 안 네트워크 안에서 암호화돼 오가고, 이 앱은 다른 서버로 아무것도 보내지 않아요.", 13f, Ui.MUTED))
+        p.addView(Ui.text(this, getString(R.string.pair_footer), 13f, Ui.MUTED))
     }
 
     private fun pairConfirm(info: PairInfo) {
         screen = "confirm"
         val p = page()
-        p.addView(Ui.text(this, "이 PC 가 맞나요", 26f, Ui.TEXT, true))
+        p.addView(Ui.text(this, getString(R.string.pair_confirm_title), 26f, Ui.TEXT, true))
         val c = Ui.card(this, 8)
-        c.addView(Ui.text(this, if (info.pcName.isNotEmpty()) info.pcName else "PC", 17f, Ui.TEXT, true))
-        c.addView(Ui.text(this, "주소 " + info.hosts.joinToString(" · ") + " · 포트 ${info.port}", 13f, Ui.TEXT2))
-        c.addView(Ui.text(this, "인증서 확인 글자", 13f, Ui.TEXT2))
+        c.addView(Ui.text(this, if (info.pcName.isNotEmpty()) info.pcName else getString(R.string.common_pc), 17f, Ui.TEXT, true))
+        c.addView(Ui.text(this, getString(R.string.pair_address, info.hosts.joinToString(" · "), info.port), 13f, Ui.TEXT2))
+        c.addView(Ui.text(this, getString(R.string.pair_fp_label), 13f, Ui.TEXT2))
         c.addView(Ui.mono(this, PairRules.words(info.fp), 22f, Ui.TEXT))
         p.addView(c, lp())
-        p.addView(Ui.text(this, "PC 화면의 '인증서 확인 글자'와 똑같을 때만 연결해 주세요. 다르면 다른 기기가 PC 인 척하는 것일 수 있어요.", 14f, Ui.TEXT2))
+        p.addView(Ui.text(this, getString(R.string.pair_confirm_help), 14f, Ui.TEXT2))
         val st = Ui.text(this, "", 14f, Ui.TEXT2)
-        p.addView(Ui.button(this, "같아요, 연결하기", Ui.Kind.PRIMARY) { st.text = "연결하는 중"; doPair(info, st) }, lp())
-        p.addView(Ui.button(this, "그만두기", Ui.Kind.QUIET) { pending = null; show() }, lp())
+        p.addView(Ui.button(this, getString(R.string.pair_confirm_yes), Ui.Kind.PRIMARY) { st.text = getString(R.string.pair_connecting); doPair(info, st) }, lp())
+        p.addView(Ui.button(this, getString(R.string.common_cancel), Ui.Kind.QUIET) { pending = null; show() }, lp())
         p.addView(st)
     }
 
@@ -212,7 +213,7 @@ class MainActivity : Activity() {
                 if (r.ok) {
                     Store.save(this, listOf(r.host) + info.hosts.filter { it != r.host }, info.port, r.fp.ifEmpty { info.fp }, r.device, r.pcName, r.token)
                     pending = null; Bus.lines.clear(); typed[2] = ""
-                    Bus.line("sys", "${r.pcName.ifEmpty { "PC" }} 와 연결했어요. '대화 시작'을 누르고 말해 보세요.")
+                    Bus.line("sys", getString(R.string.pair_connected, r.pcName.ifEmpty { getString(R.string.common_pc) }))
                     show()
                 } else if (st != null) { st.setTextColor(Ui.BAD); st.text = r.msg } else { pending = null; show(r.msg) }
             }
@@ -220,7 +221,7 @@ class MainActivity : Activity() {
     }
 
     private fun scan() {
-        IntentIntegrator(this).setDesiredBarcodeFormats(IntentIntegrator.QR_CODE).setPrompt("PC 화면의 QR 을 비춰 주세요")
+        IntentIntegrator(this).setDesiredBarcodeFormats(IntentIntegrator.QR_CODE).setPrompt(getString(R.string.pair_scan_prompt))
             .setBeepEnabled(false).setOrientationLocked(false).initiateScan()
     }
 
@@ -231,7 +232,7 @@ class MainActivity : Activity() {
         val c = r.contents ?: return
         val p = PairRules.parse(c)
         pending = p
-        show(if (p == null) "QR 내용이 김비서 연결 코드가 아니에요." else null)
+        show(if (p == null) getString(R.string.pair_qr_invalid) else null)
     }
 
     // ---------------------------------------------------------------- 대화
@@ -245,14 +246,14 @@ class MainActivity : Activity() {
         stateDot = Ui.dot(this, Ui.MUTED)
         top.addView(stateDot)
         val names = Ui.col(this)
-        val bot = Bus.pc?.optString("비서")?.ifEmpty { null } ?: "김비서"
-        names.addView(Ui.text(this, "$bot · ${pc?.name?.ifEmpty { "내 PC" } ?: "내 PC"}", 16f, Ui.TEXT, true).apply {
+        val bot = Bus.pc?.optString("비서")?.ifEmpty { null } ?: getString(R.string.app_name)
+        names.addView(Ui.text(this, "$bot · ${pc?.name?.ifEmpty { getString(R.string.common_pc) } ?: getString(R.string.common_pc)}", 16f, Ui.TEXT, true).apply {
             maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END })
-        stateText = Ui.text(this, Bus.state.text, 13f, Ui.TEXT2)
+        stateText = Ui.text(this, Bus.state.text.ifEmpty { getString(R.string.state_idle) }, 13f, Ui.TEXT2)
         names.addView(stateText)
         top.addView(names, lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-        top.addView(Ui.button(this, if (interpOpen) "통역 닫기" else "통역", Ui.Kind.QUIET) { interpOpen = !interpOpen; show() }.apply { setPadding(dp(c, 12), 0, dp(c, 12), 0) })
-        top.addView(Ui.button(this, "설정", Ui.Kind.QUIET) { screen = "settings"; show() }.apply { setPadding(dp(c, 12), 0, dp(c, 12), 0) })
+        top.addView(Ui.button(this, getString(if (interpOpen) R.string.talk_interp_close else R.string.talk_interp_open), Ui.Kind.QUIET) { interpOpen = !interpOpen; show() }.apply { setPadding(dp(c, 12), 0, dp(c, 12), 0) })
+        top.addView(Ui.button(this, getString(R.string.settings_title), Ui.Kind.QUIET) { screen = "settings"; show() }.apply { setPadding(dp(c, 12), 0, dp(c, 12), 0) })
         whole.addView(top, lp())
         // 내 말소리 크기(듣는 중일 때만 분홍 막대가 움직임)
         val bar = FrameLayout(this).apply { setBackgroundColor(Ui.LINE) }
@@ -270,7 +271,7 @@ class MainActivity : Activity() {
         // 아래: 글로 말하기 · 마이크 · 대화 시작/끝
         val bottom = Ui.col(this, 12).apply { setPadding(dp(c, 16), dp(c, 12), dp(c, 16), dp(c, 16)); background = Ui.bg(Ui.CARD, 0, c) }
         val tr = Ui.row(this, 8)
-        val input = Ui.field(this, "글로 말하기").apply { imeOptions = EditorInfo.IME_ACTION_SEND }
+        val input = Ui.field(this, getString(R.string.talk_input_hint)).apply { imeOptions = EditorInfo.IME_ACTION_SEND }
         val sendIt = {
             val t = input.text.toString().trim()
             if (t.isNotEmpty()) {
@@ -281,14 +282,14 @@ class MainActivity : Activity() {
         }
         input.setOnEditorActionListener { _, a, _ -> if (a == EditorInfo.IME_ACTION_SEND) { sendIt(); true } else false }
         tr.addView(input, lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-        tr.addView(Ui.button(this, "보내기") { sendIt() })
+        tr.addView(Ui.button(this, getString(R.string.talk_send)) { sendIt() })
         bottom.addView(tr, lp())
         val br = Ui.row(this, 8)
-        micBtn = Ui.button(this, if (Bus.state.mic || TalkService.me == null) "마이크 끄기" else "마이크 켜기") {
+        micBtn = Ui.button(this, getString(if (Bus.state.mic || TalkService.me == null) R.string.talk_mic_off else R.string.talk_mic_on)) {
             val s = TalkService.me ?: return@button
             s.setMic(!s.micOn)
         }
-        talkBtn = Ui.button(this, "대화 시작", Ui.Kind.PRIMARY) { if (TalkService.me != null) TalkService.me?.stopTalk() else startTalk() }
+        talkBtn = Ui.button(this, getString(R.string.talk_start), Ui.Kind.PRIMARY) { if (TalkService.me != null) TalkService.me?.stopTalk() else startTalk() }
         br.addView(micBtn, lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         br.addView(talkBtn, lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.4f))
         bottom.addView(br, lp())
@@ -314,7 +315,7 @@ class MainActivity : Activity() {
         super.onRequestPermissionsResult(req, perms, res)
         if (req == 1) {
             val i = perms.indexOf(Manifest.permission.RECORD_AUDIO)
-            if (i >= 0 && res.getOrNull(i) != PackageManager.PERMISSION_GRANTED) { Bus.line("sys", "마이크 권한이 있어야 말로 대화할 수 있어요."); afterMic = null; return }
+            if (i >= 0 && res.getOrNull(i) != PackageManager.PERMISSION_GRANTED) { Bus.line("sys", getString(R.string.talk_perm_mic)); afterMic = null; return }
             afterMic?.invoke(); afterMic = null
         }
     }
@@ -337,7 +338,7 @@ class MainActivity : Activity() {
     private fun redrawLog() {
         val lg = log ?: return
         lg.removeAllViews()
-        if (Bus.lines.isEmpty()) lg.addView(Ui.text(this, "'대화 시작'을 누르고 말하거나 아래에 글을 써 보세요. 예: 내일 서울 날씨 어때 · 강남역 가는 길 안내해 줘 · 네이버에서 오늘 뉴스 검색해 줘", 14f, Ui.MUTED))
+        if (Bus.lines.isEmpty()) lg.addView(Ui.text(this, getString(R.string.talk_empty_hint), 14f, Ui.MUTED))
         for (l in Bus.lines) lg.addView(lineView(l))
         logScroll?.post { logScroll?.fullScroll(View.FOCUS_DOWN) }
     }
@@ -350,12 +351,12 @@ class MainActivity : Activity() {
                 lg.addView(lineView(e)); logScroll?.post { logScroll?.fullScroll(View.FOCUS_DOWN) }
             }
             is Bus.Ev.State -> {
-                stateText?.text = e.text
-                val color = when { !e.talking -> Ui.MUTED; e.mic && e.text == "듣는 중" -> Ui.ACCENT; else -> Ui.OK }
+                stateText?.text = e.text.ifEmpty { getString(R.string.state_idle) }
+                val color = when { !e.talking -> Ui.MUTED; e.mic && e.text == getString(R.string.state_listening) -> Ui.ACCENT; else -> Ui.OK }
                 (stateDot?.background as? android.graphics.drawable.GradientDrawable)?.setColor(color)
                 val running = TalkService.me != null
-                talkBtn?.text = if (running) "대화 끝내기" else "대화 시작"
-                micBtn?.text = if (e.mic) "마이크 끄기" else "마이크 켜기"
+                talkBtn?.text = getString(if (running) R.string.talk_stop else R.string.talk_start)
+                micBtn?.text = getString(if (e.mic) R.string.talk_mic_off else R.string.talk_mic_on)
                 micBtn?.isEnabled = running
                 micBtn?.alpha = if (running) 1f else 0.5f
                 if (!e.talking) level?.scaleX = 0f
@@ -380,21 +381,22 @@ class MainActivity : Activity() {
         box.removeAllViews()
         val m = Bus.interp
         if (TalkService.me == null || !Bus.state.talking) {
-            box.addView(Ui.text(this, "통역은 대화 중에 써요. '대화 시작'을 누른 뒤 여기서 켜거나 '영어 통역해 줘'라고 말해 보세요.", 14f, Ui.TEXT2)); return
+            box.addView(Ui.text(this, getString(R.string.interp_help_not_talking), 14f, Ui.TEXT2)); return
         }
-        if (Bus.pc?.optBoolean("통역", true) == false) { box.addView(Ui.text(this, "PC 설정에서 통역이 꺼져 있어요.", 14f, Ui.TEXT2)); return }
+        if (Bus.pc?.optBoolean("통역", true) == false) { box.addView(Ui.text(this, getString(R.string.interp_pc_off), 14f, Ui.TEXT2)); return }
         val on = m?.optBoolean("켜짐") == true
+        val other = m?.optString("상대이름")?.ifEmpty { getString(R.string.common_auto) } ?: getString(R.string.common_auto)
         val head = Ui.row(this, 8)
-        head.addView(Ui.text(this, if (on) "통역 중 · ${m?.optString("상대이름")?.ifEmpty { "자동" } ?: "자동"}" else "통역 꺼짐", 16f, Ui.TEXT, true),
+        head.addView(Ui.text(this, if (on) getString(R.string.interp_on, other) else getString(R.string.interp_off), 16f, Ui.TEXT, true),
             lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-        head.addView(Ui.button(this, if (on) "끄기" else "켜기", if (on) Ui.Kind.SECONDARY else Ui.Kind.PRIMARY) { TalkService.me?.interp(!on, "") })
+        head.addView(Ui.button(this, getString(if (on) R.string.interp_disable else R.string.interp_enable), if (on) Ui.Kind.SECONDARY else Ui.Kind.PRIMARY) { TalkService.me?.interp(!on, "") })
         box.addView(head, lp())
         val langs = m?.optJSONObject("언어")
         if (langs != null && langs.length() > 0) {
             val hs = HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled = false }
             val r = Ui.row(this, 8)
             val cur = m.optString("방식", "auto")
-            val all = listOf("auto" to "자동") + langs.keys().asSequence().map { it to (langs.optJSONObject(it)?.optString("이름") ?: it) }.toList()
+            val all = listOf("auto" to getString(R.string.common_auto)) + langs.keys().asSequence().map { it to (langs.optJSONObject(it)?.optString("이름") ?: it) }.toList()
             for ((code, name) in all) {
                 val sel = code == cur
                 r.addView(TextView(this).apply {
@@ -407,7 +409,8 @@ class MainActivity : Activity() {
             hs.addView(r); box.addView(hs, lp())
         }
         val st = m?.optString("state") ?: ""
-        if (st == "translating") box.addView(Ui.text(this, "${m?.optString("src_name")} → ${m?.optString("dst_name")} 옮기는 중 · ${m?.optString("src")}", 14f, Ui.TEXT2))
+        if (st == "translating") box.addView(Ui.text(this, getString(R.string.interp_translating,
+            m?.optString("src_name") ?: "", m?.optString("dst_name") ?: "", m?.optString("src") ?: ""), 14f, Ui.TEXT2))
         if (st == "done") {
             val c = Ui.card(this, 8)
             c.addView(Ui.text(this, "${m?.optString("src_name")} · ${m?.optString("src")}", 14f, Ui.TEXT2))
@@ -415,9 +418,9 @@ class MainActivity : Activity() {
             m?.optString("money")?.takeIf { it.isNotEmpty() && it != "null" }?.let { c.addView(Ui.text(this, it, 13f, Ui.MUTED)) }
             box.addView(c, lp())
         }
-        if (st == "error") box.addView(Ui.text(this, "번역이 안 됐어요: ${m?.optString("why")}", 14f, Ui.BAD))
-        if (on) box.addView(Ui.text(this, "상대 말은 번역만 해요. 끄려면 '통역 그만'이라고 말하거나 '끄기'를 눌러 주세요." +
-            if (Bus.pc?.optBoolean("목소리확인") == true) " 켜고 끄는 말은 등록한 내 목소리만 받아요." else "", 13f, Ui.MUTED))
+        if (st == "error") box.addView(Ui.text(this, getString(R.string.interp_error, m?.optString("why") ?: ""), 14f, Ui.BAD))
+        if (on) box.addView(Ui.text(this, getString(R.string.interp_footer) +
+            if (Bus.pc?.optBoolean("목소리확인") == true) " " + getString(R.string.interp_footer_voice) else "", 13f, Ui.MUTED))
     }
 
     // ---------------------------------------------------------------- 실행할까요?
@@ -427,11 +430,11 @@ class MainActivity : Activity() {
         askId = a.id
         val d = Dialog(this)
         val c = Ui.col(this, 16).apply { background = Ui.bg(Ui.CARD, 16, context, 1); setPadding(dp(context, 20), dp(context, 20), dp(context, 20), dp(context, 16)) }
-        c.addView(Ui.text(this, "실행할까요?", 20f, Ui.TEXT, true))
+        c.addView(Ui.text(this, getString(R.string.ask_title), 20f, Ui.TEXT, true))
         c.addView(Ui.text(this, a.text, 16f, Ui.TEXT2))
         val r = Ui.row(this, 8)
-        r.addView(Ui.button(this, "그만두기") { TalkService.me?.answer(a.id, false); d.dismiss() }, lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-        r.addView(Ui.button(this, "실행", Ui.Kind.PRIMARY) { TalkService.me?.answer(a.id, true); d.dismiss() }, lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        r.addView(Ui.button(this, getString(R.string.common_cancel)) { TalkService.me?.answer(a.id, false); d.dismiss() }, lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        r.addView(Ui.button(this, getString(R.string.ask_run), Ui.Kind.PRIMARY) { TalkService.me?.answer(a.id, true); d.dismiss() }, lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         c.addView(r, lp())
         d.setContentView(c)
         d.setCancelable(false)
@@ -446,22 +449,23 @@ class MainActivity : Activity() {
     private fun settingsScreen() {
         val pc = Store.pc(this) ?: run { show(); return }
         val p = page()
-        p.addView(Ui.button(this, "대화로 돌아가기", Ui.Kind.QUIET) { screen = ""; show() }.apply { gravity = Gravity.START or Gravity.CENTER_VERTICAL; setPadding(0, 0, 0, 0) })
-        p.addView(Ui.text(this, "설정", 26f, Ui.TEXT, true))
+        p.addView(Ui.button(this, getString(R.string.settings_back), Ui.Kind.QUIET) { screen = ""; show() }.apply { gravity = Gravity.START or Gravity.CENTER_VERTICAL; setPadding(0, 0, 0, 0) })
+        p.addView(Ui.text(this, getString(R.string.settings_title), 26f, Ui.TEXT, true))
         val c = Ui.card(this, 8)
-        c.addView(Ui.text(this, "연결한 PC", 13f, Ui.TEXT2))
-        c.addView(Ui.text(this, pc.name.ifEmpty { "PC" }, 17f, Ui.TEXT, true))
-        c.addView(Ui.text(this, "주소 " + pc.hosts.joinToString(" · ") + " · 포트 ${pc.port}", 13f, Ui.TEXT2))
-        c.addView(Ui.text(this, "인증서 확인 글자", 13f, Ui.TEXT2))
+        c.addView(Ui.text(this, getString(R.string.settings_connected_pc), 13f, Ui.TEXT2))
+        c.addView(Ui.text(this, pc.name.ifEmpty { getString(R.string.common_pc) }, 17f, Ui.TEXT, true))
+        c.addView(Ui.text(this, getString(R.string.pair_address, pc.hosts.joinToString(" · "), pc.port), 13f, Ui.TEXT2))
+        c.addView(Ui.text(this, getString(R.string.pair_fp_label), 13f, Ui.TEXT2))
         c.addView(Ui.mono(this, PairRules.words(pc.fp), 18f, Ui.TEXT))
         Bus.pc?.let { s ->
-            c.addView(Ui.text(this, "김비서 ${s.optString("판")} · PC 조작 " + (if (s.optBoolean("PC조작")) "켜짐" else "꺼짐") +
-                " · 등록한 목소리만 " + (if (s.optBoolean("목소리확인")) "켜짐" else "꺼짐"), 13f, Ui.MUTED))
+            c.addView(Ui.text(this, getString(R.string.settings_pc_flags, s.optString("판"),
+                getString(if (s.optBoolean("PC조작")) R.string.common_on else R.string.common_off),
+                getString(if (s.optBoolean("목소리확인")) R.string.common_on else R.string.common_off)), 13f, Ui.MUTED))
         }
         p.addView(c, lp())
         val g = Ui.card(this, 8)
         val greet = android.widget.Switch(this).apply {
-            text = "대화를 시작하면 김비서가 먼저 인사"; setTextColor(Ui.TEXT); textSize = 15f
+            text = getString(R.string.settings_greet); setTextColor(Ui.TEXT); textSize = 15f
             isChecked = Store.flag(context, "greet", true)
             val st = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
             thumbTintList = android.content.res.ColorStateList(st, intArrayOf(Ui.TEXT, Ui.TEXT2))
@@ -470,12 +474,12 @@ class MainActivity : Activity() {
         }
         g.addView(greet, lp())
         p.addView(g, lp())
-        p.addView(Ui.text(this, "PC 조작(검색·사이트·프로그램 열기·메모장)과 '등록한 목소리만 명령 받기'는 PC 의 김비서 설정에서 켜고 꺼요. 지우기·보내기처럼 되돌리기 어려운 일은 이 폰 화면에서 '실행할까요?'를 물어요.", 13f, Ui.MUTED))
-        p.addView(Ui.button(this, "연결 끊기", Ui.Kind.DANGER) {
+        p.addView(Ui.text(this, getString(R.string.settings_pc_help), 13f, Ui.MUTED))
+        p.addView(Ui.button(this, getString(R.string.settings_disconnect), Ui.Kind.DANGER) {
             TalkService.me?.stopTalk()
             Store.clear(this); Bus.lines.clear(); Bus.pc = null; screen = ""; show()
         }, lp())
-        p.addView(Ui.text(this, "이 폰의 연결 정보만 지워요. PC 쪽 목록에서도 지우려면 PC 설정 → 폰 연결 → 연결한 폰에서 '지우기'를 눌러 주세요.", 13f, Ui.MUTED))
-        p.addView(Ui.text(this, "김비서 폰 앱 ${BuildConfig.VERSION_NAME} · 하이라이프PC", 12f, Ui.MUTED))
+        p.addView(Ui.text(this, getString(R.string.settings_disconnect_help), 13f, Ui.MUTED))
+        p.addView(Ui.text(this, getString(R.string.settings_version, BuildConfig.VERSION_NAME), 12f, Ui.MUTED))
     }
 }

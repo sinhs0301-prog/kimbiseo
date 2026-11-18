@@ -44,7 +44,7 @@
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
-        android:label="김비서"
+        android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
         <activity

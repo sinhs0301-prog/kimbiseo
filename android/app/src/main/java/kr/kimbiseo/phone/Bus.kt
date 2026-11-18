@@ -21,7 +21,7 @@ object Bus {
     @Volatile var visible = false
     var listener: ((Ev) -> Unit)? = null
     val lines = ArrayList<Ev.Line>()
-    var state = Ev.State(false, "대기", false)
+    var state = Ev.State(false, "", false)
     var pc: JSONObject? = null
     var interp: JSONObject? = null
     var ask: Ev.Ask? = null

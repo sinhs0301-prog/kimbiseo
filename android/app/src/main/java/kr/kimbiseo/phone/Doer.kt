@@ -32,9 +32,9 @@ class Doer(private val ctx: Context) {
             "navigate" -> navigate(m.optString("destination").take(80), m.optString("app"))
             "dial", "sms" -> talk(m.optString("do"), m.optString("number"), m.optString("contact"), m.optString("message").take(500))
             "open_app" -> openApp(m.optString("app").take(40))
-            else -> res(false, "이 앱이 모르는 일이에요.")
+            else -> res(false, ctx.getString(R.string.doer_unknown))
         }
-    } catch (e: Throwable) { res(false, "폰에서 열지 못했어요(${e.javaClass.simpleName}).") }
+    } catch (e: Throwable) { res(false, ctx.getString(R.string.doer_open_failed, e.javaClass.simpleName)) }
 
     private fun res(ok: Boolean, said: String) = JSONObject().put("ok", ok).put("말", said)
 
@@ -46,16 +46,35 @@ class Doer(private val ctx: Context) {
             return done
         }
         val nm = ctx.getSystemService(NotificationManager::class.java)
-        nm.createNotificationChannel(NotificationChannel(CH, "다른 앱 열기", NotificationManager.IMPORTANCE_HIGH))
+        nm.createNotificationChannel(NotificationChannel(CH, ctx.getString(R.string.notif_channel_open), NotificationManager.IMPORTANCE_HIGH))
         val id = ++nid
         val pi = PendingIntent.getActivity(ctx, id, i, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         nm.notify(id, Notification.Builder(ctx, CH).setSmallIcon(R.drawable.ic_note).setContentTitle(title)
-            .setContentText("눌러서 열기").setContentIntent(pi).setAutoCancel(true).build())
-        return "$done 폰 알림을 누르면 열려요."
+            .setContentText(ctx.getString(R.string.notif_open_tap)).setContentIntent(pi).setAutoCancel(true).build())
+        return ctx.getString(R.string.doer_tap_notification, done)
+    }
+
+    /** NavRules 의 한국어 앱 이름·안내 문구를 기기 언어로 */
+    private fun appName(a: String): String = when (a) {
+        "카카오맵" -> ctx.getString(R.string.nav_app_kakaomap)
+        "네이버지도" -> ctx.getString(R.string.nav_app_naver)
+        "티맵" -> ctx.getString(R.string.nav_app_tmap)
+        "구글지도" -> ctx.getString(R.string.nav_app_google)
+        "카카오내비" -> ctx.getString(R.string.nav_app_kakaonavi)
+        "웹 카카오맵" -> ctx.getString(R.string.nav_app_web)
+        else -> a
+    }
+
+    private fun note(n: String): String = when (n) {
+        "검색 결과에서 '길찾기'를 눌러 주세요" -> ctx.getString(R.string.nav_note_route)
+        "검색 결과에서 목적지를 골라 주세요" -> ctx.getString(R.string.nav_note_pick)
+        "검색 결과에서 '경로'를 눌러 주세요" -> ctx.getString(R.string.nav_note_route_google)
+        "목적지 이름을 복사해 뒀어요 — 검색창에 붙여 넣어 주세요" -> ctx.getString(R.string.nav_note_kakaonavi)
+        else -> n
     }
 
     private fun navigate(dest: String, app: String): JSONObject {
-        if (dest.isEmpty()) return res(false, "목적지가 없어요.")
+        if (dest.isEmpty()) return res(false, ctx.getString(R.string.doer_no_destination))
         val tm = ctx.getSystemService(android.telephony.TelephonyManager::class.java)
         val korea = NavRules.inKorea(dest, listOf(tm?.networkCountryIso, tm?.simCountryIso))
         val pm = ctx.packageManager
@@ -64,20 +83,22 @@ class Doer(private val ctx: Context) {
             val i = if (t.pkg == NavRules.KAKAONAVI) pm.getLaunchIntentForPackage(t.pkg) ?: continue
                     else Intent(Intent.ACTION_VIEW, Uri.parse(t.uri)).also { if (t.pkg.isNotEmpty()) it.setPackage(t.pkg) }
             if (t.pkg.isNotEmpty() && i.resolveActivity(pm) == null) continue
-            val instead = NavRules.label(app).let { if (it.isNotEmpty() && it != t.app) "말씀하신 $it 대신 " else "" }
+            val instead = NavRules.label(app).let { if (it.isNotEmpty() && it != t.app) ctx.getString(R.string.doer_instead, appName(it)) + " " else "" }
             val said = try {
                 if (t.pkg == NavRules.KAKAONAVI) {
-                    ctx.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText("목적지", dest))
-                    open(i, "카카오내비: $dest", "${instead}카카오내비를 열었어요. ${t.note}.")
+                    ctx.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText(ctx.getString(R.string.clip_destination), dest))
+                    open(i, ctx.getString(R.string.doer_kakaonavi_title, dest),
+                        ctx.getString(R.string.doer_kakaonavi_opened, instead, note(t.note)))
                 } else {
-                    val note = if (t.note.isNotEmpty()) " ${t.note}." else ""
-                    open(i, "길안내: $dest", "${instead}${t.app}에서 '$dest'를 열었어요.$note")
+                    val noteText = if (t.note.isNotEmpty()) " " + ctx.getString(R.string.doer_nav_note, note(t.note)) else ""
+                    open(i, ctx.getString(R.string.doer_nav_title, dest),
+                        ctx.getString(R.string.doer_nav_opened, instead, appName(t.app), dest, noteText))
                 }
             } catch (_: android.content.ActivityNotFoundException) { continue } catch (_: SecurityException) { continue }
-            Bus.line("sys", "길안내(${t.app}): $dest")
+            Bus.line("sys", ctx.getString(R.string.doer_nav_log, appName(t.app), dest))
             return res(true, said)
         }
-        return res(false, "폰에서 지도 앱도 인터넷 창도 열지 못했어요.")
+        return res(false, ctx.getString(R.string.doer_no_map))
     }
 
     private fun talk(kind: String, number: String, contact: String, msg: String): JSONObject {
@@ -85,10 +106,10 @@ class Doer(private val ctx: Context) {
         var who = ""
         if (num.isEmpty()) {
             val q = NameRules.cleanName(contact)
-            if (q.isEmpty()) return res(false, "누구에게 할지 이름이 없어요.")
+            if (q.isEmpty()) return res(false, ctx.getString(R.string.doer_no_contact_name))
             if (ctx.checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-                Bus.post(Bus.Ev.NeedPerm(Manifest.permission.READ_CONTACTS, "이름으로 전화·문자 화면을 열려면 연락처 권한이 필요해요"))
-                return res(false, "폰에서 연락처 권한을 허용해 주세요. 김비서 앱 화면에 허용 단추가 떠요.")
+                Bus.post(Bus.Ev.NeedPerm(Manifest.permission.READ_CONTACTS, ctx.getString(R.string.doer_contacts_perm_why)))
+                return res(false, ctx.getString(R.string.doer_contacts_perm_help))
             }
             val rows = ArrayList<Pair<String, String>>()
             ctx.contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -99,31 +120,32 @@ class Doer(private val ctx: Context) {
             if (r.list.size == 1) { who = r.list[0].first; num = NameRules.digits(r.list[0].second) }
             else {
                 val cands = (if (r.list.isNotEmpty()) r.list else r.near).map { it.first }.take(3)
-                if (cands.isEmpty()) return res(false, "연락처에서 '$q'를 찾지 못했어요.")
-                return JSONObject().put("ok", false).put("near", JSONArray(cands)).put("말", "'$q'와 비슷한 이름이 여럿이에요.")
+                if (cands.isEmpty()) return res(false, ctx.getString(R.string.doer_contact_not_found, q))
+                return JSONObject().put("ok", false).put("near", JSONArray(cands)).put("말", ctx.getString(R.string.doer_contact_ambiguous, q))
             }
         }
-        if (num.length !in 3..15) return res(false, "전화번호 모양이 아니에요.")
+        if (num.length !in 3..15) return res(false, ctx.getString(R.string.doer_bad_number))
         val label = if (who.isNotEmpty()) "$who($num)" else num
         return if (kind == "dial") {
-            res(true, open(Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", num, null)), "전화: $label", "$label 번호를 전화 화면에 넣었어요. 통화 단추는 직접 눌러 주세요."))
+            res(true, open(Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", num, null)),
+                ctx.getString(R.string.doer_dial_title, label), ctx.getString(R.string.doer_dial_done, label)))
         } else {
             val i = Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$num"))
             if (msg.isNotEmpty()) i.putExtra("sms_body", msg)
-            res(true, open(i, "문자: $label", "$label 에게 보낼 문자 화면을 열었어요. 보내기는 직접 눌러 주세요."))
+            res(true, open(i, ctx.getString(R.string.doer_sms_title, label), ctx.getString(R.string.doer_sms_done, label)))
         }
     }
 
     private fun openApp(name: String): JSONObject {
-        if (name.isEmpty()) return res(false, "어떤 앱인지 이름이 없어요.")
+        if (name.isEmpty()) return res(false, ctx.getString(R.string.doer_no_app_name))
         val pm = ctx.packageManager
         val acts = pm.queryIntentActivities(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0)
             .filter { it.activityInfo.packageName != ctx.packageName }
         val labels = acts.map { it.loadLabel(pm).toString() }
         val k = AppRules.best(name, labels)
-        if (k < 0) return res(false, "폰에서 '$name' 앱을 찾지 못했어요.")
+        if (k < 0) return res(false, ctx.getString(R.string.doer_app_not_found, name))
         val ai = acts[k].activityInfo
         val i = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER).setClassName(ai.packageName, ai.name)
-        return res(true, open(i, labels[k], "${labels[k]} 앱을 열었어요."))
+        return res(true, open(i, labels[k], ctx.getString(R.string.doer_app_opened, labels[k])))
     }
 }
