@@ -1,1843 +1,2098 @@
 {
-  "schema": "kimbiseo-allowlist/1",
-  "note": "이 저장소에 들어가도 되는 파일 전부. 목록 밖 파일·sha256 다른 파일이 하나라도 있으면 공개 전 검사 실패. 줄을 더하는 것은 사람이 직접.",
-  "files": [
-    {
-      "path": ".gitattributes",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "645528c04ca7eb666a1880dbe38bf8d4dcd6377712dc443cf98ca3bfca1a6560"
-    },
-    {
-      "path": ".gitignore",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "c053a1b1cbc354f7f9865b39d6d6346a3fd20d0c74bd7294181ab6b0d6ec386b"
-    },
-    {
-      "path": "ASSETS-LICENSE.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "7d530ef5f729229ba5963968bd7c30b270678fd8cec8a165f58f54350afa1c8b"
-    },
-    {
-      "path": "LICENSE",
-      "origin": "standard:apache-2.0",
-      "treatment": "standard",
-      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
-      "note": "Apache License 2.0 표준 전문(apache.org 판과 같은 글자)"
-    },
-    {
-      "path": "NOTICE",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "943e747ddea442b68c8799df39837ae8a5e098e5c920d4125faa99d90af7c42c"
-    },
-    {
-      "path": "PRIVACY.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "041c07cd04dd216d045fbecacfadc2361523b6224a9c5b6a70b99226fec9be22"
-    },
-    {
-      "path": "README.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "eeea171df2d5f44434b9eb5b0eebb5315fde7091b08a17cde5b73d3a9137269b",
-      "exceptions": [
-        {
-          "line": 6,
-          "allow": "하이라이프PC",
-          "reason": "제작 표기 한 줄(남기기로 결정됨)"
-        }
-      ]
-    },
-    {
-      "path": "SECURITY.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "b2fa6e3a32813fd851e9ddd48ed7713b5e269bd97b7ba5ec1aaaf3f438d4ad57"
-    },
-    {
-      "path": "THIRD_PARTY_LICENSES/README.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "d24c9701df751e08af5cfa169cbf8177af2b6b619e51b11d6d1cce391a74f2c0"
-    },
-    {
-      "path": "android/README.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "de3bb4b4e01ed9d7978a97f070daa27522bf3a89ce2b97727ae5cebcce73c057"
-    },
-    {
-      "path": "android/app/build.gradle.kts",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "18950634253b9b2a03d7b9ac80f499d3ff73b2625453404181cd80c6701ef598"
-    },
-    {
-      "path": "android/app/src/main/AndroidManifest.xml",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "df96b568e559fd415a23a1a7fd74ae4028766850d848978a703c00d34ee1c894"
-    },
-    {
-      "path": "android/app/src/main/java/kr/kimbiseo/phone/Bus.kt",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "f9a2bb7e104cdb6a25e29627c0b479b9454b3165e84c72ad887c064d3516b426"
-    },
-    {
-      "path": "android/app/src/main/java/kr/kimbiseo/phone/Doer.kt",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "da750c8e6dfa4fbe50cc5f53d737ad25bf13c7d584ca4efc7cd4f1945af6f65f"
-    },
-    {
-      "path": "android/app/src/main/java/kr/kimbiseo/phone/MainActivity.kt",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "4ba8e3000880d71b0366ca8bb126ac4c68a34c3e09157e03800d8de8ab5d3f48",
-      "exceptions": [
-        {
-          "line": null,
-          "allow": "192.168.1.23",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "하이라이프PC",
-          "reason": "설정 화면 아래 제작 표기 한 줄(남기기로 결정됨)"
-        }
-      ]
-    },
-    {
-      "path": "android/app/src/main/java/kr/kimbiseo/phone/Net.kt",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "a49ebb04335a4bead8df6d8e4e2e638bae1e525a77bbc7bd09fbd12a49608d0f"
-    },
-    {
-      "path": "android/app/src/main/java/kr/kimbiseo/phone/Pairing.kt",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "7c191069f92fa41f4ff102ee6cc50fea57ca4b234b2541c0a98d54ac5fec12a2"
-    },
-    {
-      "path": "android/app/src/main/java/kr/kimbiseo/phone/Rules.kt",
-      "origin": "derived:운영판 폰 앱 연락처·앱 이름 찾기 규칙을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "5a2a777a93d57e1ae5dbc4cbc3811154e12aa9eb7eafc769333ae190ab87a524",
-      "note": "연락처 이름 너그럽게 찾기(호칭·띄어쓰기·모음 혼동)는 운영판 방식, 길안내·앱 이름은 새로",
-      "exceptions": [
-        {
-          "line": null,
-          "allow": "대표님",
-          "reason": "연락처 이름에서 떼어 내는 일반 호칭 목록 중 하나(사람을 가리키지 않음)"
-        }
-      ]
-    },
-    {
-      "path": "android/app/src/main/java/kr/kimbiseo/phone/Store.kt",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "4a99ef7116215b513cdb0fe9aebd27e502aa5ebbe3f9f94a9280ecd41498318e"
-    },
-    {
-      "path": "android/app/src/main/java/kr/kimbiseo/phone/TalkService.kt",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "8ce847f58919ca9a60b83d81955f7be8f8d6ea3eaabc3ba8cea80dd33f7ba670"
-    },
-    {
-      "path": "android/app/src/main/java/kr/kimbiseo/phone/Ui.kt",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "fd1f196dca33529f1b9bf5b4939a306169aad0ab9986c1378f419bae2a290f0f"
-    },
-    {
-      "path": "android/app/src/main/res/drawable/ic_fg.xml",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "002ea3d57f0e5456f9ca45e8be532dce4060dac4460edc288f44e6cf2959a264"
-    },
-    {
-      "path": "android/app/src/main/res/drawable/ic_note.xml",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "fd52d23b5bf7223f8e87de474f6c01a54462aa2ce4c388852b72e8e0ffefd2b2"
-    },
-    {
-      "path": "android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "427a6673cd34ca06c68569b499cf5ad7af18f6ebc9b23f26d6422b13fd3c8eb9"
-    },
-    {
-      "path": "android/app/src/main/res/values/colors.xml",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "6db5f632e0970a64d3a9c97dfcfbdc65b534bc099bfbf6f6d6ef7fe05f45994e"
-    },
-    {
-      "path": "android/app/src/main/res/xml/network_security.xml",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "3d5d23fb0232ea1f157f78d7b46c7d244eba3e0d8fcb91fe91020634348f98f8"
-    },
-    {
-      "path": "android/app/src/test/java/kr/kimbiseo/phone/RulesTest.kt",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "97106fbbc9ef83943162e256ad1ef2c0ab2cc6ba7ebeb528035bc9d4fea0704b",
-      "exceptions": [
-        {
-          "line": null,
-          "allow": "10.0.0.5",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "100.101.1.2",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "172.20.1.1",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "172.32.0.1",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "192.168.1.23",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "192.168.1.300",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "fd7a:115c:a1e0::1",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "+82 10-1234-4444",
-          "reason": "지어낸 1234 꼴 번호(누구의 번호도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "010 1234 2222",
-          "reason": "지어낸 1234 꼴 번호(누구의 번호도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "010-1234-1111",
-          "reason": "지어낸 1234 꼴 번호(누구의 번호도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "010-1234-3333",
-          "reason": "지어낸 1234 꼴 번호(누구의 번호도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "01012341111",
-          "reason": "지어낸 1234 꼴 번호(누구의 번호도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "01012344444",
-          "reason": "지어낸 1234 꼴 번호(누구의 번호도 아님)"
-        }
-      ]
-    },
-    {
-      "path": "android/build.gradle.kts",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "3682944f57bb71558679bd375b0c7960cf356acab210d737f76e5e986068fb27"
-    },
-    {
-      "path": "android/build_apk.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "02084c40ec1b0dac5c124d03d364991512803f6b7067dd8d00b78ed13aba1795"
-    },
-    {
-      "path": "android/gradle.properties",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "0117454be559befab95375318f728ff4e18ca0790731fa1f0362b8c7db6bd22f"
-    },
-    {
-      "path": "android/settings.gradle.kts",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "3a66437d6b86691c52fbebc54f59528dc85d76dd81e31153022aef16f48ea33a"
-    },
-    {
-      "path": "app/README.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "d859cbd0b9749f83fdb51073263ba974651e054b679f2b8879555a0030cb0d2e"
-    },
-    {
-      "path": "app/__init__.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "note": "본체 꾸러미 표시"
-    },
-    {
-      "path": "app/config/choices.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "2e97c979389db896f64b5d4d4e6cd684640bcdf3bd79ebdb380d857ac896895a",
-      "note": "화면 선택지(호칭 단추·펫·목소리·두뇌·끼어들기 감도·정보) — 5단계 · 0.1.11 남자 펫 준비됨·목소리 '옷에 맞춤(자동)'",
-      "exceptions": [
-        {
-          "line": 3,
-          "allow": "대표님",
-          "reason": "호칭 고르기 단추 6개 중 하나(사용자가 고르는 보기, 정해진 지시)"
-        },
-        {
-          "line": 91,
-          "allow": "하이라이프PC",
-          "reason": "정보 화면 제작 표기 한 줄(남기기로 결정됨)"
-        }
-      ]
-    },
-    {
-      "path": "app/config/default.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "335e8354c55258f13060b8a411a2d13e56d8968eaffa058119cd785f56322f35",
-      "note": "기본 설정(개인 값 없음, 실행·펫 옷 칸) — 7단계"
-    },
-    {
-      "path": "app/core/__init__.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "note": "본체 부품 꾸러미 표시"
-    },
-    {
-      "path": "app/core/audio_smooth.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "aac631a258b294ae97a0bf845c0961b3d8212074f6a701d8a09afd85da526793",
-      "note": "이음새 교차 페이드·끝 페이드"
-    },
-    {
-      "path": "app/core/brain.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "c83b3e77dc2d2771c2258e4e40b583bc1699befea2eb7ec3fcc3e3cbf489cdce",
-      "note": "두뇌 제공자 4가지·캐시 가드·글 도구 건지기 연결"
-    },
-    {
-      "path": "app/core/cli_brain.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "9950bd1115953f7c85c7819eeb2170ad19248b3a8544ea96cb7085688f74996f"
-    },
-    {
-      "path": "app/core/cli_detect.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "8538bb864f488e44faf67636288dd45707007d939d39c5a4fb46ca734cf89957"
-    },
-    {
-      "path": "app/core/cli_mcp.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "5de3aa250c90731424a49132511440b6ee5cc6619e2ab5ec4e4384aeb7b98fae",
-      "note": "0.1.9 17단계"
-    },
-    {
-      "path": "app/core/config.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "2c4afc811155b83803f444f24dc9ca3742d0549166d13d94309fa90736d28612",
-      "note": "설정 읽기·깊은 병합·이름 설정"
-    },
-    {
-      "path": "app/core/filters.py",
-      "origin": "derived:운영판 비서 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "ecb2a935b77418dd1523561a5d5cfddb4331f7d4340eeb16522ca8f782de81cd",
-      "note": "부품의 소리 거름 부분만 옮겨 고침"
-    },
-    {
-      "path": "app/core/fx.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "be44a3f1b6658aa03d7c05f14d5ee3871166e8317f7c096834245cbd56afcd89"
-    },
-    {
-      "path": "app/core/guard.py",
-      "origin": "derived:운영판 비서 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "7f555e2a8003e3721984c5a995f238e3a0bc1edff767eed390d57d0f448695a6",
-      "note": "접속 검사(Host·Origin·끄기 비밀값)"
-    },
-    {
-      "path": "app/core/interp.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "9d1f4adfb95f26251b7b8927a26e358c13d5c2f8a2d485701b079cbbe53167ab"
-    },
-    {
-      "path": "app/core/keystore.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "54c34596b04bf8a55b45ccfae5a1428e52000dfc99e6d971cdf757bde511c4fd",
-      "note": "열쇠 보관(DPAPI·환경변수)"
-    },
-    {
-      "path": "app/core/memory.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "7285b9444bb3c94da0c39d14f6ccdd05db9c46362809bbac8beee6219ef99873",
-      "note": "대화 기억(지식·보관·이어가기·일기)"
-    },
-    {
-      "path": "app/core/observer.py",
-      "origin": "derived:운영판 비서 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "a0d689d9a3dea777ca91773744f6f735b86f227b2dd9029bcda6ff56518fecbd",
-      "note": "관찰자(지연·메아리 상관) 부분만 옮겨 고침"
-    },
-    {
-      "path": "app/core/phone.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "846c7f24d4f1019e9ad60fec3f1ede9734412ec99136911f8368624ebc9b19a6",
-      "exceptions": [
-        {
-          "line": null,
-          "allow": "10.0.0.0/8",
-          "reason": "테일스케일 주소 대역(공개된 표준 대역 — 허용 여부 판단에 씀)"
-        },
-        {
-          "line": null,
-          "allow": "100.64.0.0/10",
-          "reason": "테일스케일 주소 대역(공개된 표준 대역 — 허용 여부 판단에 씀)"
-        },
-        {
-          "line": null,
-          "allow": "127.0.0.0/8",
-          "reason": "테일스케일 주소 대역(공개된 표준 대역 — 허용 여부 판단에 씀)"
-        },
-        {
-          "line": null,
-          "allow": "169.254.0.0/16",
-          "reason": "테일스케일 주소 대역(공개된 표준 대역 — 허용 여부 판단에 씀)"
-        },
-        {
-          "line": null,
-          "allow": "172.16.0.0/12",
-          "reason": "테일스케일 주소 대역(공개된 표준 대역 — 허용 여부 판단에 씀)"
-        },
-        {
-          "line": null,
-          "allow": "192.0.2.1",
-          "reason": "테일스케일 주소 대역(공개된 표준 대역 — 허용 여부 판단에 씀)"
-        },
-        {
-          "line": null,
-          "allow": "192.168.0.0/16",
-          "reason": "테일스케일 주소 대역(공개된 표준 대역 — 허용 여부 판단에 씀)"
-        },
-        {
-          "line": null,
-          "allow": "fd7a:115c:a1e0::/48",
-          "reason": "테일스케일 주소 대역(공개된 표준 대역 — 허용 여부 판단에 씀)"
-        }
-      ]
-    },
-    {
-      "path": "app/core/prompt.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "0600689a68075841770aa9ef4ba3d4eb9a2342c4db96e6efffa9d344f538be95",
-      "note": "고정 앞부분 지시문·도구 안내"
-    },
-    {
-      "path": "app/core/qrcodegen.py",
-      "origin": "derived:nayuki/QR-Code-generator (MIT)",
-      "treatment": "modified",
-      "sha256": "b089855caf16185c61421ea4927c1b213cf9468940d71fa8ab11ef83662dcc84",
-      "note": "QR 만들기 — MIT 원본을 줄여 옮김(THIRD_PARTY_LICENSES 에 적음)"
-    },
-    {
-      "path": "app/core/redact.py",
-      "origin": "derived:운영판 비서 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "3a630b617c876ae2a23bb2350f13e10a934f878a5ea35ae330214bfebec04807",
-      "note": "민감한 글 가리기"
-    },
-    {
-      "path": "app/core/safe_args.py",
-      "origin": "derived:운영판 비서 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "fd41097b16c6287a7db73f31cb442f2b3ef4055c52b08d90dd050898fd072a58",
-      "note": "도구 인자 정리(불리언 등)"
-    },
-    {
-      "path": "app/core/session.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "3ce5496d6828188cb694d4abf6dc1eb89fd56d7a7241941b621eb9f89e96ed27",
-      "note": "파이프라인 묶기·글 입력·저장"
-    },
-    {
-      "path": "app/core/settings_api.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "707ed5d68a921cfd9bc1b266d7f01324c2e60f41789052518e2ed08bfaa1e098",
-      "note": "설정 화면 값 검사·반영 시점·열쇠 저장·두뇌 연결 시험·펫 옷 받기 — 7단계"
-    },
-    {
-      "path": "app/core/speech_gate.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "8d0e3010edb2d20902589091ca33b118218047463fa8be7522ab125ed2c97bc9",
-      "note": "0.1.17 말소리 문 — 무음·잡음 헛받아쓰기 막기(실레로 재측정·짧은 인사 단독 버림)"
-    },
-    {
-      "path": "app/core/state.py",
-      "origin": "derived:운영판 비서 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "2d89b651a9b73b8b157f8b0ce6c3b91594f04eaf09e0dbe2a68ca20639853e13",
-      "note": "대화 상태·환각 거름 부분만 옮겨 고침"
-    },
-    {
-      "path": "app/core/stt.py",
-      "origin": "derived:운영판 비서 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "fbe9e275319117ff39da9266caf03e5bbd2c4921c5f56b6ee5e8c6edad55d01b",
-      "note": "귀 연결·메아리 판정 부분만 옮겨 고침"
-    },
-    {
-      "path": "app/core/sysinfo.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "05ac94ab16537389d6b818b936bc17976212df109885fcb829a7d80776cd88ee",
-      "note": "사양 보기(그래픽카드·메모리·디스크)와 구성 추천 — 5단계"
-    },
-    {
-      "path": "app/core/tts.py",
-      "origin": "derived:운영판 비서 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "2e39a391d3d737d2c5becffe03ae163db11b25a028cf428770987d91c38ab085",
-      "note": "목소리 연결 부분만 옮겨 고침"
-    },
-    {
-      "path": "app/core/turns.py",
-      "origin": "derived:운영판 비서 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "1870afd2cfcda569dd12090b9fb4761411dded5b8871d87ec7ebf3c7d286aa89",
-      "note": "말끝 판정 부분만 옮겨 고침('때' 추가)"
-    },
-    {
-      "path": "app/core/update.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "b7744616a7d6dc6c3307460a7d0e0f3486f21abec114edab5fcc056e2e57d481",
-      "exceptions": [
-        {
-          "line": 28,
-          "allow": "/NWEgQzO/BNNYDB40y8ppPkVyi6tR348/nDDsrLSTX0=",
-          "reason": "업데이트 서명 공개키(kimbiseo-update-1, 공개해도 되는 값 — 비밀키는 저장소 밖)"
-        }
-      ],
-      "note": "업데이트(확인·서명·받기·바꾸기 시작) — 9단계"
-    },
-    {
-      "path": "app/core/voice_choice.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "60da08a14e344ea1785e4d30448ff174fae705c49e08403310ed69fe332c3cd9",
-      "note": "성별·옷 → 목소리·말투 고르기 — 0.1.10 성별 자동 · 0.1.11 입은 옷으로 고르기"
-    },
-    {
-      "path": "app/core/voice_link.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "98a1adeb4d8c726e835fb2c0f464464bb1a7e12dee82edd3e8ebf32bd90bd9e4",
-      "note": "귀·목소리 서버 연결"
-    },
-    {
-      "path": "app/core/voiceprint.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "27c8d8fde836f0af1c0d0926f29a67c417d637f69cb9b85f2a7dfc9444c0578e"
-    },
-    {
-      "path": "app/core/wake.py",
-      "origin": "derived:운영판 비서 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "8dafeac39441334d43709369e5ed2229025c92afa41d1553af8523b81c4ed747",
-      "note": "이름 부르기 판정(이름 설정 가능)"
-    },
-    {
-      "path": "app/core/wav_transport.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "4de28e141dc02e54fc013a427c48734adc6319d9691d9954b07992b201ae2492",
-      "note": "wav 넣기 시험용 전송부"
-    },
-    {
-      "path": "app/launcher.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "95bee89f00c90ddb1e47f1fed10e2ac513e28ac21f782ca6a75087307c763aec",
-      "note": "실행기(두뇌·귀·목소리·본체·펫 켜고 끄기, 자기 PID 만) — 7단계"
-    },
-    {
-      "path": "app/main.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "269245d46b46abc56cb675fa3d8341cf9b88b38a599eb0ca879e94c1599e85f8",
-      "note": "본체 실행(serve/script/check)·펫 옷 설정 펫에 알리기·부모 PID 지켜보기 — 7단계"
-    },
-    {
-      "path": "app/pet_link/__init__.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "note": "펫 연결 꾸러미 표시"
-    },
-    {
-      "path": "app/pet_link/face.py",
-      "origin": "derived:운영판 비서 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "9f34d107d305513d6521633ec95a54162dbc024f30644451e599bd7aee7c0a76",
-      "note": "펫 표정·입·말풍선·동작 신호·설정 부르기 — 7단계"
-    },
-    {
-      "path": "app/prompts/README.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "5cb93d2a330898240be695fd6faa472b61d3c1a3bd9fe34d8240adf48e5984ff",
-      "note": "지시문 안내"
-    },
-    {
-      "path": "app/prompts/base.cli.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "c5d85ef0f55c04b3552598c80bebe06bf1ce84b0ae6e12fdc6ccc25e10800590"
-    },
-    {
-      "path": "app/prompts/base.small.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "c4792c1d738091e82e2865371b5a3d607920e031a1e883c8117b3219ca8b6904",
-      "note": "작은 두뇌용 기본 지시문"
-    },
-    {
-      "path": "app/prompts/도구규칙.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "b7515792884d4ec806bda1d8a3356226de03501d2d620ef80c25f5150883dddc",
-      "note": "도구 쓰는 규칙(사용자가 고쳐 씀) — 한글 이름은 사용자가 찾기 쉽게 일부러 — 0.1.9 17단계",
-      "nonascii_name_ok": true
-    },
-    {
-      "path": "app/shell.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "f69d42e0943580cb5e6df5fdaca256cd35b76305b14c4637b55cd175f505527a",
-      "note": "김비서 창(pywebview, 마이크 권한은 본체 화면만) — 5단계"
-    },
-    {
-      "path": "app/tools/__init__.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "note": "도구 꾸러미 표시"
-    },
-    {
-      "path": "app/tools/basic/handlers.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "c8738ca0a9d1509ae3ec827ca76bdf6c3c8f5a95bbe153778df16b81583299a3",
-      "note": "기본 도구 처리"
-    },
-    {
-      "path": "app/tools/basic/pc_action.py",
-      "origin": "derived:운영판 비서 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "659687f8074c49cac24c75c02f48201dff726f4e2f49bebc5312417fb4beed9a",
-      "note": "컴퓨터 조작(사이트 열기 등, 특정 사이트 없음)"
-    },
-    {
-      "path": "app/tools/basic/tools.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "4a6e33a5c05dac317c1f06c1f0beb2259ca6e07a6aeac0934388592aa495db01",
-      "note": "기본 도구 10개 정의"
-    },
-    {
-      "path": "app/tools/basic/type_text.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "ed0609d0b2450ff63335244551bc26c86847dfc1da59db7b933990eed8798bc1",
-      "note": "0.1.9 17단계"
-    },
-    {
-      "path": "app/tools/basic/web.py",
-      "origin": "derived:운영판 비서 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "8361884946b3b405c6f7c7f0f89e766bffa26c9ad61250e3ff195bcac01ca861",
-      "note": "웹 검색·페이지 읽기(캐시·내부 주소 막음)"
-    },
-    {
-      "path": "app/tools/phone/handlers.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "f16dbda4c3e3510ef6ff3f86a1414dcdbbd791db1d33c55f67fda3ce317f336f"
-    },
-    {
-      "path": "app/tools/phone/tools.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "911c473e151d6c4633bfd4b27cea32adbb5e06e6a7cbd68a5d7ef89f6c1b15dc"
-    },
-    {
-      "path": "app/tools/registry.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "3bb9e76714ab675e5bdd05f321cd0dea4ad408523f7f183e0fa4f24b7e8f671d",
-      "note": "도구 묶음 읽기·상한·폭주 멈춤"
-    },
-    {
-      "path": "app/ui/app.js",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "56646fe9f90fad054fa4dd7780f1c8c748010b631e972f5834d2e400bac076aa",
-      "note": "화면(처음 화면·대화·기억·설정) — 5단계"
-    },
-    {
-      "path": "app/ui/audio.js",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "ce88cce76f5c347d67f36cfba6bda70a669e7fc6c609280f747fa387d2b01565",
-      "note": "화면(처음 화면·대화·기억·설정) — 5단계"
-    },
-    {
-      "path": "app/ui/brain.js",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "93ec922aeae9f6ea8b7561946127939733832c687f8b07e4b2647a20e242b1f4"
-    },
-    {
-      "path": "app/ui/icon.svg",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "a1e19cbbb5b4ce04427549d4c1548a5e309393e64d8820055b5dc264a740473c",
-      "note": "화면(처음 화면·대화·기억·설정) — 5단계"
-    },
-    {
-      "path": "app/ui/index.html",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "ad369c372e857f577aa5f15a6ef033f152182a75dccbd67f9a02004eb38f2d6e",
-      "note": "화면(처음 화면·대화·기억·설정) — 5단계"
-    },
-    {
-      "path": "app/ui/interp.js",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "9c873f28a73e5d21663f9bb7b1bdd66f222ccf8f080d57e1ff1fa1587db553fc"
-    },
-    {
-      "path": "app/ui/petrt.js",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "9dab50c74ad028a7f24ccea26596fcd0cd81631bc06ae614bb445de717357ee3"
-    },
-    {
-      "path": "app/ui/phone.js",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "53e7c3e45b559a5914d42bf53a6245937bccf85e7eed49aa8437ec96f872888f"
-    },
-    {
-      "path": "app/ui/settings.js",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "88ff67a55658d5836c0bc43bc83a291427a16b66c7de572df85d6aaefb39b8f3",
-      "note": "화면(처음 화면·대화·기억·설정) — 5단계"
-    },
-    {
-      "path": "app/ui/start.js",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "30c7acba88017f521290962ef40b385bc978ab68a2e0fe9da8b4e216199e7b5e",
-      "note": "화면(처음 화면·대화·기억·설정) — 5단계"
-    },
-    {
-      "path": "app/ui/style.css",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "f9707f401514c2a5c32fdce6048445593e1ccc0fd00ae96ce1742b1c382607f5",
-      "note": "화면(처음 화면·대화·기억·설정) — 5단계"
-    },
-    {
-      "path": "app/ui/update.js",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "8db6865b88a2c5da5779871ef6806cc48eb812671cea56f9902d578183330a71",
-      "note": "업데이트 알림·단추 화면 — 9단계"
-    },
-    {
-      "path": "app/ui/wizard.js",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "db7a9cfa30dddbd61f7a3dbb2ef87d7f5a1b1eddf9c51f14341bb6798c4ce763",
-      "note": "처음 화면(펫 옷 받기 묻기 포함) — 7단계"
-    },
-    {
-      "path": "app/version.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "83ae0185ee4cc04feda35f705eb6491e27e71372f59de6ecdc8fb48b536d9774",
-      "note": "판 번호 한 곳 — 9단계"
-    },
-    {
-      "path": "app/winbox.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "98580cbfa6669b532641d2bf99c5c79d099cc75d56329330094e90fe64652bb7"
-    },
-    {
-      "path": "assets/README.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "904a1f89dbe354e2c13e70081a87f7a7e281b6baa59b9780f87ec7145287d828"
-    },
-    {
-      "path": "assets/voice/README.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "f8a5f161302f6b84cc1fce9c532e3dbed4ce47831fa010d30c9237b9357e206c",
-      "note": "2026-11-14 남성 목소리·말투 자동 연결"
-    },
-    {
-      "path": "assets/voice/kimbiseo/default.wav",
-      "origin": "new",
-      "treatment": "new",
-      "note": "김비서 목소리 참고음성(합성 목소리·중립 문장, 사람 녹음 아님) — ASSETS-LICENSE 조건 — 9단계",
-      "allow_type": true,
-      "sha256": "478133bc3283e4ffd0599b3ef7b8d22d1d88905cbda6c4e0d9d0f92362c56750"
-    },
-    {
-      "path": "assets/voice/kimbiseo/참고목록.json",
-      "origin": "new",
-      "treatment": "new",
-      "note": "참고음성 글 목록(기본 1개) — 이름은 목소리 엔진이 찾는 이름(tts_engine.MANIFEST_NAME) — 9단계",
-      "nonascii_name_ok": true,
-      "sha256": "f5b8aae0d60f2b919e68978ceeaab9100fb2465212e2ac0aff3587a64a9551d7"
-    },
-    {
-      "path": "assets/voice/kimbiseo_m/default.wav",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "0bf18c4f22e963abae3b5cb83f16f5b0fbbb18b672d7d45df804a42f3fdf5405",
-      "note": "김비서(남) 목소리 참고음성(Qwen3-TTS VoiceDesign 합성 목소리·중립 문장, 사람 녹음 아님) — ASSETS-LICENSE 조건 — 0.1.11(2026-11-16 새로 합성)",
-      "allow_type": true
-    },
-    {
-      "path": "assets/voice/kimbiseo_m/참고목록.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "0a5b3aadfe056d1c617dbc0704182dbf163a17df7d823bb7dd063a8d4f16ef6d",
-      "note": "김비서(남) 참고음성 글 목록(기본 1개) — 이름은 목소리 엔진이 찾는 이름(tts_engine.MANIFEST_NAME) — 0.1.11",
-      "nonascii_name_ok": true
-    },
-    {
-      "path": "brain/README.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "3a14fa51465941a5d85c9eddab0f789346986bd3daca47254bef1eca28c8a1dc"
-    },
-    {
-      "path": "brain/bench_brain.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "fa54f5729fc98d01208d35aa635b267e97d7c63281a87e46200fe3ae2adf4654"
-    },
-    {
-      "path": "brain/tool_text_rescue.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "00088df02b8c33f015e9b7f5b5ebc344d02292afb626b31fc754b316ecfadfed"
-    },
-    {
-      "path": "docs/README.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "ec4e00d6ac1bfdfbeb523ea9c07f281e79325d0787657eaa5bfc74bf032f6540"
-    },
-    {
-      "path": "installer/README.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "516f436f15e3ee667bfdddeac2ec983db0b1568810048bd19bc9f20134477aab"
-    },
-    {
-      "path": "installer/editions/radeon.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "09255d5ea98999b4d8c899b0b32f14a7f32c5e75dbb29d4ad4fb5fb3c7740c29"
-    },
-    {
-      "path": "installer/get_models.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "56611c15fa4bb869da453cf731dd478b53e8adcc938719ffdba301af4435c6dd",
-      "note": "모델 받기·확인(이어받기·다시 시도·진행·확인 기록) — 7단계"
-    },
-    {
-      "path": "installer/install.ps1",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "d96f677b7f533587690de478adf6405455e35ab69bcf91829b48a084399ec7bc",
-      "note": "설치 창(설치 단추 하나·다시 하기·창 없이 일꾼 띄움) — 7단계"
-    },
-    {
-      "path": "installer/install_config.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "3b49ff72770357cfb6285ffff4fafc277e80ff599e1976830a44f47adf1b0a50",
-      "note": "설치 설정(옷 목록 주소 = 깃허브 릴리스 한 줄) — 9단계"
-    },
-    {
-      "path": "installer/interp/models.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "d03ba3c946ae7712a825eb920cb0196311eb8dd8bf171bbd4ceddbe0ad7c2ed0",
-      "note": "통역 원어민 목소리 모델 목록(Kokoro-82M·Piper 4개, 원 저장소 판·해시 고정) — models.json 과 따로(업데이트 DEPS 밖) — 0.1.15",
-      "json_hash_keys": [
-        "sha256",
-        "git_sha1",
-        "revision"
-      ]
-    },
-    {
-      "path": "installer/locks/app.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "cb482e17a1eae0b68306235f6bed2298159572f0ce18a5735f05fdab2f25aa34",
-      "note": "파이썬 부품 잠금(판·주소·sha256) — 7단계",
-      "json_hash_keys": [
-        "sha256",
-        "url"
-      ]
-    },
-    {
-      "path": "installer/locks/interp-thai.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "90c262adc977a6d7edc9dcb3a9664327f27a7124d073e6252aa2686c9d3a9591",
-      "note": "태국어 통역 목소리 부품 잠금(pythainlp 판·주소·sha256 — 통역 환경 runtime\\python-interp 에 더함) — 0.1.17",
-      "json_hash_keys": [
-        "sha256",
-        "url"
-      ]
-    },
-    {
-      "path": "installer/locks/interp.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "3ccf993e0d6a76ae1c9ded72421c146f7a6cf93788f14e556c31c6f10375edde",
-      "json_hash_keys": [
-        "sha256",
-        "url"
-      ],
-      "note": "통역 원어민 목소리 부품 잠금(판·주소·sha256 — Kokoro·Piper CPU, 따로 도는 runtime\\python-interp) — 0.1.15"
-    },
-    {
-      "path": "installer/locks/voice-cpu.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "7462e3b9df220cbcc30d325b5791ae1bf000ffe6b8460aa433b8849039fcd53b",
-      "note": "파이썬 부품 잠금(판·주소·sha256) — 7단계",
-      "json_hash_keys": [
-        "sha256",
-        "url"
-      ]
-    },
-    {
-      "path": "installer/locks/voice-cuda.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "0cd47ba4c449cc766eee54b2065b08aafc39e1bd455f96d2a7387ef5afeb88f3",
-      "note": "파이썬 부품 잠금(판·주소·sha256) — 7단계",
-      "json_hash_keys": [
-        "sha256",
-        "url"
-      ]
-    },
-    {
-      "path": "installer/make_lock.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "54ed7b5c5b683e49c7e339d0aabfddaf1230b86f66fdb66dbb3970ec46521ac2",
-      "note": "잠금 파일 만들기(개발자 도구) — 7단계"
-    },
-    {
-      "path": "installer/models.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "7e3963959e668a40ad52852386072046d40bb92f36e353d82a9533ec7dd61bbc",
-      "note": "공식 저장소 해시(두뇌 gemma 무검열 판 E4B·E2B·옛 판·작은 귀) — 7단계·0.1.4·0.1.6",
-      "json_hash_keys": [
-        "sha256",
-        "git_sha1",
-        "revision"
-      ],
-      "exceptions": [
-        {
-          "line": 10,
-          "allow": "https://huggingface.co/huihui-ai/Huihui-gemma-4-E4B-it-qat-q4_0-unquantized-abliterated-GGUF",
-          "reason": "Gemma 무검열 판 원 출처 저장소 주소(공개 허깅페이스 저장소 이름)"
-        },
-        {
-          "line": 12,
-          "allow": "https://huggingface.co/huihui-ai/Huihui-gemma-4-E4B-it-qat-q4_0-unquantized-abliterated-GGUF/resolve/{revision}/",
-          "reason": "같은 저장소의 받기 주소(판 고정)"
-        },
-        {
-          "line": 28,
-          "allow": "https://huggingface.co/huihui-ai/Huihui-gemma-4-E2B-it-qat-q4_0-unquantized-abliterated-GGUF",
-          "reason": "Gemma 무검열 작은 판(E2B) 원 출처 저장소 주소(공개 허깅페이스 저장소 이름)"
-        },
-        {
-          "line": 30,
-          "allow": "https://huggingface.co/huihui-ai/Huihui-gemma-4-E2B-it-qat-q4_0-unquantized-abliterated-GGUF/resolve/{revision}/",
-          "reason": "같은 저장소의 받기 주소(판 고정)"
-        },
-        {
-          "line": 34,
-          "allow": "Huihui-gemma-4-E2B-it-qat-q4_0-unquantized-abliterated-Q4_K.gguf",
-          "reason": "E2B 모델 파일 이름(공개 허깅페이스 저장소의 파일 이름 — 무작위 글자 아님)"
-        }
-      ]
-    },
-    {
-      "path": "installer/plan.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "31aeb959572f2af7a7b04dbe9fddf2df2724430873ced363a10848425fde389c",
-      "note": "사양별 자동 구성 — 7단계"
-    },
-    {
-      "path": "installer/radeon/models.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "8f84f36ea61d2b788e2ad67bced1529b806f7c70e45defe5a3e2fb148072f99f",
-      "json_hash_keys": [
-        "sha256"
-      ],
-      "note": "라데온 판 목소리 GGUF 모델 묶음 해시(김비서 릴리스 첨부) — 21단계"
-    },
-    {
-      "path": "installer/radeon/runtimes.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "c2280a3ffb66eb605279a2ce8492c492a56389e0cc1415b1706deacf22be9e00",
-      "json_hash_keys": [
-        "sha256",
-        "url"
-      ],
-      "note": "라데온 판 목소리용 공식 llama.cpp b10621 불칸 판·해시 — 21단계"
-    },
-    {
-      "path": "installer/requirements/app.txt",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "2f69709c9f8a9978096673e23628d9c0d4b0a75b7f8ab8199d698569d8a87f54",
-      "note": "본체 환경 부품 — 7단계"
-    },
-    {
-      "path": "installer/requirements/interp-thai.txt",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "d2e532ac19cf24972004ce58aa163e2c1dc922c03956f100cfdab0ca5131597b",
-      "note": "태국어 통역 목소리 부품 목록(사람이 읽는 원본 — 잠금은 locks/interp-thai.json) — 0.1.17"
-    },
-    {
-      "path": "installer/requirements/interp.txt",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "d522ef68dab391742631d9453a4a7576cca768dff045b53a184d7b1f6922efa3",
-      "note": "통역 목소리 부품 요구 목록(잠금 만들기 입력) — 0.1.15"
-    },
-    {
-      "path": "installer/requirements/voice.txt",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "33c7a424ae09c0fa902c2e920647a6d86fbec4125686012b9cc19ef596d70d00",
-      "note": "음성 환경 부품 — 7단계"
-    },
-    {
-      "path": "installer/runtimes.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "15dad57254c24791ab0a865286b6ab5f6db83da30e4a31816e50b88931c5443b",
-      "note": "공식 파이썬·pip·setuptools·llama.cpp·electron 판·해시 — 7단계",
-      "json_hash_keys": [
-        "sha256",
-        "url",
-        "md5_python_org",
-        "commit"
-      ]
-    },
-    {
-      "path": "installer/setup_core.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "4a3d8316aa64393ca9b049099e0dc98b72a572d19d16365f469dd1de810f5135",
-      "note": "설치 본체(부품·두뇌·모델·펫·아이콘·설정, 있으면 건너뜀) — 7단계"
-    },
-    {
-      "path": "installer/uninstall.ps1",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "11c51fb4da6a8d29d5931d07334941eb6d1563d6404165c9419cee5a313ee6fe",
-      "note": "지우기(자기 설치 폴더·아이콘·앱 목록·파일 연결만) — 7단계"
-    },
-    {
-      "path": "installer/updater.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "3e45660660a6ff63bea5711553de5d1f772ea046e0a510608da514274342a7ec",
-      "note": "업데이트 바꾸기 일꾼(표준 라이브러리만) — 9단계"
-    },
-    {
-      "path": "installer/worker.ps1",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "0cee44b94d036dd4b0c603499d16ae1ab42047c8b2db7ef1ab059aa4b6f494e4",
-      "note": "설치 일꾼(공식 파이썬 판 고정·sha256·md5 → setup_core) — 7단계"
-    },
-    {
-      "path": "pet/README.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "ece0ea87c7166ff7d354eb4cf2a43141d3e296086c191c740a84372b10fad756"
-    },
-    {
-      "path": "pet/config.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "01b362d606522e56bf5daa789465df0bbadad29456bf8fd61c16baafe46a800b",
-      "note": "펫 설정(옷 목록 = 깃허브 최신 릴리스 고정 주소·허용 호스트 = 깃허브만·포트 17961·춤 노래 끔) — 9단계, 0.1.5"
-    },
-    {
-      "path": "pet/geometry.js",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "ccb6aeefd18753f15f524f89a54db8da40fb8d73d457954e35252c6407627c6b"
-    },
-    {
-      "path": "pet/main.js",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "1ba8348e6d0bd9206274f5f17c87a82b8eabcede66167599713c8138f19433cc",
-      "note": "공개 펫 본체(옷 꾸러미만·17961·옷 받기·자동 옷 받기·자세별 동작·춤 노래 순서) — 7단계"
-    },
-    {
-      "path": "pet/package.json",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "614786d56cf9a36da41d22bf84d0889f65aa441ed615b6ff932fcf9e7587e3fc",
-      "note": "공개 펫 꾸러미 표시(electron 개발용만) — 6단계"
-    },
-    {
-      "path": "pet/packs.js",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "50348dfd3200faa202e81811f223a57333479741be5bb30ab5f9e2bff241c408",
-      "note": "옷 꾸러미 열기·서명 확인(공개키만)·옷 목록 받기·파일 연결(앱 폴더) — 7단계",
-      "exceptions": [
-        {
-          "line": 16,
-          "allow": "Ut4XUf5sy9m+GnTwcEDoTxsa3p6x4AiMlfUkh7wdJEs=",
-          "reason": "옷 꾸러미 서명 확인용 공개키(비밀키 아님, 공개해야 확인 가능)"
-        }
-      ]
-    },
-    {
-      "path": "pet/preload.js",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "89ab5018559404553d48f55c0093fed2b4d2badb1640239409a7e829143d33d9",
-      "note": "화면↔본체 다리(허용한 이름만) — 6단계"
-    },
-    {
-      "path": "pet/renderer/img/icon.ico",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "d3348e1102cc88db7988b177cf6436237b40c70659ee140cf3ae521d39034cc2",
-      "note": "펫 아이콘(윈도우) — 6단계"
-    },
-    {
-      "path": "pet/renderer/img/icon.png",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "b264d0b722805ab5d549791e03e48f8faf9fedc86d1c025d4afa4d707e3b51e8",
-      "note": "펫 아이콘(app/ui/icon.svg 모양으로 새로 그림) — 6단계"
-    },
-    {
-      "path": "pet/renderer/menu.html",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "60a5103ee77c3b1c33b721f5a6117e939888ba24ee2346a7b8cfb64a923de40e",
-      "note": "오른쪽 클릭 메뉴 — 6단계",
-      "exceptions": [
-        {
-          "line": 81,
-          "allow": "하이라이프PC",
-          "reason": "메뉴 아래 제작 표기 한 줄(남기기로 결정됨)"
-        }
-      ]
-    },
-    {
-      "path": "pet/renderer/menu.js",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "fe3e58f064850252ceeb5e90252e44dfddb6e2b38c001e369188e2fc526cac6f",
-      "note": "메뉴 동작 — 6단계"
-    },
-    {
-      "path": "pet/renderer/none.html",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "ab629af38e5fb9faf8a0f170373233cc7e6f324b4605cf2cfa7bc7d123397fc4",
-      "note": "옷 없음 안내 — 6단계"
-    },
-    {
-      "path": "pet/renderer/none.js",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "591fd99625f93e79a375be9ea7a9751e69e8e2016b40cac978d5ab7cf8635087",
-      "note": "옷 없음 안내 동작 — 6단계"
-    },
-    {
-      "path": "pet/renderer/packs.html",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "d0a415985d252671c93ca6fe2de7851073ec52355ffc9d0f37ac55cfa09c23b5",
-      "note": "옷 관리·옷 받기 창 — 6단계"
-    },
-    {
-      "path": "pet/renderer/real.html",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "5bb9432a3af7e3a2711fd2dd6578c24210b931bd76022b4fd2110f75ff090c77",
-      "note": "실사 화면 — 6단계"
-    },
-    {
-      "path": "pet/renderer/real.js",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "39d68f921643bbcc1604dd8c02a960e5e3dacefe6ea55e93645c914588425174",
-      "note": "실사 재생·자세별 동작(없으면 일어나서)·시험용 기록 — 6단계"
-    },
-    {
-      "path": "pet/renderer/real/motion_names.js",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "4dfb57fa0ae90b5080535da1bec577899ca76ba7b4f4f569d77ae8ec99a74bde",
-      "note": "동작 이름·자세별 클립 알아보기 — 6단계"
-    },
-    {
-      "path": "pet/renderer/real/music/SOURCES.txt",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "636cc74df592002397294a65b10ee553d06170de693b60bdc6a0242b420801b8",
-      "note": "기본 춤 배경음 출처·라이선스 — 6단계"
-    },
-    {
-      "path": "pet/renderer/real/music/dance1.mp3",
-      "origin": "pet:바탕화면펫/renderer/real/music/dance1.mp3",
-      "treatment": "copy",
-      "sha256": "0ef4a05f16a67b8d1ddea5a996a750f51ec3bd1ef2a570b33795bc9752f780d0",
-      "note": "코드로 합성한 기본 춤 배경음(SOURCES.txt) — 6단계",
-      "allow_type": true
-    },
-    {
-      "path": "pet/renderer/real/music/dance2.mp3",
-      "origin": "pet:바탕화면펫/renderer/real/music/dance2.mp3",
-      "treatment": "copy",
-      "sha256": "7779a5d5ca5a021147baa8c6b8201a615b6e8eb9437321db3c0e236e85fad75c",
-      "note": "코드로 합성한 기본 춤 배경음(SOURCES.txt) — 6단계",
-      "allow_type": true
-    },
-    {
-      "path": "pet/renderer/real/music/dance3.mp3",
-      "origin": "pet:바탕화면펫/renderer/real/music/dance3.mp3",
-      "treatment": "copy",
-      "sha256": "dd7ad2a09c211bcc5d3c4f851caebf5858a6958425da754e6c337e7e594fdd0e",
-      "note": "코드로 합성한 기본 춤 배경음(SOURCES.txt) — 6단계",
-      "allow_type": true
-    },
-    {
-      "path": "pet/renderer/wardrobe.js",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "36f5e025b707fb46b9a085fa71c98a9526dc4d1d85e04f03dbd9037f8d0b8610",
-      "note": "옷 관리·옷 받기(준비 중·노래 포함 표시) — 6단계"
-    },
-    {
-      "path": "pet/server.js",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "42b0263e71cee8bfcd3e833c61f171db4d5ff603a1a1722daa9289c6c9c80ed9",
-      "note": "펫 신호 입구(127.0.0.1·Host·Origin 검사·/packs/auto) — 7단계"
-    },
-    {
-      "path": "pet/speech.js",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "f4e5aba85f165dbb4dae44a1668ebd0d6caa07ac1ce10120aa5fe0c2d89c0a1e",
-      "note": "윈도우 음성·입 맞추기 + 이 PC 목소리 서버 부르기(서버를 켜지 않음) — 6단계"
-    },
-    {
-      "path": "pet/tts.ps1",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "3f236aad568cc49888615d1c4020d6e23d4ca0607522c4460d2d5abf3ca45414",
-      "note": "윈도우 음성 읽기 — 6단계"
-    },
-    {
-      "path": "tests/README.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "797c208305bb493d1096bcfaa6bc5e0c493e9cf68c9b781b81cb4a46ff323fe0"
-    },
-    {
-      "path": "tests/brain_eval/cases_ko.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "e466fd2ee8ca68b678ac75fc11fea16c99a1f5575480f7d6819a3d7397e2bf95"
-    },
-    {
-      "path": "tests/brain_eval/eval_tools.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "2f988424c1cdf344e1d8410a6b0622e0d97106bb678f76199b0e383db74d9901"
-    },
-    {
-      "path": "tests/brain_eval/tools_basic.json",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "60776ec7803648ce6ec6c6b9cf07e284c27f12885d39f872d8dd25860db7de63"
-    },
-    {
-      "path": "tests/e2e/fake_brain.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "f60bc5ee7451f1837e138df8c7dcf88a18cc88d18bcae700a00e63a6adffa70b",
-      "note": "가짜 두뇌(시험용)"
-    },
-    {
-      "path": "tests/e2e/fake_pet.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "75aef4fc2e9ceb56606f99cbf7455cfa8dd52fb977be3f4088ea3b08ce928f3f",
-      "note": "가짜 펫(시험용)"
-    },
-    {
-      "path": "tests/unit/test_body.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "4df380de4a13ef6ad8c6bea9cb14d06b2a89ce046cd378bfb208a7cbf7cd23e1",
-      "note": "본체 단위 시험"
-    },
-    {
-      "path": "tests/unit/test_brain_tools.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "c553069d19b99e352b9bddcde83bd51291e24cd62db45f100e69794285f27dfb",
-      "note": "두뇌 도구 호출 단위 시험(글로 쓴 호출 건지기·구독 두뇌 글 약속 도구)"
-    },
-    {
-      "path": "tests/unit/test_compat_api.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "cc5971d639470454b921e1543cddf2d36a7dcd035db8092bb586fd66994bbbbc"
-    },
-    {
-      "path": "tests/unit/test_install_download.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "58657d1ee18eec55cfe9f986176dfa15bb032a69009a1d1950c8a41d0f12fffe"
-    },
-    {
-      "path": "tests/unit/test_install_progress.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "336237269926e9e71f2ad524dd87bf69988f43109d46fc63a847750c06393f4a"
-    },
-    {
-      "path": "tests/unit/test_installer.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "117a69be266bd3530505375bd287dbd6831214efacf4e4e606a2d3d063b71563",
-      "note": "설치·실행기 단위 시험 — 7단계"
-    },
-    {
-      "path": "tests/unit/test_interp.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "5804dbfbe1c9835e5e0dd9211cdf976d0a4962caebcca7a3307dff3344db70a2"
-    },
-    {
-      "path": "tests/unit/test_persona_voice.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "bf3f777ad3f61555e8702921c5ca489b812fd9319549fe56d9b72f3a1297f365"
-    },
-    {
-      "path": "tests/unit/test_pet_download.js",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "1eedc3c613a0b7a87ae1c0b15d9d80f12168aef7037e59ffcb6d491ec45c7557"
-    },
-    {
-      "path": "tests/unit/test_pet_geometry.js",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "3554516a6818406241ff07e620dce63a393c3a98b067bab6fb7c6c27378a0408"
-    },
-    {
-      "path": "tests/unit/test_phone.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "167975d17401c3edf5105ab070992bb13c752e686237481693fd5fa07a450146",
-      "exceptions": [
-        {
-          "line": null,
-          "allow": "10.0.0.2",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "10.0.0.3",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "10.1.2.3",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "100.100.1.1",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "172.16.5.5",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "172.31.255.1",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "172.32.0.1",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "192.168.1.10",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "192.168.1.2",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "192.168.1.5",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "192.168.1.6",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "192.168.1.66",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "192.168.1.67",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "192.168.1.7",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "192.168.1.8",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "fd7a:115c:a1e0::1",
-          "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "+82 10-1234-5678",
-          "reason": "지어낸 1234 꼴 번호(누구의 번호도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "01012345678",
-          "reason": "지어낸 1234 꼴 번호(누구의 번호도 아님)"
-        }
-      ]
-    },
-    {
-      "path": "tests/unit/test_radeon.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "74c466d89e40e758a1951e27ab3578d27291c6e5c8226b0cd21137ac5ebb2619"
-    },
-    {
-      "path": "tests/unit/test_settings.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "87ce5f6b04c93aa4ed2e969400a16434d345d3d8c757ae8737caa09253a4f55e",
-      "note": "설정 단위 시험 — 5단계"
-    },
-    {
-      "path": "tests/unit/test_text_norm.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "2282cdbadda6506f3a2d6ed125a2a0d10a158e810affd5e4aafd9da3785d428e",
-      "exceptions": [
-        {
-          "line": null,
-          "allow": "010-1234-5678",
-          "reason": "숫자 읽기 예시(1234 꼴의 지어낸 번호 — 누구의 번호도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "02-123-4567",
-          "reason": "숫자 읽기 예시(1234 꼴의 지어낸 번호 — 누구의 번호도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "010 1234 5678",
-          "reason": "숫자 읽기 예시(1234 꼴의 지어낸 번호 — 누구의 번호도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "1588-1234",
-          "reason": "숫자 읽기 예시(1234 꼴의 지어낸 번호 — 누구의 번호도 아님)"
-        }
-      ]
-    },
-    {
-      "path": "tests/unit/test_tools_019.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "a0b45ea6743ae33ff48a1ef2cea7df2146cc65996f8983a012ed720f71e24a62",
-      "note": "0.1.9 17단계"
-    },
-    {
-      "path": "tests/unit/test_update.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "4cc7627460fc5c2bc985c8f142c9be1f366c7dfe9f75c94129465373c2d077c8",
-      "note": "업데이트 단위 시험 — 9단계"
-    },
-    {
-      "path": "tests/unit/test_voice_gender.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "e08bfe8267ca2ee9abe7de22d917fb686ea6630a2610bf9f7eef26724a425d2a",
-      "note": "2026-11-14 남성 목소리·말투 자동 연결"
-    },
-    {
-      "path": "tests/unit/test_voice_outfit.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "c64a1bc6dacec18a256e14f37ced91292cb40a63d14b4db72786c12400ad0614",
-      "note": "옷→목소리 단위 시험(입은 옷으로 고르기·자동 설정·모르는 목소리 기본으로) — 0.1.11"
-    },
-    {
-      "path": "tests/unit/test_voiceprint.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "5dd1bd4fca9f41f1e44f815c09a731948db6c8af7a12ec62868adf7967e01787"
-    },
-    {
-      "path": "tests/unit/test_winbox.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "3c5fb8c198db1022889f5aa9b21f72af03083c86b0d86e57430bcc87828e57f1"
-    },
-    {
-      "path": "tools/README.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "f2fa360c1f956f0decc87f53b480d2c982bb2cab546ccf995602e02d4e0c20f3"
-    },
-    {
-      "path": "tools/allowlist.json",
-      "origin": "new",
-      "treatment": "new",
-      "self": true,
-      "note": "허용 목록 자신 — sha256 을 자기 안에 적을 수 없어 self"
-    },
-    {
-      "path": "tools/make_catalog.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "f196703871cf23f83d454cff93479bcf5f0fd72a67153d44d0f85d7c4e8493a6",
-      "note": "옷 목록 packs.json 만들기 — 6단계"
-    },
-    {
-      "path": "tools/make_setup_zip.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "19315b39e7f64f2e87757fe067a5dd30d66a68286c69f498ad14590e362687eb",
-      "note": "설치 파일 zip 만들기(허용 목록·sha256 맞는 것만, 개발자 도구) — 7단계"
-    },
-    {
-      "path": "tools/make_update.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "2412781e41e0c68934dc4fa6c64d88c951eb95a4a613c951d693a55bfd28b9f5",
-      "note": "업데이트 꾸러미·서명 목록 만들기(개발자 도구) — 9단계"
-    },
-    {
-      "path": "tools/pack_make.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "fa16e74a18fb4e2bf6b1cd103e98e78768adff451bc5b1c426136e0dd2d58808",
-      "note": "옷 꾸러미 공개용 다시 묶기·서명 — 6단계"
-    },
-    {
-      "path": "tools/pack_sign.js",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "bdb69afdc9e72fea79ff049e143dca09869f3266cdca470c381099a62f163042",
-      "note": "옷 꾸러미 ed25519 키·서명·확인 — 6단계"
-    },
-    {
-      "path": "tools/release_check.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "8a233e1e401517e55796ae62dcfbdd661dd175cda83adb6b723b3a39fc7fa4d2"
-    },
-    {
-      "path": "voice/README.md",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "ca53caf914ed4e0044d1958047cccd3476fb67836b7c80cd6a1ee80bd17f3588"
-    },
-    {
-      "path": "voice/config.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "ac5d249bca6193066e028f93041655d7d986c2b3b81df9a17e50dab614272405",
-      "note": "음성 설정 읽기(기본값+사용자 설정)"
-    },
-    {
-      "path": "voice/ear.py",
-      "origin": "derived:운영판 음성 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "b178e051fe2921423513183a7ca75c7a0f4a38a5f20e8e3161e6bfe5cfbfcf14",
-      "note": "whisper 길만 남김·모델 경로 인자로"
-    },
-    {
-      "path": "voice/ear_server.py",
-      "origin": "derived:운영판 비서 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "7beaedb01e592f2d968106cf9c61dd71f808d383a7124c01166e5355c596137b",
-      "note": "설정 기반·공개 포트 8872·개인 학습 판 길 삭제"
-    },
-    {
-      "path": "voice/gguf_engine.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "734c68726a8b627e325df7f18bcbb0a03315c7b94de0cd96aa91a5162f14c5f3"
-    },
-    {
-      "path": "voice/gguf_tts/LICENSE",
-      "origin": "standard:mit",
-      "treatment": "standard",
-      "sha256": "65959dcac5c2748705a2c38159797ab79193eb657bf2395a5be9b107362e1058",
-      "note": "HaujetZhao/Qwen3-TTS-GGUF MIT 원문(저작권 고지)"
-    },
-    {
-      "path": "voice/gguf_tts/__init__.py",
-      "origin": "derived:HaujetZhao/Qwen3-TTS-GGUF 74feb581bc8c (MIT) 옮겨 고침",
-      "treatment": "modified",
-      "sha256": "a0a970e61da454db28acb03dbf47abd25ed8886960fc46d277df0b70caea03f7"
-    },
-    {
-      "path": "voice/gguf_tts/codec.py",
-      "origin": "derived:HaujetZhao/Qwen3-TTS-GGUF 74feb581bc8c (MIT) 옮겨 고침",
-      "treatment": "modified",
-      "sha256": "597ac228166f80b2b1cd33d90c8abfe21cdf914843012c9b8ba747eb948ddeed"
-    },
-    {
-      "path": "voice/gguf_tts/lib.py",
-      "origin": "derived:HaujetZhao/Qwen3-TTS-GGUF 74feb581bc8c (MIT) 옮겨 고침",
-      "treatment": "modified",
-      "sha256": "b984dea5680924c325e855b359bcab823669f8f4cd7189c3e4e7b3073edcfd71"
-    },
-    {
-      "path": "voice/gguf_tts/parts.py",
-      "origin": "derived:HaujetZhao/Qwen3-TTS-GGUF 74feb581bc8c (MIT) 옮겨 고침",
-      "treatment": "modified",
-      "sha256": "bc5dbb5fcce282feaf31c6e273fe82073a16c7db3150191f1044a9d93a04d9c8"
-    },
-    {
-      "path": "voice/interp_langs.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "313b08ce4265511483df36141c8f3f5c7fc7d2994f707da890cbd24c2a82ae66"
-    },
-    {
-      "path": "voice/interp_voice.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "62ce3e41438074423a613e4fc72783d4504389ca89165b8eb05d8befcbce23d5"
-    },
-    {
-      "path": "voice/lipsync.py",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "2008bc78f20ea8088f25199dd9e3144b5274fdc7890dbab9e007885045ca45c9",
-      "note": "머리말만"
-    },
-    {
-      "path": "voice/phrases.txt",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "f4947487262ba44ae7884f679829b967ec9cdbcf05c892d0e6cacdcc2c6716f7",
-      "note": "미리 만들 말"
-    },
-    {
-      "path": "voice/pronunciation.tsv",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "8358a65bb584f724cce94ae8e44c35921dbf12ebebad0c1029f0542cc536544f",
-      "note": "업무용 줄 뺌"
-    },
-    {
-      "path": "voice/sapi_engine.py",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "35cef6fd34f256d1abc011680413b4ba609337c6251ee9c4b521c8112c8aacdd",
-      "note": "윈도우 기본 음성 예비 엔진"
-    },
-    {
-      "path": "voice/speech_rate.py",
-      "origin": "derived:운영판 비서 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "eccdc6be710d13549b86801184c46223ad2c88449025ef97a6bb053bf24b2625",
-      "note": "이름·주석 정리"
-    },
-    {
-      "path": "voice/text_norm.py",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "93a4e7476769104c65ffb82d1f26300ead390015c9a5bd84c554506b724fe71a",
-      "note": "사전 경로 설정·사용자 사전",
-      "exceptions": [
-        {
-          "line": null,
-          "allow": "010-1234-5678",
-          "reason": "숫자 읽기 예시(1234 꼴의 지어낸 번호 — 누구의 번호도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "02-123-4567",
-          "reason": "숫자 읽기 예시(1234 꼴의 지어낸 번호 — 누구의 번호도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "010 1234 5678",
-          "reason": "숫자 읽기 예시(1234 꼴의 지어낸 번호 — 누구의 번호도 아님)"
-        },
-        {
-          "line": null,
-          "allow": "1588-1234",
-          "reason": "숫자 읽기 예시(1234 꼴의 지어낸 번호 — 누구의 번호도 아님)"
-        }
-      ]
-    },
-    {
-      "path": "voice/tts_engine.py",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "35aab1dc9b64fe7a4d1ce6491460e402ea8f3b28e3c6eea2a65a0f9232768839",
-      "note": "절대 경로·고정 참고음성 삭제, 참고목록.json 로 받음"
-    },
-    {
-      "path": "voice/tts_server.py",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "cca5cd0ffa7c3ab34eededddb06d798ab520b63aef84df72bee37c42c1d8ec69",
-      "note": "설정 기반·공개 포트 8871·윈도우 음성 예비"
-    },
-    {
-      "path": "voice/voice_check.py",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "67b81f6aa9d99d7e80351f5c1da32dee2bd2c35a69322a86d8a2a17ebab80f07",
-      "note": "화자닮음.py 와 합침·선택 기능"
-    },
-    {
-      "path": "voice/voices.json",
-      "origin": "derived:운영판 펫 부품을 고쳐 옮김",
-      "treatment": "modified",
-      "sha256": "5a80d6f52faac456fbf95622749e493c9a696ea5e1bc5f7cc347947385fccd80",
-      "note": "김비서 목소리만"
-    },
-    {
-      "path": "설치.bat",
-      "origin": "new",
-      "treatment": "new",
-      "sha256": "052decf3ff942b5620e3b082697a963d7a790f0110a113e47b2af7223bbb053c",
-      "note": "설치 단추(창 없이 설치 창 띄움) — 7단계",
-      "nonascii_name_ok": true,
-      "exceptions": [
-        {
-          "line": 5,
-          "allow": "QQBkAGQALQBUAHkAcABlACAALQBBAHMAcwBlAG0AYgBsAHkATgBhAG0AZQAgAFMAeQBzAHQAZQBtAC4AVwBpAG4AZABvAHcAcwAuAEYAbwByAG0AcwA7ACAAWwBXAGkAbgBkAG8AdwBzAC4ARgBvAHIAbQBzAC4ATQBlAHMAcwBhAGcAZQBCAG8AeABdADoAOgBTAGgAbwB3ACgAIgBVxZXNRMcgADy6AMggAIDUtMUgAPzIOMGUxi4ADQAKAA0ACgAbvEDHIAB6AGkAcAAgAAzTfMdExyAAJMZ4ub3KIAB00K25IACSISAAJwCoulC0IABVxZXNIACA1DCuJwAgAJIhIACA1LC5IAD001SzIABIxVjHIAAnACTBWM4uAGIAYQB0ACcAIABExyAAULQgAIi8IAAMsuy3IAD8yDjBlMYuACIALAAgACcAQK5EvhzBIAAkwVjOJwApACAAfAAgAE8AdQB0AC0ATgB1AGwAbAA=",
-          "reason": "압축을 안 풀고 눌렀을 때 띄우는 한국어 안내 창 명령(PowerShell -EncodedCommand, 비밀 아님)"
-        }
-      ]
+ "schema": "kimbiseo-allowlist/1",
+ "note": "이 저장소에 들어가도 되는 파일 전부. 목록 밖 파일·sha256 다른 파일이 하나라도 있으면 공개 전 검사 실패. 줄을 더하는 것은 사람이 직접.",
+ "files": [
+  {
+   "path": ".gitattributes",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "645528c04ca7eb666a1880dbe38bf8d4dcd6377712dc443cf98ca3bfca1a6560"
+  },
+  {
+   "path": ".gitignore",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "c053a1b1cbc354f7f9865b39d6d6346a3fd20d0c74bd7294181ab6b0d6ec386b"
+  },
+  {
+   "path": "ASSETS-LICENSE.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "7d530ef5f729229ba5963968bd7c30b270678fd8cec8a165f58f54350afa1c8b"
+  },
+  {
+   "path": "LICENSE",
+   "origin": "standard:apache-2.0",
+   "treatment": "standard",
+   "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+   "note": "Apache License 2.0 표준 전문(apache.org 판과 같은 글자)"
+  },
+  {
+   "path": "NOTICE",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "943e747ddea442b68c8799df39837ae8a5e098e5c920d4125faa99d90af7c42c"
+  },
+  {
+   "path": "PRIVACY.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "041c07cd04dd216d045fbecacfadc2361523b6224a9c5b6a70b99226fec9be22"
+  },
+  {
+   "path": "README.en.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "47de2fe3adab5b369cebe3fd0a13bf34e1472ab2fcaffae89eca866bf1ed8f53",
+   "note": "0.1.18 다국어",
+   "exceptions": [
+    {
+     "line": 9,
+     "allow": "HighlifePC",
+     "reason": "제작 표기 한 줄(README.md 와 같음)"
     }
-  ]
+   ]
+  },
+  {
+   "path": "README.ja.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "10822bbc1ea13344fe76250b9518a939d5cdc2d521da31a4b99888c99e49c3ba",
+   "note": "0.1.18 다국어",
+   "exceptions": [
+    {
+     "line": 7,
+     "allow": "HighlifePC",
+     "reason": "제작 표기 한 줄(README.md 와 같음)"
+    }
+   ]
+  },
+  {
+   "path": "README.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "8237a59d38e0b2841652f28f5aa276d0323025decd17f9bf7f79a60718787830",
+   "exceptions": [
+    {
+     "line": 8,
+     "allow": "하이라이프PC",
+     "reason": "제작 표기 한 줄(남기기로 결정됨)"
+    }
+   ]
+  },
+  {
+   "path": "README.zh.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "7f58ed368ea2b78c7f01c15741691a346d0c395ed08954bed5da02789d90ec88",
+   "note": "0.1.18 다국어",
+   "exceptions": [
+    {
+     "line": 7,
+     "allow": "HighlifePC",
+     "reason": "제작 표기 한 줄(README.md 와 같음)"
+    }
+   ]
+  },
+  {
+   "path": "SECURITY.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "b2fa6e3a32813fd851e9ddd48ed7713b5e269bd97b7ba5ec1aaaf3f438d4ad57"
+  },
+  {
+   "path": "THIRD_PARTY_LICENSES/README.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "d24c9701df751e08af5cfa169cbf8177af2b6b619e51b11d6d1cce391a74f2c0"
+  },
+  {
+   "path": "android/README.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "de3bb4b4e01ed9d7978a97f070daa27522bf3a89ce2b97727ae5cebcce73c057"
+  },
+  {
+   "path": "android/app/build.gradle.kts",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "18950634253b9b2a03d7b9ac80f499d3ff73b2625453404181cd80c6701ef598"
+  },
+  {
+   "path": "android/app/src/main/AndroidManifest.xml",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "d1d431b47e661d04585eb69efa78e7f0ba6a6afd9c60c3be0ed7faf434e7c883"
+  },
+  {
+   "path": "android/app/src/main/java/kr/kimbiseo/phone/Bus.kt",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "d863cb5d3156f6c7ddd3f54b27b8c5269657040d7d5690c094a0090c84c754ac"
+  },
+  {
+   "path": "android/app/src/main/java/kr/kimbiseo/phone/Doer.kt",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "ba052813c7fdb1c17a8964d14cd8f3441c5193912e89cfb4300b3a3314cb3dd4"
+  },
+  {
+   "path": "android/app/src/main/java/kr/kimbiseo/phone/L.kt",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "1da82488926e0899f7fd6b7b4d07d2eb6253b3074f26b5ed544b4ec138c04856",
+   "note": "0.1.18 다국어"
+  },
+  {
+   "path": "android/app/src/main/java/kr/kimbiseo/phone/MainActivity.kt",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "873bbd0b52564bd8b51135334bd4252ae1fd2f9ba579e9043c559e2142cade95"
+  },
+  {
+   "path": "android/app/src/main/java/kr/kimbiseo/phone/Net.kt",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "9f2e9428d03d0d9f3d1054c49f1eb24c8f7dc4dfcf053ed8b0cbad0c438dbea2"
+  },
+  {
+   "path": "android/app/src/main/java/kr/kimbiseo/phone/Pairing.kt",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "7c191069f92fa41f4ff102ee6cc50fea57ca4b234b2541c0a98d54ac5fec12a2"
+  },
+  {
+   "path": "android/app/src/main/java/kr/kimbiseo/phone/Rules.kt",
+   "origin": "derived:운영판 폰 앱 연락처·앱 이름 찾기 규칙을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "5a2a777a93d57e1ae5dbc4cbc3811154e12aa9eb7eafc769333ae190ab87a524",
+   "note": "연락처 이름 너그럽게 찾기(호칭·띄어쓰기·모음 혼동)는 운영판 방식, 길안내·앱 이름은 새로",
+   "exceptions": [
+    {
+     "line": null,
+     "allow": "대표님",
+     "reason": "연락처 이름에서 떼어 내는 일반 호칭 목록 중 하나(사람을 가리키지 않음)"
+    }
+   ]
+  },
+  {
+   "path": "android/app/src/main/java/kr/kimbiseo/phone/Store.kt",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "4a99ef7116215b513cdb0fe9aebd27e502aa5ebbe3f9f94a9280ecd41498318e"
+  },
+  {
+   "path": "android/app/src/main/java/kr/kimbiseo/phone/TalkService.kt",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "b33124bddad8a282954ef8923694ae05b47994f3026a7085d3dac533abea51b7"
+  },
+  {
+   "path": "android/app/src/main/java/kr/kimbiseo/phone/Ui.kt",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "fd1f196dca33529f1b9bf5b4939a306169aad0ab9986c1378f419bae2a290f0f"
+  },
+  {
+   "path": "android/app/src/main/res/drawable/ic_fg.xml",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "002ea3d57f0e5456f9ca45e8be532dce4060dac4460edc288f44e6cf2959a264"
+  },
+  {
+   "path": "android/app/src/main/res/drawable/ic_note.xml",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "fd52d23b5bf7223f8e87de474f6c01a54462aa2ce4c388852b72e8e0ffefd2b2"
+  },
+  {
+   "path": "android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "427a6673cd34ca06c68569b499cf5ad7af18f6ebc9b23f26d6422b13fd3c8eb9"
+  },
+  {
+   "path": "android/app/src/main/res/values-en/strings.xml",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "bc13a87b9ca99ad52bb8a85cdec5681625c72844778629c45eaef201d2c9c2e1",
+   "note": "0.1.18 다국어",
+   "exceptions": [
+    {
+     "line": null,
+     "allow": "192.168.1.23",
+     "reason": "시험·안내용으로 지어낸 사설 주소 예시"
+    },
+    {
+     "line": null,
+     "allow": "HighLife PC",
+     "reason": "설정 화면 제작 표기(영문)"
+    }
+   ]
+  },
+  {
+   "path": "android/app/src/main/res/values-ja/strings.xml",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "90e4352fb02a6ec3e45c7e942aac4b89fe205af105e03518022cf70cb5644d36",
+   "note": "0.1.18 다국어",
+   "exceptions": [
+    {
+     "line": null,
+     "allow": "192.168.1.23",
+     "reason": "시험·안내용으로 지어낸 사설 주소 예시"
+    },
+    {
+     "line": null,
+     "allow": "HighLife PC",
+     "reason": "설정 화면 제작 표기(영문)"
+    }
+   ]
+  },
+  {
+   "path": "android/app/src/main/res/values-zh-rCN/strings.xml",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "22fa7d142209ed2b0ee7fd10535f478087e49eb6ac3257c52f1152abe6dd4408",
+   "note": "0.1.18 다국어",
+   "exceptions": [
+    {
+     "line": null,
+     "allow": "192.168.1.23",
+     "reason": "시험·안내용으로 지어낸 사설 주소 예시"
+    },
+    {
+     "line": null,
+     "allow": "HighLife PC",
+     "reason": "설정 화면 제작 표기(영문)"
+    }
+   ]
+  },
+  {
+   "path": "android/app/src/main/res/values/colors.xml",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "6db5f632e0970a64d3a9c97dfcfbdc65b534bc099bfbf6f6d6ef7fe05f45994e"
+  },
+  {
+   "path": "android/app/src/main/res/values/strings.xml",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "5f428f80650eb10ae4ee60df3176de1ef1a6ed70b0929809a0ffad8b0bdcb957",
+   "note": "0.1.18 다국어",
+   "exceptions": [
+    {
+     "line": null,
+     "allow": "192.168.1.23",
+     "reason": "시험·안내용으로 지어낸 사설 주소 예시"
+    },
+    {
+     "line": null,
+     "allow": "하이라이프PC",
+     "reason": "설정 화면 제작 표기(한국어)"
+    }
+   ]
+  },
+  {
+   "path": "android/app/src/main/res/xml/network_security.xml",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "3d5d23fb0232ea1f157f78d7b46c7d244eba3e0d8fcb91fe91020634348f98f8"
+  },
+  {
+   "path": "android/app/src/test/java/kr/kimbiseo/phone/RulesTest.kt",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "97106fbbc9ef83943162e256ad1ef2c0ab2cc6ba7ebeb528035bc9d4fea0704b",
+   "exceptions": [
+    {
+     "line": null,
+     "allow": "10.0.0.5",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "100.101.1.2",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "172.20.1.1",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "172.32.0.1",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "192.168.1.23",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "192.168.1.300",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "fd7a:115c:a1e0::1",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "+82 10-1234-4444",
+     "reason": "지어낸 1234 꼴 번호(누구의 번호도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "010 1234 2222",
+     "reason": "지어낸 1234 꼴 번호(누구의 번호도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "010-1234-1111",
+     "reason": "지어낸 1234 꼴 번호(누구의 번호도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "010-1234-3333",
+     "reason": "지어낸 1234 꼴 번호(누구의 번호도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "01012341111",
+     "reason": "지어낸 1234 꼴 번호(누구의 번호도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "01012344444",
+     "reason": "지어낸 1234 꼴 번호(누구의 번호도 아님)"
+    }
+   ]
+  },
+  {
+   "path": "android/build.gradle.kts",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "3682944f57bb71558679bd375b0c7960cf356acab210d737f76e5e986068fb27"
+  },
+  {
+   "path": "android/build_apk.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "02084c40ec1b0dac5c124d03d364991512803f6b7067dd8d00b78ed13aba1795"
+  },
+  {
+   "path": "android/gradle.properties",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "0117454be559befab95375318f728ff4e18ca0790731fa1f0362b8c7db6bd22f"
+  },
+  {
+   "path": "android/settings.gradle.kts",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "3a66437d6b86691c52fbebc54f59528dc85d76dd81e31153022aef16f48ea33a"
+  },
+  {
+   "path": "app/README.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "d859cbd0b9749f83fdb51073263ba974651e054b679f2b8879555a0030cb0d2e"
+  },
+  {
+   "path": "app/__init__.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "note": "본체 꾸러미 표시"
+  },
+  {
+   "path": "app/config/choices.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "2e97c979389db896f64b5d4d4e6cd684640bcdf3bd79ebdb380d857ac896895a",
+   "note": "화면 선택지(호칭 단추·펫·목소리·두뇌·끼어들기 감도·정보) — 5단계 · 0.1.11 남자 펫 준비됨·목소리 '옷에 맞춤(자동)'",
+   "exceptions": [
+    {
+     "line": 3,
+     "allow": "대표님",
+     "reason": "호칭 고르기 단추 6개 중 하나(사용자가 고르는 보기, 정해진 지시)"
+    },
+    {
+     "line": 91,
+     "allow": "하이라이프PC",
+     "reason": "정보 화면 제작 표기 한 줄(남기기로 결정됨)"
+    }
+   ]
+  },
+  {
+   "path": "app/config/default.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "83a9e189228c9c83ce115dc74b916da3e47cf58db953110161bd1014c3b007ca",
+   "note": "기본 설정(개인 값 없음, 실행·펫 옷 칸) — 7단계"
+  },
+  {
+   "path": "app/config/lang/en.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "b320d4868c5253f6c7b0fee487c99339040e80eebe1671321887a5162805351d",
+   "note": "0.1.18 다국어"
+  },
+  {
+   "path": "app/config/lang/ja.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "6bae5f1a9df686eb955ebb3d55700f253aac25559369d7b6c599b22360a8875e",
+   "note": "0.1.18 다국어"
+  },
+  {
+   "path": "app/config/lang/zh.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "724b21184ff567ac2eb14fe65e7b3050181aa0f1003205c6891479059b0f90ac",
+   "note": "0.1.18 다국어"
+  },
+  {
+   "path": "app/core/__init__.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "note": "본체 부품 꾸러미 표시"
+  },
+  {
+   "path": "app/core/audio_smooth.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "aac631a258b294ae97a0bf845c0961b3d8212074f6a701d8a09afd85da526793",
+   "note": "이음새 교차 페이드·끝 페이드"
+  },
+  {
+   "path": "app/core/brain.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "114a3ce0782c5f3721f0a94ccd8c1b5e721e4505e6a5d2cbc2be7ebbc8b6a585",
+   "note": "두뇌 제공자 4가지·캐시 가드·글 도구 건지기 연결"
+  },
+  {
+   "path": "app/core/cli_brain.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "9950bd1115953f7c85c7819eeb2170ad19248b3a8544ea96cb7085688f74996f"
+  },
+  {
+   "path": "app/core/cli_detect.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "8538bb864f488e44faf67636288dd45707007d939d39c5a4fb46ca734cf89957"
+  },
+  {
+   "path": "app/core/cli_mcp.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "5de3aa250c90731424a49132511440b6ee5cc6619e2ab5ec4e4384aeb7b98fae",
+   "note": "0.1.9 17단계"
+  },
+  {
+   "path": "app/core/config.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "13c64266b05019670bec380dea96fc328061e07f430b38e1ef6fa6ec1a050080",
+   "note": "설정 읽기·깊은 병합·이름 설정"
+  },
+  {
+   "path": "app/core/filters.py",
+   "origin": "derived:운영판 비서 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "32bfde8b0474f0884af572a815242537d627b0439a19e4d60af2991b9eb379c8",
+   "note": "부품의 소리 거름 부분만 옮겨 고침"
+  },
+  {
+   "path": "app/core/fx.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "be44a3f1b6658aa03d7c05f14d5ee3871166e8317f7c096834245cbd56afcd89"
+  },
+  {
+   "path": "app/core/guard.py",
+   "origin": "derived:운영판 비서 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "7f555e2a8003e3721984c5a995f238e3a0bc1edff767eed390d57d0f448695a6",
+   "note": "접속 검사(Host·Origin·끄기 비밀값)"
+  },
+  {
+   "path": "app/core/i18n.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "c01b44fee1a96a8bcf72b2d20714c1e5f53bd0031947cd6db9f380f060b89e93",
+   "note": "0.1.18 다국어"
+  },
+  {
+   "path": "app/core/interp.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "0c6fb9c6af84f2c2d56f1e8c1832a20c3ff6fef3fcd3d4404d40930023bab32c"
+  },
+  {
+   "path": "app/core/keystore.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "54c34596b04bf8a55b45ccfae5a1428e52000dfc99e6d971cdf757bde511c4fd",
+   "note": "열쇠 보관(DPAPI·환경변수)"
+  },
+  {
+   "path": "app/core/memory.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "5ba6869f33fecafb3cbf2a5d5d5820b6beda7eeb7daee0668ee688ba92c52e3a",
+   "note": "대화 기억(지식·보관·이어가기·일기)"
+  },
+  {
+   "path": "app/core/observer.py",
+   "origin": "derived:운영판 비서 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "a0d689d9a3dea777ca91773744f6f735b86f227b2dd9029bcda6ff56518fecbd",
+   "note": "관찰자(지연·메아리 상관) 부분만 옮겨 고침"
+  },
+  {
+   "path": "app/core/phone.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "846c7f24d4f1019e9ad60fec3f1ede9734412ec99136911f8368624ebc9b19a6",
+   "exceptions": [
+    {
+     "line": null,
+     "allow": "10.0.0.0/8",
+     "reason": "테일스케일 주소 대역(공개된 표준 대역 — 허용 여부 판단에 씀)"
+    },
+    {
+     "line": null,
+     "allow": "100.64.0.0/10",
+     "reason": "테일스케일 주소 대역(공개된 표준 대역 — 허용 여부 판단에 씀)"
+    },
+    {
+     "line": null,
+     "allow": "127.0.0.0/8",
+     "reason": "테일스케일 주소 대역(공개된 표준 대역 — 허용 여부 판단에 씀)"
+    },
+    {
+     "line": null,
+     "allow": "169.254.0.0/16",
+     "reason": "테일스케일 주소 대역(공개된 표준 대역 — 허용 여부 판단에 씀)"
+    },
+    {
+     "line": null,
+     "allow": "172.16.0.0/12",
+     "reason": "테일스케일 주소 대역(공개된 표준 대역 — 허용 여부 판단에 씀)"
+    },
+    {
+     "line": null,
+     "allow": "192.0.2.1",
+     "reason": "테일스케일 주소 대역(공개된 표준 대역 — 허용 여부 판단에 씀)"
+    },
+    {
+     "line": null,
+     "allow": "192.168.0.0/16",
+     "reason": "테일스케일 주소 대역(공개된 표준 대역 — 허용 여부 판단에 씀)"
+    },
+    {
+     "line": null,
+     "allow": "fd7a:115c:a1e0::/48",
+     "reason": "테일스케일 주소 대역(공개된 표준 대역 — 허용 여부 판단에 씀)"
+    }
+   ]
+  },
+  {
+   "path": "app/core/prompt.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "1bbc3eaaefe06d6744201412b7ae15b248af84523aad2b9e6ec814386e367c57",
+   "note": "고정 앞부분 지시문·도구 안내"
+  },
+  {
+   "path": "app/core/qrcodegen.py",
+   "origin": "derived:nayuki/QR-Code-generator (MIT)",
+   "treatment": "modified",
+   "sha256": "b089855caf16185c61421ea4927c1b213cf9468940d71fa8ab11ef83662dcc84",
+   "note": "QR 만들기 — MIT 원본을 줄여 옮김(THIRD_PARTY_LICENSES 에 적음)"
+  },
+  {
+   "path": "app/core/redact.py",
+   "origin": "derived:운영판 비서 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "3a630b617c876ae2a23bb2350f13e10a934f878a5ea35ae330214bfebec04807",
+   "note": "민감한 글 가리기"
+  },
+  {
+   "path": "app/core/safe_args.py",
+   "origin": "derived:운영판 비서 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "fd41097b16c6287a7db73f31cb442f2b3ef4055c52b08d90dd050898fd072a58",
+   "note": "도구 인자 정리(불리언 등)"
+  },
+  {
+   "path": "app/core/session.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "38fda745c4924cdd729e27d098efe858482b97b941567ffe2cabca34bbbfc6d1",
+   "note": "파이프라인 묶기·글 입력·저장"
+  },
+  {
+   "path": "app/core/settings_api.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "414e0a971f2c992e2f737a18348f6d5313e30abbbd1ce35c39c717dd24fe12af",
+   "note": "설정 화면 값 검사·반영 시점·열쇠 저장·두뇌 연결 시험·펫 옷 받기 — 7단계"
+  },
+  {
+   "path": "app/core/speech_gate.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "8d0e3010edb2d20902589091ca33b118218047463fa8be7522ab125ed2c97bc9",
+   "note": "0.1.17 말소리 문 — 무음·잡음 헛받아쓰기 막기(실레로 재측정·짧은 인사 단독 버림)"
+  },
+  {
+   "path": "app/core/state.py",
+   "origin": "derived:운영판 비서 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "0c092c8fbb31e0553578212a8740d2634bbeca40f4787dcd5a94c9c86737200a",
+   "note": "대화 상태·환각 거름 부분만 옮겨 고침"
+  },
+  {
+   "path": "app/core/stt.py",
+   "origin": "derived:운영판 비서 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "2d8e23d60a4765fe1dff7bd3503df771e86138daed364c7ede367865a1fa65b3",
+   "note": "귀 연결·메아리 판정 부분만 옮겨 고침"
+  },
+  {
+   "path": "app/core/sysinfo.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "05ac94ab16537389d6b818b936bc17976212df109885fcb829a7d80776cd88ee",
+   "note": "사양 보기(그래픽카드·메모리·디스크)와 구성 추천 — 5단계"
+  },
+  {
+   "path": "app/core/tts.py",
+   "origin": "derived:운영판 비서 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "9370ef102bee72639c1c7f21330292de360d3d6060d3421bd7b44b22f83400c1",
+   "note": "목소리 연결 부분만 옮겨 고침"
+  },
+  {
+   "path": "app/core/turns.py",
+   "origin": "derived:운영판 비서 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "3d3efdeb080146e40e0c6edd9fbcace735c197a4e3042681bd4b971f3eec16b8",
+   "note": "말끝 판정 부분만 옮겨 고침('때' 추가)"
+  },
+  {
+   "path": "app/core/update.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "b7744616a7d6dc6c3307460a7d0e0f3486f21abec114edab5fcc056e2e57d481",
+   "exceptions": [
+    {
+     "line": 28,
+     "allow": "/NWEgQzO/BNNYDB40y8ppPkVyi6tR348/nDDsrLSTX0=",
+     "reason": "업데이트 서명 공개키(kimbiseo-update-1, 공개해도 되는 값 — 비밀키는 저장소 밖)"
+    }
+   ],
+   "note": "업데이트(확인·서명·받기·바꾸기 시작) — 9단계"
+  },
+  {
+   "path": "app/core/voice_choice.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "60da08a14e344ea1785e4d30448ff174fae705c49e08403310ed69fe332c3cd9",
+   "note": "성별·옷 → 목소리·말투 고르기 — 0.1.10 성별 자동 · 0.1.11 입은 옷으로 고르기"
+  },
+  {
+   "path": "app/core/voice_link.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "10bb45f9fab776ca83e1518ac2dcac09edfcc97868552f00d79d5660106fc8d4",
+   "note": "귀·목소리 서버 연결"
+  },
+  {
+   "path": "app/core/voiceprint.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "27c8d8fde836f0af1c0d0926f29a67c417d637f69cb9b85f2a7dfc9444c0578e"
+  },
+  {
+   "path": "app/core/wake.py",
+   "origin": "derived:운영판 비서 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "f7b302208dc4ff92fcff58b3ec0119f1f389a74f104cc9b43ee679a17ecd72ad",
+   "note": "이름 부르기 판정(이름 설정 가능)"
+  },
+  {
+   "path": "app/core/wav_transport.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "4de28e141dc02e54fc013a427c48734adc6319d9691d9954b07992b201ae2492",
+   "note": "wav 넣기 시험용 전송부"
+  },
+  {
+   "path": "app/i18n/en.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "1fa753ad7c460507e087b2afe026ee9627d5c5932cd2691b00c06daafdbd750e",
+   "note": "0.1.18 다국어",
+   "exceptions": [
+    {
+     "line": null,
+     "allow": "하이라이프PC",
+     "reason": "사전 열쇠(제작 표기)"
+    },
+    {
+     "line": null,
+     "allow": "HighLifePC",
+     "reason": "번역 값(제작 표기)"
+    },
+    {
+     "line": null,
+     "allow": "대표님",
+     "reason": "사전 열쇠(호칭))"
+    }
+   ]
+  },
+  {
+   "path": "app/i18n/ja.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "a6d97de8c70eca768eaecc2a101e4745b533f193075423ccef2818052eb0e214",
+   "note": "0.1.18 다국어",
+   "exceptions": [
+    {
+     "line": null,
+     "allow": "하이라이프PC",
+     "reason": "사전 열쇠(제작 표기)"
+    },
+    {
+     "line": null,
+     "allow": "HighLifePC",
+     "reason": "번역 값(제작 표기)"
+    },
+    {
+     "line": null,
+     "allow": "대표님",
+     "reason": "사전 열쇠(호칭))"
+    }
+   ]
+  },
+  {
+   "path": "app/i18n/zh.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "a5f2fe1a5b664b6aee75822b086548405466ea2647e229e6bc5a09865a86a6e9",
+   "note": "0.1.18 다국어",
+   "exceptions": [
+    {
+     "line": null,
+     "allow": "하이라이프PC",
+     "reason": "사전 열쇠(제작 표기)"
+    },
+    {
+     "line": null,
+     "allow": "HighLifePC",
+     "reason": "번역 값(제작 표기)"
+    },
+    {
+     "line": null,
+     "allow": "대표님",
+     "reason": "사전 열쇠(호칭))"
+    }
+   ]
+  },
+  {
+   "path": "app/launcher.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "95bee89f00c90ddb1e47f1fed10e2ac513e28ac21f782ca6a75087307c763aec",
+   "note": "실행기(두뇌·귀·목소리·본체·펫 켜고 끄기, 자기 PID 만) — 7단계"
+  },
+  {
+   "path": "app/main.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "b1c77a3f32f7086e01a4c34536670fe21cd49f403082ea30984dbd5179e6ccbc",
+   "note": "본체 실행(serve/script/check)·펫 옷 설정 펫에 알리기·부모 PID 지켜보기 — 7단계"
+  },
+  {
+   "path": "app/pet_link/__init__.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "note": "펫 연결 꾸러미 표시"
+  },
+  {
+   "path": "app/pet_link/face.py",
+   "origin": "derived:운영판 비서 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "9f34d107d305513d6521633ec95a54162dbc024f30644451e599bd7aee7c0a76",
+   "note": "펫 표정·입·말풍선·동작 신호·설정 부르기 — 7단계"
+  },
+  {
+   "path": "app/prompts/README.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "5cb93d2a330898240be695fd6faa472b61d3c1a3bd9fe34d8240adf48e5984ff",
+   "note": "지시문 안내"
+  },
+  {
+   "path": "app/prompts/base.cli.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "c5d85ef0f55c04b3552598c80bebe06bf1ce84b0ae6e12fdc6ccc25e10800590"
+  },
+  {
+   "path": "app/prompts/base.small.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "c4792c1d738091e82e2865371b5a3d607920e031a1e883c8117b3219ca8b6904",
+   "note": "작은 두뇌용 기본 지시문"
+  },
+  {
+   "path": "app/prompts/en/base.cli.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "722d9d5265d38d737bdb29579cfaaaf478619dc285e6be88d27bab26370dff29",
+   "note": "0.1.18 다국어"
+  },
+  {
+   "path": "app/prompts/en/base.small.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "b9b49a976802ba7f1bcbc17bd9eb5013ec886162e1b4d7b231632439aaed5d26",
+   "note": "0.1.18 다국어"
+  },
+  {
+   "path": "app/prompts/en/tools.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "ced326c2a538bd3dcb7d9ab49e5b4aaec34b0b36790b3a1889e29324e6187b99",
+   "note": "0.1.18 다국어"
+  },
+  {
+   "path": "app/prompts/도구규칙.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "b7515792884d4ec806bda1d8a3356226de03501d2d620ef80c25f5150883dddc",
+   "note": "도구 쓰는 규칙(사용자가 고쳐 씀) — 한글 이름은 사용자가 찾기 쉽게 일부러 — 0.1.9 17단계",
+   "nonascii_name_ok": true
+  },
+  {
+   "path": "app/shell.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "f69d42e0943580cb5e6df5fdaca256cd35b76305b14c4637b55cd175f505527a",
+   "note": "김비서 창(pywebview, 마이크 권한은 본체 화면만) — 5단계"
+  },
+  {
+   "path": "app/tools/__init__.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "note": "도구 꾸러미 표시"
+  },
+  {
+   "path": "app/tools/basic/handlers.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "07fbe1a380ffe63d56a93f6e621dec88d5e7fa050192597d54ea62def422f1b3",
+   "note": "기본 도구 처리"
+  },
+  {
+   "path": "app/tools/basic/pc_action.py",
+   "origin": "derived:운영판 비서 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "659687f8074c49cac24c75c02f48201dff726f4e2f49bebc5312417fb4beed9a",
+   "note": "컴퓨터 조작(사이트 열기 등, 특정 사이트 없음)"
+  },
+  {
+   "path": "app/tools/basic/tools.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "4a6e33a5c05dac317c1f06c1f0beb2259ca6e07a6aeac0934388592aa495db01",
+   "note": "기본 도구 10개 정의"
+  },
+  {
+   "path": "app/tools/basic/type_text.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "ed0609d0b2450ff63335244551bc26c86847dfc1da59db7b933990eed8798bc1",
+   "note": "0.1.9 17단계"
+  },
+  {
+   "path": "app/tools/basic/web.py",
+   "origin": "derived:운영판 비서 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "5522d6de25d8abb438e9005b10f36369347e4d661840e0a10aeaf64911d32c1a",
+   "note": "웹 검색·페이지 읽기(캐시·내부 주소 막음)"
+  },
+  {
+   "path": "app/tools/phone/handlers.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "f16dbda4c3e3510ef6ff3f86a1414dcdbbd791db1d33c55f67fda3ce317f336f"
+  },
+  {
+   "path": "app/tools/phone/tools.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "911c473e151d6c4633bfd4b27cea32adbb5e06e6a7cbd68a5d7ef89f6c1b15dc"
+  },
+  {
+   "path": "app/tools/registry.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "0db15d1aa0546e943554bcea4e83c4866bf4ef59d26e1a749de377cc94104d31",
+   "note": "도구 묶음 읽기·상한·폭주 멈춤"
+  },
+  {
+   "path": "app/ui/app.js",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "4a4e99432d157732706eb8bb3fb7a7241ce7a8070c29ece9d3dd3bbdbd833545",
+   "note": "화면(처음 화면·대화·기억·설정) — 5단계"
+  },
+  {
+   "path": "app/ui/audio.js",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "ce88cce76f5c347d67f36cfba6bda70a669e7fc6c609280f747fa387d2b01565",
+   "note": "화면(처음 화면·대화·기억·설정) — 5단계"
+  },
+  {
+   "path": "app/ui/brain.js",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "93ec922aeae9f6ea8b7561946127939733832c687f8b07e4b2647a20e242b1f4"
+  },
+  {
+   "path": "app/ui/i18n.js",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "07dd02061d577b137a6bcebf69fbf11635a0606f690ca1baeadcb86245d53c20",
+   "note": "0.1.18 다국어"
+  },
+  {
+   "path": "app/ui/icon.svg",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "a1e19cbbb5b4ce04427549d4c1548a5e309393e64d8820055b5dc264a740473c",
+   "note": "화면(처음 화면·대화·기억·설정) — 5단계"
+  },
+  {
+   "path": "app/ui/index.html",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "3372bd2fa49b594fded7c2726fa5f7cadd2ee10cbe7d25e6cfcd73b11ca2ba4d",
+   "note": "화면(처음 화면·대화·기억·설정) — 5단계"
+  },
+  {
+   "path": "app/ui/interp.js",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "c497bae35476a9507022f777d9158845f8f8dbe40e9a4d28fd724578ad08a4e5"
+  },
+  {
+   "path": "app/ui/petrt.js",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "9dab50c74ad028a7f24ccea26596fcd0cd81631bc06ae614bb445de717357ee3"
+  },
+  {
+   "path": "app/ui/phone.js",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "53e7c3e45b559a5914d42bf53a6245937bccf85e7eed49aa8437ec96f872888f"
+  },
+  {
+   "path": "app/ui/settings.js",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "ae4d84a578dc88f1829a291d34a51ea083029d3eb4ad7692b8c1bff94c3c5e1e",
+   "note": "화면(처음 화면·대화·기억·설정) — 5단계"
+  },
+  {
+   "path": "app/ui/start.js",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "30c7acba88017f521290962ef40b385bc978ab68a2e0fe9da8b4e216199e7b5e",
+   "note": "화면(처음 화면·대화·기억·설정) — 5단계"
+  },
+  {
+   "path": "app/ui/style.css",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "f9707f401514c2a5c32fdce6048445593e1ccc0fd00ae96ce1742b1c382607f5",
+   "note": "화면(처음 화면·대화·기억·설정) — 5단계"
+  },
+  {
+   "path": "app/ui/update.js",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "8db6865b88a2c5da5779871ef6806cc48eb812671cea56f9902d578183330a71",
+   "note": "업데이트 알림·단추 화면 — 9단계"
+  },
+  {
+   "path": "app/ui/wizard.js",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "cc78b1fd7bad04aa24c35a214ea7e78f67e852b7b270ff4f78e7308d64b91bc6",
+   "note": "처음 화면(펫 옷 받기 묻기 포함) — 7단계"
+  },
+  {
+   "path": "app/version.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "83ae0185ee4cc04feda35f705eb6491e27e71372f59de6ecdc8fb48b536d9774",
+   "note": "판 번호 한 곳 — 9단계"
+  },
+  {
+   "path": "app/winbox.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "98580cbfa6669b532641d2bf99c5c79d099cc75d56329330094e90fe64652bb7"
+  },
+  {
+   "path": "assets/README.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "904a1f89dbe354e2c13e70081a87f7a7e281b6baa59b9780f87ec7145287d828"
+  },
+  {
+   "path": "assets/voice/README.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "f8a5f161302f6b84cc1fce9c532e3dbed4ce47831fa010d30c9237b9357e206c",
+   "note": "2026-11-14 남성 목소리·말투 자동 연결"
+  },
+  {
+   "path": "assets/voice/kimbiseo/default.wav",
+   "origin": "new",
+   "treatment": "new",
+   "note": "김비서 목소리 참고음성(합성 목소리·중립 문장, 사람 녹음 아님) — ASSETS-LICENSE 조건 — 9단계",
+   "allow_type": true,
+   "sha256": "478133bc3283e4ffd0599b3ef7b8d22d1d88905cbda6c4e0d9d0f92362c56750"
+  },
+  {
+   "path": "assets/voice/kimbiseo/참고목록.json",
+   "origin": "new",
+   "treatment": "new",
+   "note": "참고음성 글 목록(기본 1개) — 이름은 목소리 엔진이 찾는 이름(tts_engine.MANIFEST_NAME) — 9단계",
+   "nonascii_name_ok": true,
+   "sha256": "f5b8aae0d60f2b919e68978ceeaab9100fb2465212e2ac0aff3587a64a9551d7"
+  },
+  {
+   "path": "assets/voice/kimbiseo_m/default.wav",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "0bf18c4f22e963abae3b5cb83f16f5b0fbbb18b672d7d45df804a42f3fdf5405",
+   "note": "김비서(남) 목소리 참고음성(Qwen3-TTS VoiceDesign 합성 목소리·중립 문장, 사람 녹음 아님) — ASSETS-LICENSE 조건 — 0.1.11(2026-11-16 새로 합성)",
+   "allow_type": true
+  },
+  {
+   "path": "assets/voice/kimbiseo_m/참고목록.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "0a5b3aadfe056d1c617dbc0704182dbf163a17df7d823bb7dd063a8d4f16ef6d",
+   "note": "김비서(남) 참고음성 글 목록(기본 1개) — 이름은 목소리 엔진이 찾는 이름(tts_engine.MANIFEST_NAME) — 0.1.11",
+   "nonascii_name_ok": true
+  },
+  {
+   "path": "brain/README.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "3a14fa51465941a5d85c9eddab0f789346986bd3daca47254bef1eca28c8a1dc"
+  },
+  {
+   "path": "brain/bench_brain.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "fa54f5729fc98d01208d35aa635b267e97d7c63281a87e46200fe3ae2adf4654"
+  },
+  {
+   "path": "brain/tool_text_rescue.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "00088df02b8c33f015e9b7f5b5ebc344d02292afb626b31fc754b316ecfadfed"
+  },
+  {
+   "path": "docs/README.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "ec4e00d6ac1bfdfbeb523ea9c07f281e79325d0787657eaa5bfc74bf032f6540"
+  },
+  {
+   "path": "installer/README.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "516f436f15e3ee667bfdddeac2ec983db0b1568810048bd19bc9f20134477aab"
+  },
+  {
+   "path": "installer/editions/radeon.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "09255d5ea98999b4d8c899b0b32f14a7f32c5e75dbb29d4ad4fb5fb3c7740c29"
+  },
+  {
+   "path": "installer/get_models.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "56611c15fa4bb869da453cf731dd478b53e8adcc938719ffdba301af4435c6dd",
+   "note": "모델 받기·확인(이어받기·다시 시도·진행·확인 기록) — 7단계"
+  },
+  {
+   "path": "installer/install.ps1",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "d96f677b7f533587690de478adf6405455e35ab69bcf91829b48a084399ec7bc",
+   "note": "설치 창(설치 단추 하나·다시 하기·창 없이 일꾼 띄움) — 7단계"
+  },
+  {
+   "path": "installer/install_config.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "3b49ff72770357cfb6285ffff4fafc277e80ff599e1976830a44f47adf1b0a50",
+   "note": "설치 설정(옷 목록 주소 = 깃허브 릴리스 한 줄) — 9단계"
+  },
+  {
+   "path": "installer/interp/models.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "d03ba3c946ae7712a825eb920cb0196311eb8dd8bf171bbd4ceddbe0ad7c2ed0",
+   "note": "통역 원어민 목소리 모델 목록(Kokoro-82M·Piper 4개, 원 저장소 판·해시 고정) — models.json 과 따로(업데이트 DEPS 밖) — 0.1.15",
+   "json_hash_keys": [
+    "sha256",
+    "git_sha1",
+    "revision"
+   ]
+  },
+  {
+   "path": "installer/locks/app.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "cb482e17a1eae0b68306235f6bed2298159572f0ce18a5735f05fdab2f25aa34",
+   "note": "파이썬 부품 잠금(판·주소·sha256) — 7단계",
+   "json_hash_keys": [
+    "sha256",
+    "url"
+   ]
+  },
+  {
+   "path": "installer/locks/interp-thai.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "90c262adc977a6d7edc9dcb3a9664327f27a7124d073e6252aa2686c9d3a9591",
+   "note": "태국어 통역 목소리 부품 잠금(pythainlp 판·주소·sha256 — 통역 환경 runtime\\python-interp 에 더함) — 0.1.17",
+   "json_hash_keys": [
+    "sha256",
+    "url"
+   ]
+  },
+  {
+   "path": "installer/locks/interp.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "3ccf993e0d6a76ae1c9ded72421c146f7a6cf93788f14e556c31c6f10375edde",
+   "json_hash_keys": [
+    "sha256",
+    "url"
+   ],
+   "note": "통역 원어민 목소리 부품 잠금(판·주소·sha256 — Kokoro·Piper CPU, 따로 도는 runtime\\python-interp) — 0.1.15"
+  },
+  {
+   "path": "installer/locks/voice-cpu.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "7462e3b9df220cbcc30d325b5791ae1bf000ffe6b8460aa433b8849039fcd53b",
+   "note": "파이썬 부품 잠금(판·주소·sha256) — 7단계",
+   "json_hash_keys": [
+    "sha256",
+    "url"
+   ]
+  },
+  {
+   "path": "installer/locks/voice-cuda.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "0cd47ba4c449cc766eee54b2065b08aafc39e1bd455f96d2a7387ef5afeb88f3",
+   "note": "파이썬 부품 잠금(판·주소·sha256) — 7단계",
+   "json_hash_keys": [
+    "sha256",
+    "url"
+   ]
+  },
+  {
+   "path": "installer/make_lock.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "54ed7b5c5b683e49c7e339d0aabfddaf1230b86f66fdb66dbb3970ec46521ac2",
+   "note": "잠금 파일 만들기(개발자 도구) — 7단계"
+  },
+  {
+   "path": "installer/models.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "7e3963959e668a40ad52852386072046d40bb92f36e353d82a9533ec7dd61bbc",
+   "note": "공식 저장소 해시(두뇌 gemma 무검열 판 E4B·E2B·옛 판·작은 귀) — 7단계·0.1.4·0.1.6",
+   "json_hash_keys": [
+    "sha256",
+    "git_sha1",
+    "revision"
+   ],
+   "exceptions": [
+    {
+     "line": 10,
+     "allow": "https://huggingface.co/huihui-ai/Huihui-gemma-4-E4B-it-qat-q4_0-unquantized-abliterated-GGUF",
+     "reason": "Gemma 무검열 판 원 출처 저장소 주소(공개 허깅페이스 저장소 이름)"
+    },
+    {
+     "line": 12,
+     "allow": "https://huggingface.co/huihui-ai/Huihui-gemma-4-E4B-it-qat-q4_0-unquantized-abliterated-GGUF/resolve/{revision}/",
+     "reason": "같은 저장소의 받기 주소(판 고정)"
+    },
+    {
+     "line": 28,
+     "allow": "https://huggingface.co/huihui-ai/Huihui-gemma-4-E2B-it-qat-q4_0-unquantized-abliterated-GGUF",
+     "reason": "Gemma 무검열 작은 판(E2B) 원 출처 저장소 주소(공개 허깅페이스 저장소 이름)"
+    },
+    {
+     "line": 30,
+     "allow": "https://huggingface.co/huihui-ai/Huihui-gemma-4-E2B-it-qat-q4_0-unquantized-abliterated-GGUF/resolve/{revision}/",
+     "reason": "같은 저장소의 받기 주소(판 고정)"
+    },
+    {
+     "line": 34,
+     "allow": "Huihui-gemma-4-E2B-it-qat-q4_0-unquantized-abliterated-Q4_K.gguf",
+     "reason": "E2B 모델 파일 이름(공개 허깅페이스 저장소의 파일 이름 — 무작위 글자 아님)"
+    }
+   ]
+  },
+  {
+   "path": "installer/plan.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "31aeb959572f2af7a7b04dbe9fddf2df2724430873ced363a10848425fde389c",
+   "note": "사양별 자동 구성 — 7단계"
+  },
+  {
+   "path": "installer/radeon/models.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "8f84f36ea61d2b788e2ad67bced1529b806f7c70e45defe5a3e2fb148072f99f",
+   "json_hash_keys": [
+    "sha256"
+   ],
+   "note": "라데온 판 목소리 GGUF 모델 묶음 해시(김비서 릴리스 첨부) — 21단계"
+  },
+  {
+   "path": "installer/radeon/runtimes.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "c2280a3ffb66eb605279a2ce8492c492a56389e0cc1415b1706deacf22be9e00",
+   "json_hash_keys": [
+    "sha256",
+    "url"
+   ],
+   "note": "라데온 판 목소리용 공식 llama.cpp b10621 불칸 판·해시 — 21단계"
+  },
+  {
+   "path": "installer/requirements/app.txt",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "2f69709c9f8a9978096673e23628d9c0d4b0a75b7f8ab8199d698569d8a87f54",
+   "note": "본체 환경 부품 — 7단계"
+  },
+  {
+   "path": "installer/requirements/interp-thai.txt",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "d2e532ac19cf24972004ce58aa163e2c1dc922c03956f100cfdab0ca5131597b",
+   "note": "태국어 통역 목소리 부품 목록(사람이 읽는 원본 — 잠금은 locks/interp-thai.json) — 0.1.17"
+  },
+  {
+   "path": "installer/requirements/interp.txt",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "d522ef68dab391742631d9453a4a7576cca768dff045b53a184d7b1f6922efa3",
+   "note": "통역 목소리 부품 요구 목록(잠금 만들기 입력) — 0.1.15"
+  },
+  {
+   "path": "installer/requirements/voice.txt",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "33c7a424ae09c0fa902c2e920647a6d86fbec4125686012b9cc19ef596d70d00",
+   "note": "음성 환경 부품 — 7단계"
+  },
+  {
+   "path": "installer/runtimes.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "15dad57254c24791ab0a865286b6ab5f6db83da30e4a31816e50b88931c5443b",
+   "note": "공식 파이썬·pip·setuptools·llama.cpp·electron 판·해시 — 7단계",
+   "json_hash_keys": [
+    "sha256",
+    "url",
+    "md5_python_org",
+    "commit"
+   ]
+  },
+  {
+   "path": "installer/setup_core.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "4a3d8316aa64393ca9b049099e0dc98b72a572d19d16365f469dd1de810f5135",
+   "note": "설치 본체(부품·두뇌·모델·펫·아이콘·설정, 있으면 건너뜀) — 7단계"
+  },
+  {
+   "path": "installer/uninstall.ps1",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "11c51fb4da6a8d29d5931d07334941eb6d1563d6404165c9419cee5a313ee6fe",
+   "note": "지우기(자기 설치 폴더·아이콘·앱 목록·파일 연결만) — 7단계"
+  },
+  {
+   "path": "installer/updater.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "3e45660660a6ff63bea5711553de5d1f772ea046e0a510608da514274342a7ec",
+   "note": "업데이트 바꾸기 일꾼(표준 라이브러리만) — 9단계"
+  },
+  {
+   "path": "installer/worker.ps1",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "0cee44b94d036dd4b0c603499d16ae1ab42047c8b2db7ef1ab059aa4b6f494e4",
+   "note": "설치 일꾼(공식 파이썬 판 고정·sha256·md5 → setup_core) — 7단계"
+  },
+  {
+   "path": "pet/README.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "ece0ea87c7166ff7d354eb4cf2a43141d3e296086c191c740a84372b10fad756"
+  },
+  {
+   "path": "pet/config.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "01b362d606522e56bf5daa789465df0bbadad29456bf8fd61c16baafe46a800b",
+   "note": "펫 설정(옷 목록 = 깃허브 최신 릴리스 고정 주소·허용 호스트 = 깃허브만·포트 17961·춤 노래 끔) — 9단계, 0.1.5"
+  },
+  {
+   "path": "pet/geometry.js",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "ccb6aeefd18753f15f524f89a54db8da40fb8d73d457954e35252c6407627c6b"
+  },
+  {
+   "path": "pet/main.js",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "1ba8348e6d0bd9206274f5f17c87a82b8eabcede66167599713c8138f19433cc",
+   "note": "공개 펫 본체(옷 꾸러미만·17961·옷 받기·자동 옷 받기·자세별 동작·춤 노래 순서) — 7단계"
+  },
+  {
+   "path": "pet/package.json",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "614786d56cf9a36da41d22bf84d0889f65aa441ed615b6ff932fcf9e7587e3fc",
+   "note": "공개 펫 꾸러미 표시(electron 개발용만) — 6단계"
+  },
+  {
+   "path": "pet/packs.js",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "50348dfd3200faa202e81811f223a57333479741be5bb30ab5f9e2bff241c408",
+   "note": "옷 꾸러미 열기·서명 확인(공개키만)·옷 목록 받기·파일 연결(앱 폴더) — 7단계",
+   "exceptions": [
+    {
+     "line": 16,
+     "allow": "Ut4XUf5sy9m+GnTwcEDoTxsa3p6x4AiMlfUkh7wdJEs=",
+     "reason": "옷 꾸러미 서명 확인용 공개키(비밀키 아님, 공개해야 확인 가능)"
+    }
+   ]
+  },
+  {
+   "path": "pet/preload.js",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "89ab5018559404553d48f55c0093fed2b4d2badb1640239409a7e829143d33d9",
+   "note": "화면↔본체 다리(허용한 이름만) — 6단계"
+  },
+  {
+   "path": "pet/renderer/img/icon.ico",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "d3348e1102cc88db7988b177cf6436237b40c70659ee140cf3ae521d39034cc2",
+   "note": "펫 아이콘(윈도우) — 6단계"
+  },
+  {
+   "path": "pet/renderer/img/icon.png",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "b264d0b722805ab5d549791e03e48f8faf9fedc86d1c025d4afa4d707e3b51e8",
+   "note": "펫 아이콘(app/ui/icon.svg 모양으로 새로 그림) — 6단계"
+  },
+  {
+   "path": "pet/renderer/menu.html",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "60a5103ee77c3b1c33b721f5a6117e939888ba24ee2346a7b8cfb64a923de40e",
+   "note": "오른쪽 클릭 메뉴 — 6단계",
+   "exceptions": [
+    {
+     "line": 81,
+     "allow": "하이라이프PC",
+     "reason": "메뉴 아래 제작 표기 한 줄(남기기로 결정됨)"
+    }
+   ]
+  },
+  {
+   "path": "pet/renderer/menu.js",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "fe3e58f064850252ceeb5e90252e44dfddb6e2b38c001e369188e2fc526cac6f",
+   "note": "메뉴 동작 — 6단계"
+  },
+  {
+   "path": "pet/renderer/none.html",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "ab629af38e5fb9faf8a0f170373233cc7e6f324b4605cf2cfa7bc7d123397fc4",
+   "note": "옷 없음 안내 — 6단계"
+  },
+  {
+   "path": "pet/renderer/none.js",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "591fd99625f93e79a375be9ea7a9751e69e8e2016b40cac978d5ab7cf8635087",
+   "note": "옷 없음 안내 동작 — 6단계"
+  },
+  {
+   "path": "pet/renderer/packs.html",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "d0a415985d252671c93ca6fe2de7851073ec52355ffc9d0f37ac55cfa09c23b5",
+   "note": "옷 관리·옷 받기 창 — 6단계"
+  },
+  {
+   "path": "pet/renderer/real.html",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "5bb9432a3af7e3a2711fd2dd6578c24210b931bd76022b4fd2110f75ff090c77",
+   "note": "실사 화면 — 6단계"
+  },
+  {
+   "path": "pet/renderer/real.js",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "39d68f921643bbcc1604dd8c02a960e5e3dacefe6ea55e93645c914588425174",
+   "note": "실사 재생·자세별 동작(없으면 일어나서)·시험용 기록 — 6단계"
+  },
+  {
+   "path": "pet/renderer/real/motion_names.js",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "4dfb57fa0ae90b5080535da1bec577899ca76ba7b4f4f569d77ae8ec99a74bde",
+   "note": "동작 이름·자세별 클립 알아보기 — 6단계"
+  },
+  {
+   "path": "pet/renderer/real/music/SOURCES.txt",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "636cc74df592002397294a65b10ee553d06170de693b60bdc6a0242b420801b8",
+   "note": "기본 춤 배경음 출처·라이선스 — 6단계"
+  },
+  {
+   "path": "pet/renderer/real/music/dance1.mp3",
+   "origin": "pet:바탕화면펫/renderer/real/music/dance1.mp3",
+   "treatment": "copy",
+   "sha256": "0ef4a05f16a67b8d1ddea5a996a750f51ec3bd1ef2a570b33795bc9752f780d0",
+   "note": "코드로 합성한 기본 춤 배경음(SOURCES.txt) — 6단계",
+   "allow_type": true
+  },
+  {
+   "path": "pet/renderer/real/music/dance2.mp3",
+   "origin": "pet:바탕화면펫/renderer/real/music/dance2.mp3",
+   "treatment": "copy",
+   "sha256": "7779a5d5ca5a021147baa8c6b8201a615b6e8eb9437321db3c0e236e85fad75c",
+   "note": "코드로 합성한 기본 춤 배경음(SOURCES.txt) — 6단계",
+   "allow_type": true
+  },
+  {
+   "path": "pet/renderer/real/music/dance3.mp3",
+   "origin": "pet:바탕화면펫/renderer/real/music/dance3.mp3",
+   "treatment": "copy",
+   "sha256": "dd7ad2a09c211bcc5d3c4f851caebf5858a6958425da754e6c337e7e594fdd0e",
+   "note": "코드로 합성한 기본 춤 배경음(SOURCES.txt) — 6단계",
+   "allow_type": true
+  },
+  {
+   "path": "pet/renderer/wardrobe.js",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "36f5e025b707fb46b9a085fa71c98a9526dc4d1d85e04f03dbd9037f8d0b8610",
+   "note": "옷 관리·옷 받기(준비 중·노래 포함 표시) — 6단계"
+  },
+  {
+   "path": "pet/server.js",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "42b0263e71cee8bfcd3e833c61f171db4d5ff603a1a1722daa9289c6c9c80ed9",
+   "note": "펫 신호 입구(127.0.0.1·Host·Origin 검사·/packs/auto) — 7단계"
+  },
+  {
+   "path": "pet/speech.js",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "f4e5aba85f165dbb4dae44a1668ebd0d6caa07ac1ce10120aa5fe0c2d89c0a1e",
+   "note": "윈도우 음성·입 맞추기 + 이 PC 목소리 서버 부르기(서버를 켜지 않음) — 6단계"
+  },
+  {
+   "path": "pet/tts.ps1",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "3f236aad568cc49888615d1c4020d6e23d4ca0607522c4460d2d5abf3ca45414",
+   "note": "윈도우 음성 읽기 — 6단계"
+  },
+  {
+   "path": "tests/README.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "797c208305bb493d1096bcfaa6bc5e0c493e9cf68c9b781b81cb4a46ff323fe0"
+  },
+  {
+   "path": "tests/brain_eval/cases_ko.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "e466fd2ee8ca68b678ac75fc11fea16c99a1f5575480f7d6819a3d7397e2bf95"
+  },
+  {
+   "path": "tests/brain_eval/eval_tools.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "2f988424c1cdf344e1d8410a6b0622e0d97106bb678f76199b0e383db74d9901"
+  },
+  {
+   "path": "tests/brain_eval/tools_basic.json",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "60776ec7803648ce6ec6c6b9cf07e284c27f12885d39f872d8dd25860db7de63"
+  },
+  {
+   "path": "tests/e2e/fake_brain.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "f60bc5ee7451f1837e138df8c7dcf88a18cc88d18bcae700a00e63a6adffa70b",
+   "note": "가짜 두뇌(시험용)"
+  },
+  {
+   "path": "tests/e2e/fake_pet.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "75aef4fc2e9ceb56606f99cbf7455cfa8dd52fb977be3f4088ea3b08ce928f3f",
+   "note": "가짜 펫(시험용)"
+  },
+  {
+   "path": "tests/unit/test_body.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "4df380de4a13ef6ad8c6bea9cb14d06b2a89ce046cd378bfb208a7cbf7cd23e1",
+   "note": "본체 단위 시험"
+  },
+  {
+   "path": "tests/unit/test_brain_tools.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "c553069d19b99e352b9bddcde83bd51291e24cd62db45f100e69794285f27dfb",
+   "note": "두뇌 도구 호출 단위 시험(글로 쓴 호출 건지기·구독 두뇌 글 약속 도구)"
+  },
+  {
+   "path": "tests/unit/test_compat_api.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "cc5971d639470454b921e1543cddf2d36a7dcd035db8092bb586fd66994bbbbc"
+  },
+  {
+   "path": "tests/unit/test_i18n.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "39bec94dc1019b767bf5e092f6afa7dc7c860bd42986032bd459c146c818a310",
+   "note": "0.1.18 다국어"
+  },
+  {
+   "path": "tests/unit/test_install_download.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "58657d1ee18eec55cfe9f986176dfa15bb032a69009a1d1950c8a41d0f12fffe"
+  },
+  {
+   "path": "tests/unit/test_install_progress.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "336237269926e9e71f2ad524dd87bf69988f43109d46fc63a847750c06393f4a"
+  },
+  {
+   "path": "tests/unit/test_installer.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "117a69be266bd3530505375bd287dbd6831214efacf4e4e606a2d3d063b71563",
+   "note": "설치·실행기 단위 시험 — 7단계"
+  },
+  {
+   "path": "tests/unit/test_interp.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "cad2ac5fa560e4b5e510ad6b0398cd8680b46531ed147a0e17dda6e021bd5c7d"
+  },
+  {
+   "path": "tests/unit/test_persona_voice.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "bf3f777ad3f61555e8702921c5ca489b812fd9319549fe56d9b72f3a1297f365"
+  },
+  {
+   "path": "tests/unit/test_pet_download.js",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "1eedc3c613a0b7a87ae1c0b15d9d80f12168aef7037e59ffcb6d491ec45c7557"
+  },
+  {
+   "path": "tests/unit/test_pet_geometry.js",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "3554516a6818406241ff07e620dce63a393c3a98b067bab6fb7c6c27378a0408"
+  },
+  {
+   "path": "tests/unit/test_phone.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "167975d17401c3edf5105ab070992bb13c752e686237481693fd5fa07a450146",
+   "exceptions": [
+    {
+     "line": null,
+     "allow": "10.0.0.2",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "10.0.0.3",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "10.1.2.3",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "100.100.1.1",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "172.16.5.5",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "172.31.255.1",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "172.32.0.1",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "192.168.1.10",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "192.168.1.2",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "192.168.1.5",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "192.168.1.6",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "192.168.1.66",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "192.168.1.67",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "192.168.1.7",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "192.168.1.8",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "fd7a:115c:a1e0::1",
+     "reason": "시험·안내용으로 지어낸 사설·테일스케일 주소 예시(누구의 주소도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "+82 10-1234-5678",
+     "reason": "지어낸 1234 꼴 번호(누구의 번호도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "01012345678",
+     "reason": "지어낸 1234 꼴 번호(누구의 번호도 아님)"
+    }
+   ]
+  },
+  {
+   "path": "tests/unit/test_radeon.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "74c466d89e40e758a1951e27ab3578d27291c6e5c8226b0cd21137ac5ebb2619"
+  },
+  {
+   "path": "tests/unit/test_settings.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "87ce5f6b04c93aa4ed2e969400a16434d345d3d8c757ae8737caa09253a4f55e",
+   "note": "설정 단위 시험 — 5단계"
+  },
+  {
+   "path": "tests/unit/test_text_norm.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "2282cdbadda6506f3a2d6ed125a2a0d10a158e810affd5e4aafd9da3785d428e",
+   "exceptions": [
+    {
+     "line": null,
+     "allow": "010-1234-5678",
+     "reason": "숫자 읽기 예시(1234 꼴의 지어낸 번호 — 누구의 번호도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "02-123-4567",
+     "reason": "숫자 읽기 예시(1234 꼴의 지어낸 번호 — 누구의 번호도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "010 1234 5678",
+     "reason": "숫자 읽기 예시(1234 꼴의 지어낸 번호 — 누구의 번호도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "1588-1234",
+     "reason": "숫자 읽기 예시(1234 꼴의 지어낸 번호 — 누구의 번호도 아님)"
+    }
+   ]
+  },
+  {
+   "path": "tests/unit/test_tools_019.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "a0b45ea6743ae33ff48a1ef2cea7df2146cc65996f8983a012ed720f71e24a62",
+   "note": "0.1.9 17단계"
+  },
+  {
+   "path": "tests/unit/test_update.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "4cc7627460fc5c2bc985c8f142c9be1f366c7dfe9f75c94129465373c2d077c8",
+   "note": "업데이트 단위 시험 — 9단계"
+  },
+  {
+   "path": "tests/unit/test_voice_gender.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "e08bfe8267ca2ee9abe7de22d917fb686ea6630a2610bf9f7eef26724a425d2a",
+   "note": "2026-11-14 남성 목소리·말투 자동 연결"
+  },
+  {
+   "path": "tests/unit/test_voice_outfit.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "c64a1bc6dacec18a256e14f37ced91292cb40a63d14b4db72786c12400ad0614",
+   "note": "옷→목소리 단위 시험(입은 옷으로 고르기·자동 설정·모르는 목소리 기본으로) — 0.1.11"
+  },
+  {
+   "path": "tests/unit/test_voiceprint.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "5dd1bd4fca9f41f1e44f815c09a731948db6c8af7a12ec62868adf7967e01787"
+  },
+  {
+   "path": "tests/unit/test_winbox.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "3c5fb8c198db1022889f5aa9b21f72af03083c86b0d86e57430bcc87828e57f1"
+  },
+  {
+   "path": "tools/README.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "f2fa360c1f956f0decc87f53b480d2c982bb2cab546ccf995602e02d4e0c20f3"
+  },
+  {
+   "path": "tools/allowlist.json",
+   "origin": "new",
+   "treatment": "new",
+   "self": true,
+   "note": "허용 목록 자신 — sha256 을 자기 안에 적을 수 없어 self"
+  },
+  {
+   "path": "tools/i18n_scan.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "a8be53b9801e557ed0eea04f8c01570bd683afa311ec8424800157dde105f4fe",
+   "note": "0.1.18 다국어"
+  },
+  {
+   "path": "tools/make_catalog.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "f196703871cf23f83d454cff93479bcf5f0fd72a67153d44d0f85d7c4e8493a6",
+   "note": "옷 목록 packs.json 만들기 — 6단계"
+  },
+  {
+   "path": "tools/make_setup_zip.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "19315b39e7f64f2e87757fe067a5dd30d66a68286c69f498ad14590e362687eb",
+   "note": "설치 파일 zip 만들기(허용 목록·sha256 맞는 것만, 개발자 도구) — 7단계"
+  },
+  {
+   "path": "tools/make_update.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "2412781e41e0c68934dc4fa6c64d88c951eb95a4a613c951d693a55bfd28b9f5",
+   "note": "업데이트 꾸러미·서명 목록 만들기(개발자 도구) — 9단계"
+  },
+  {
+   "path": "tools/pack_make.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "fa16e74a18fb4e2bf6b1cd103e98e78768adff451bc5b1c426136e0dd2d58808",
+   "note": "옷 꾸러미 공개용 다시 묶기·서명 — 6단계"
+  },
+  {
+   "path": "tools/pack_sign.js",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "bdb69afdc9e72fea79ff049e143dca09869f3266cdca470c381099a62f163042",
+   "note": "옷 꾸러미 ed25519 키·서명·확인 — 6단계"
+  },
+  {
+   "path": "tools/release_check.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "8a233e1e401517e55796ae62dcfbdd661dd175cda83adb6b723b3a39fc7fa4d2"
+  },
+  {
+   "path": "voice/README.md",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "ca53caf914ed4e0044d1958047cccd3476fb67836b7c80cd6a1ee80bd17f3588"
+  },
+  {
+   "path": "voice/config.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "2910c9511a510e7cbbdcb5bef53d8b7ea2921ad48c37701b369693a8a235c88a",
+   "note": "음성 설정 읽기(기본값+사용자 설정)"
+  },
+  {
+   "path": "voice/ear.py",
+   "origin": "derived:운영판 음성 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "1be66dc54bc62893e1132ed0f1580eeb77baf89744fc56bb60a3c41ebd67698b",
+   "note": "whisper 길만 남김·모델 경로 인자로"
+  },
+  {
+   "path": "voice/ear_server.py",
+   "origin": "derived:운영판 비서 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "d99ef5f570f724371aed29e45131df01ae4d5165a0e70a5860a420d86aa77585",
+   "note": "설정 기반·공개 포트 8872·개인 학습 판 길 삭제"
+  },
+  {
+   "path": "voice/gguf_engine.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "533de4dff7d07a940f39e45b5dc62cace07190b091c58aa666b07ff5f8e518c1"
+  },
+  {
+   "path": "voice/gguf_tts/LICENSE",
+   "origin": "standard:mit",
+   "treatment": "standard",
+   "sha256": "65959dcac5c2748705a2c38159797ab79193eb657bf2395a5be9b107362e1058",
+   "note": "HaujetZhao/Qwen3-TTS-GGUF MIT 원문(저작권 고지)"
+  },
+  {
+   "path": "voice/gguf_tts/__init__.py",
+   "origin": "derived:HaujetZhao/Qwen3-TTS-GGUF 74feb581bc8c (MIT) 옮겨 고침",
+   "treatment": "modified",
+   "sha256": "a0a970e61da454db28acb03dbf47abd25ed8886960fc46d277df0b70caea03f7"
+  },
+  {
+   "path": "voice/gguf_tts/codec.py",
+   "origin": "derived:HaujetZhao/Qwen3-TTS-GGUF 74feb581bc8c (MIT) 옮겨 고침",
+   "treatment": "modified",
+   "sha256": "597ac228166f80b2b1cd33d90c8abfe21cdf914843012c9b8ba747eb948ddeed"
+  },
+  {
+   "path": "voice/gguf_tts/lib.py",
+   "origin": "derived:HaujetZhao/Qwen3-TTS-GGUF 74feb581bc8c (MIT) 옮겨 고침",
+   "treatment": "modified",
+   "sha256": "b984dea5680924c325e855b359bcab823669f8f4cd7189c3e4e7b3073edcfd71"
+  },
+  {
+   "path": "voice/gguf_tts/parts.py",
+   "origin": "derived:HaujetZhao/Qwen3-TTS-GGUF 74feb581bc8c (MIT) 옮겨 고침",
+   "treatment": "modified",
+   "sha256": "bc5dbb5fcce282feaf31c6e273fe82073a16c7db3150191f1044a9d93a04d9c8"
+  },
+  {
+   "path": "voice/interp_langs.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "25f01def860bfee069c7abfcd4ae85d130383b26d7a9b8ec0edbb285c721ce03"
+  },
+  {
+   "path": "voice/interp_voice.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "62ce3e41438074423a613e4fc72783d4504389ca89165b8eb05d8befcbce23d5"
+  },
+  {
+   "path": "voice/lipsync.py",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "2008bc78f20ea8088f25199dd9e3144b5274fdc7890dbab9e007885045ca45c9",
+   "note": "머리말만"
+  },
+  {
+   "path": "voice/phrases.txt",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "f4947487262ba44ae7884f679829b967ec9cdbcf05c892d0e6cacdcc2c6716f7",
+   "note": "미리 만들 말"
+  },
+  {
+   "path": "voice/pronunciation.tsv",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "8358a65bb584f724cce94ae8e44c35921dbf12ebebad0c1029f0542cc536544f",
+   "note": "업무용 줄 뺌"
+  },
+  {
+   "path": "voice/sapi_engine.py",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "3eb1841a2d4021fa02588a3d5ee4ac12ed7b401c3e0c419eee135497887b40f4",
+   "note": "윈도우 기본 음성 예비 엔진"
+  },
+  {
+   "path": "voice/speech_rate.py",
+   "origin": "derived:운영판 비서 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "eccdc6be710d13549b86801184c46223ad2c88449025ef97a6bb053bf24b2625",
+   "note": "이름·주석 정리"
+  },
+  {
+   "path": "voice/text_norm.py",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "90bba3883534ecc5f10b41a7cff38c06b7ba820e1fd53ac9179aa4c7b5ac8650",
+   "note": "사전 경로 설정·사용자 사전",
+   "exceptions": [
+    {
+     "line": null,
+     "allow": "010-1234-5678",
+     "reason": "숫자 읽기 예시(1234 꼴의 지어낸 번호 — 누구의 번호도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "02-123-4567",
+     "reason": "숫자 읽기 예시(1234 꼴의 지어낸 번호 — 누구의 번호도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "010 1234 5678",
+     "reason": "숫자 읽기 예시(1234 꼴의 지어낸 번호 — 누구의 번호도 아님)"
+    },
+    {
+     "line": null,
+     "allow": "1588-1234",
+     "reason": "숫자 읽기 예시(1234 꼴의 지어낸 번호 — 누구의 번호도 아님)"
+    }
+   ]
+  },
+  {
+   "path": "voice/tts_engine.py",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "0516e45a3d6c359bab6d95797ebb35b0edae4c581b309ee9cdcfa95328ef7f6b",
+   "note": "절대 경로·고정 참고음성 삭제, 참고목록.json 로 받음"
+  },
+  {
+   "path": "voice/tts_server.py",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "55ef39cb87a58b3d4c9fc0ae339caa5c9049a9ae23b69c87549f435ecb67410b",
+   "note": "설정 기반·공개 포트 8871·윈도우 음성 예비"
+  },
+  {
+   "path": "voice/voice_check.py",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "5978663ed0a8648a328554e20c2e1fe62640d2cccf7ed040347d92f1bb0c98c4",
+   "note": "화자닮음.py 와 합침·선택 기능"
+  },
+  {
+   "path": "voice/voices.json",
+   "origin": "derived:운영판 펫 부품을 고쳐 옮김",
+   "treatment": "modified",
+   "sha256": "5a80d6f52faac456fbf95622749e493c9a696ea5e1bc5f7cc347947385fccd80",
+   "note": "김비서 목소리만"
+  },
+  {
+   "path": "설치.bat",
+   "origin": "new",
+   "treatment": "new",
+   "sha256": "052decf3ff942b5620e3b082697a963d7a790f0110a113e47b2af7223bbb053c",
+   "note": "설치 단추(창 없이 설치 창 띄움) — 7단계",
+   "nonascii_name_ok": true,
+   "exceptions": [
+    {
+     "line": 5,
+     "allow": "QQBkAGQALQBUAHkAcABlACAALQBBAHMAcwBlAG0AYgBsAHkATgBhAG0AZQAgAFMAeQBzAHQAZQBtAC4AVwBpAG4AZABvAHcAcwAuAEYAbwByAG0AcwA7ACAAWwBXAGkAbgBkAG8AdwBzAC4ARgBvAHIAbQBzAC4ATQBlAHMAcwBhAGcAZQBCAG8AeABdADoAOgBTAGgAbwB3ACgAIgBVxZXNRMcgADy6AMggAIDUtMUgAPzIOMGUxi4ADQAKAA0ACgAbvEDHIAB6AGkAcAAgAAzTfMdExyAAJMZ4ub3KIAB00K25IACSISAAJwCoulC0IABVxZXNIACA1DCuJwAgAJIhIACA1LC5IAD001SzIABIxVjHIAAnACTBWM4uAGIAYQB0ACcAIABExyAAULQgAIi8IAAMsuy3IAD8yDjBlMYuACIALAAgACcAQK5EvhzBIAAkwVjOJwApACAAfAAgAE8AdQB0AC0ATgB1AGwAbAA=",
+     "reason": "압축을 안 풀고 눌렀을 때 띄우는 한국어 안내 창 명령(PowerShell -EncodedCommand, 비밀 아님)"
+    }
+   ]
+  }
+ ]
 }

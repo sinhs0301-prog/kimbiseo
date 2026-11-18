@@ -142,6 +142,7 @@ def cli_tool_guide(specs, native=False, lang=None):
 
 
 RULES_FILE = "도구규칙.md"
+RULES_FILE_EN = "tools.md"
 _WORD = re.compile(r"[A-Za-z_]+")
 
 
@@ -156,7 +157,7 @@ def tool_rules(specs, lang=None):
     if not on:
         return ""
     try:
-        raw = _read(RULES_FILE, lang)
+        raw = _read(RULES_FILE if i18n.norm(lang or i18n.current()) == "ko" else RULES_FILE_EN, lang)
     except OSError:
         return ""
     out = []

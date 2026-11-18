@@ -230,6 +230,21 @@ def test_prompt_and_memory_follow_app_language():
         i18n.set_lang(old)
 
 
+def test_existing_settings_stay_korean():
+    """0.1.17 까지 쓰던 사람(설정에 '언어' 없음)은 한국어 그대로 — 완료 기준 ②."""
+    d = tempfile.mkdtemp()
+    p = os.path.join(d, "settings.json")
+    with open(p, "w", encoding="utf-8") as f:
+        json.dump({"비서": {"이름": "김비서"}, "화면": {"글자": "크게"}}, f, ensure_ascii=False)
+    c = C.load(p, warn=lambda m: None)
+    assert c["언어"] == "ko" and c["비서"]["이름"] == "김비서"
+    # 화면 사전은 고른 언어 것만 내려간다(한국어는 빈 사전)
+    assert i18n.table("ko") == {}
+    en = i18n.table("en")
+    assert en["김비서"] == "Kimmy (KimBiseo)" and len(en) > 1000
+    assert i18n.table("ja")["김비서"] == "キム秘書" and i18n.table("zh")["김비서"] == "金秘书"
+
+
 def test_tr_and_lookup_with_filled_placeholders():
     """tr(틀) 과 lookup(이미 채워진 글) — 자리 {n}·{이름} 를 살려 바꾸고, ko 면 원문 그대로."""
     d = tempfile.mkdtemp()
