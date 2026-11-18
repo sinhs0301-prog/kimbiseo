@@ -33,13 +33,18 @@ class Pinned(private val pin: String) : X509TrustManager {
 object Net {
     fun sha256(b: ByteArray): String = MessageDigest.getInstance("SHA-256").digest(b).joinToString("") { "%02X".format(it) }
 
-    fun client(pin: String, ws: Boolean = false): Pair<OkHttpClient, Pinned> {
+    fun client(pin: String, ws: Boolean = false): Pair<OkHttpClient, Pinned> = client(pin, ws, 10)
+
+    /** 펫 클립 받기처럼 PC 가 잠깐(작은 판 만드는 동안) 늦을 수 있는 요청 — 읽기 60초. 인증서 지문 고정은 같다. */
+    fun fileClient(pin: String): OkHttpClient = client(pin, false, 60).first
+
+    private fun client(pin: String, ws: Boolean, readSec: Long): Pair<OkHttpClient, Pinned> {
         val tm = Pinned(pin)
         val ctx = SSLContext.getInstance("TLS")
         ctx.init(null, arrayOf(tm), null)
         val b = OkHttpClient.Builder().sslSocketFactory(ctx.socketFactory, tm).hostnameVerifier { _, _ -> true }
             .connectTimeout(4, TimeUnit.SECONDS).retryOnConnectionFailure(false)
-        if (ws) b.readTimeout(0, TimeUnit.MILLISECONDS).pingInterval(15, TimeUnit.SECONDS) else b.readTimeout(10, TimeUnit.SECONDS)
+        if (ws) b.readTimeout(0, TimeUnit.MILLISECONDS).pingInterval(15, TimeUnit.SECONDS) else b.readTimeout(readSec, TimeUnit.SECONDS)
         return Pair(b.build(), tm)
     }
 

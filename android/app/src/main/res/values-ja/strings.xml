@@ -63,6 +63,23 @@
     <string name="settings_disconnect_help">このスマホの接続情報だけを消します。PC 側の一覧からも消すには、PC 設定 → スマホ接続 → 接続中のスマホで「削除」を押してください。</string>
     <string name="settings_version">キム秘書スマホアプリ %1$s · HighLife PC</string>
 
+    <string name="pet_section">ペット</string>
+    <string name="pet_show">チャット画面にペットを表示</string>
+    <string name="pet_show_help">オフにするとペット動画を再生しないので、バッテリーを節約できます。ダウンロード済みのクリップは残ります。</string>
+    <string name="pet_wifi">Wi-Fi のみでダウンロード</string>
+    <string name="pet_wifi_help">モバイルデータではクリップをダウンロードしません。ダウンロード済みのクリップはそのまま再生されます。</string>
+    <string name="pet_pick_title">このスマホ用のペットを選ぶ</string>
+    <string name="pet_pick_help">PC にある衣装の中から、このスマホだけで使うペットを選べます。</string>
+    <string name="pet_follow_pc">PC に合わせる</string>
+    <string name="pet_refresh">更新</string>
+    <string name="pet_status_wait">PC からペット情報を取得しています…</string>
+    <string name="pet_status_wifi">Wi-Fi に接続するとペットのクリップをダウンロードします。</string>
+    <string name="pet_status_ok">ペットのクリップを %1$d 個ダウンロードしました(%2$s)。</string>
+    <string name="pet_status_partial">ペットのクリップを %1$d/%2$d 個ダウンロードしました。</string>
+    <string name="pet_status_none">PC にまだペット(衣装)がありません。PC のキム秘書で先にペット衣装を取得してください。</string>
+    <string name="pet_status_fail">ペットのクリップをダウンロードできませんでした。PC との接続を確認してください。</string>
+    <string name="pet_status_cached">ペットのクリップを %1$d 個保存済みです(%2$s)。</string>
+
     <string name="ask_title">実行しますか？</string>
     <string name="ask_run">実行</string>
 

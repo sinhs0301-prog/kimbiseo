@@ -63,6 +63,23 @@
     <string name="settings_disconnect_help">이 폰의 연결 정보만 지워요. PC 쪽 목록에서도 지우려면 PC 설정 → 폰 연결 → 연결한 폰에서 \'지우기\'를 눌러 주세요.</string>
     <string name="settings_version">김비서 폰 앱 %1$s · 하이라이프PC</string>
 
+    <string name="pet_section">펫</string>
+    <string name="pet_show">대화 화면에 펫 보이기</string>
+    <string name="pet_show_help">끄면 펫 영상을 재생하지 않아 배터리를 아껴요. 받아 둔 클립은 지우지 않아요.</string>
+    <string name="pet_wifi">와이파이에서만 받기</string>
+    <string name="pet_wifi_help">모바일 데이터로는 클립을 받지 않아요. 이미 받은 클립은 그대로 보여요.</string>
+    <string name="pet_pick_title">폰에서 따로 고르기</string>
+    <string name="pet_pick_help">PC 에 있는 옷 가운데 이 폰에서만 쓸 펫을 고를 수 있어요.</string>
+    <string name="pet_follow_pc">PC 따라가기</string>
+    <string name="pet_refresh">새로 고침</string>
+    <string name="pet_status_wait">PC 에서 펫 정보를 받는 중이에요.</string>
+    <string name="pet_status_wifi">와이파이에 연결되면 펫 클립을 받아요.</string>
+    <string name="pet_status_ok">펫 클립 %1$d개를 받았어요(%2$s).</string>
+    <string name="pet_status_partial">펫 클립 %1$d/%2$d개를 받았어요.</string>
+    <string name="pet_status_none">PC 에 펫(옷)이 아직 없어요. PC 김비서에서 펫 옷을 먼저 받아 주세요.</string>
+    <string name="pet_status_fail">펫 클립을 받지 못했어요. PC 와 연결을 확인해 주세요.</string>
+    <string name="pet_status_cached">펫 클립 %1$d개를 받아 두었어요(%2$s).</string>
+
     <string name="ask_title">실행할까요?</string>
     <string name="ask_run">실행</string>
 

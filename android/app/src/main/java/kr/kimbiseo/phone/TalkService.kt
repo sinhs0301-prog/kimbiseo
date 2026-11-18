@@ -214,17 +214,21 @@ class TalkService : Service() {
                 Bus.post(Bus.Ev.Pc(m))
                 Bus.post(Bus.Ev.State(true, getString(if (micOn) R.string.state_listening else R.string.state_mic_off), micOn))
                 startAudio()
+                PetStore.sync(this)                     // 대화가 붙으면 펫 목록·클립을 맞춰 둔다
                 send(JSONObject().put("type", "interp_get"))
             }
             "auth_fail" -> { userStop = true; Store.clear(this); Bus.line("sys", getString(R.string.connection_removed)) }
-            "status" -> { val s = m.optString("state"); if (s.isNotEmpty()) Bus.post(Bus.Ev.State(true, pcState(s), micOn)) }
+            "status" -> { val s = m.optString("state"); if (s.isNotEmpty()) Bus.post(Bus.Ev.State(true, pcState(s), micOn, speaking = s == "말하는 중")) }
             "user", "typed" -> m.optString("text").takeIf { it.isNotBlank() }?.let { Bus.line("me", it) }
             "bot" -> m.optString("text").takeIf { it.isNotBlank() }?.let { Bus.line("bot", it) }
             "brain_error" -> Bus.line("sys", m.optString("text", getString(R.string.brain_error)))
             "tool" -> toolLine(m)
             "voice_gate" -> Bus.line("gate", getString(R.string.voice_gate) + (m.optString("text").takeIf { it.isNotBlank() }?.let { ": $it" } ?: ""))
             "interp" -> Bus.post(Bus.Ev.Interp(m))
-            "clear_audio", "interrupted" -> { playQ.clear(); try { track?.pause(); track?.flush(); track?.play() } catch (_: Throwable) {} }
+            "clear_audio", "interrupted" -> {
+                playQ.clear(); try { track?.pause(); track?.flush(); track?.play() } catch (_: Throwable) {}
+                Bus.post(Bus.Ev.State(authed, Bus.state.text, micOn, speaking = false))   // 펫을 바로 대기로
+            }
             "standby" -> { userStop = true; closeWs("standby"); finish(getString(R.string.standby)) }
             "kicked" -> { userStop = true; closeWs("kicked"); finish(getString(R.string.kicked)) }
             "confirm" -> ask(m.optString("id"), m.optString("text"))

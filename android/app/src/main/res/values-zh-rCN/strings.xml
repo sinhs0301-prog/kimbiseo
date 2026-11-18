@@ -63,6 +63,23 @@
     <string name="settings_disconnect_help">仅清除此手机上的连接信息。若要从电脑列表中删除，请在电脑 设置 → 手机连接 → 已连接的手机 中点击“删除”。</string>
     <string name="settings_version">Kim Biseo 手机应用 %1$s · HighLife PC</string>
 
+    <string name="pet_section">宠物</string>
+    <string name="pet_show">在聊天画面显示宠物</string>
+    <string name="pet_show_help">关闭后不播放宠物视频，可节省电量。已下载的片段会保留。</string>
+    <string name="pet_wifi">仅通过 Wi-Fi 下载</string>
+    <string name="pet_wifi_help">不会使用移动数据下载片段。已下载的片段仍会播放。</string>
+    <string name="pet_pick_title">为本手机单独选择</string>
+    <string name="pet_pick_help">可从电脑上的服装中选择仅本手机使用的宠物。</string>
+    <string name="pet_follow_pc">跟随电脑</string>
+    <string name="pet_refresh">刷新</string>
+    <string name="pet_status_wait">正在从电脑获取宠物信息…</string>
+    <string name="pet_status_wifi">连接 Wi-Fi 后将下载宠物片段。</string>
+    <string name="pet_status_ok">已下载 %1$d 个宠物片段(%2$s)。</string>
+    <string name="pet_status_partial">已下载 %1$d/%2$d 个宠物片段。</string>
+    <string name="pet_status_none">电脑上还没有宠物(服装)。请先在电脑上的 Kim Biseo 获取宠物服装。</string>
+    <string name="pet_status_fail">无法下载宠物片段。请检查与电脑的连接。</string>
+    <string name="pet_status_cached">已在本手机保存 %1$d 个宠物片段(%2$s)。</string>
+
     <string name="ask_title">要执行吗？</string>
     <string name="ask_run">执行</string>
 

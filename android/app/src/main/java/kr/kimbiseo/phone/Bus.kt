@@ -8,13 +8,14 @@ import org.json.JSONObject
 object Bus {
     sealed class Ev {
         data class Line(val who: String, val text: String) : Ev()          // me · bot · sys · gate
-        data class State(val talking: Boolean, val text: String, val mic: Boolean) : Ev()
+        data class State(val talking: Boolean, val text: String, val mic: Boolean, val speaking: Boolean = false) : Ev()
         data class Level(val v: Float) : Ev()                                // 내 말소리 크기 0~1
         data class Interp(val m: JSONObject) : Ev()
         data class Ask(val id: String, val text: String) : Ev()             // 실행할까요?
         data class AskDone(val id: String) : Ev()
         data class NeedPerm(val perm: String, val why: String) : Ev()
         data class Pc(val info: JSONObject) : Ev()                           // auth_ok 때 받은 PC 상태(비서 이름·판·PC 이름·통역·목소리확인·PC조작)
+        data class Pet(val ready: Boolean) : Ev()                            // 펫 클립 목록·받기 상태가 바뀜
     }
 
     private val main = Handler(Looper.getMainLooper())

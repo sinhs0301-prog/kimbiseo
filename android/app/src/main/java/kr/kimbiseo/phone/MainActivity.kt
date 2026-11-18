@@ -46,6 +46,10 @@ class MainActivity : Activity() {
     private var askDialog: Dialog? = null
     private var askId = ""
     private var afterMic: (() -> Unit)? = null
+    private var petView: PetView? = null
+    private var petMotion = ""
+    private var petGreeted = false
+    private var petStatusText: TextView? = null
 
     override fun onCreate(b: Bundle?) {
         super.onCreate(b)
@@ -64,10 +68,10 @@ class MainActivity : Activity() {
         super.onResume()
         Bus.visible = true
         Bus.listener = ::onEv
-        if (screen == "talk") { redrawLog(); onEv(Bus.state); Bus.ask?.let { showAsk(it) } }
+        if (screen == "talk") { redrawLog(); onEv(Bus.state); Bus.ask?.let { showAsk(it) }; petView?.resume(); drawPet(false); PetStore.sync(this) }
     }
 
-    override fun onPause() { Bus.visible = false; Bus.listener = null; super.onPause() }
+    override fun onPause() { Bus.visible = false; Bus.listener = null; petView?.pause(); super.onPause() }
 
     private fun handle(i: Intent?) {
         val d = i?.dataString
@@ -260,6 +264,13 @@ class MainActivity : Activity() {
         level = View(this).apply { setBackgroundColor(Ui.ACCENT); pivotX = 0f; scaleX = 0f }
         bar.addView(level, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(c, 2)))
         whole.addView(bar, lp(h = dp(c, 2)))
+        // 대화 화면 위쪽의 펫 — 앱 저장소에 받아 둔 클립만으로 돈다(설정에서 숨길 수 있음).
+        if (PetStore.show(this)) {
+            petView = PetView(this).apply { background = Ui.bg(Ui.CARD, 14, c) }
+            whole.addView(petView, lp(h = dp(c, 188)).apply { leftMargin = dp(c, 16); rightMargin = dp(c, 16); topMargin = dp(c, 8) })
+            drawPet(greet = true)
+            PetStore.sync(this)
+        } else petView = null
         if (interpOpen) { interpBox = Ui.col(this, 12).apply { setPadding(dp(c, 20), dp(c, 16), dp(c, 20), dp(c, 4)) }; whole.addView(interpBox, lp()); drawInterp() }
         else interpBox = null
         // 자막
@@ -361,6 +372,7 @@ class MainActivity : Activity() {
                 micBtn?.alpha = if (running) 1f else 0.5f
                 if (!e.talking) level?.scaleX = 0f
                 if (e.talking) pendingText?.let { t -> pendingText = null; TalkService.me?.sendText(t) }
+                if (screen == "talk") drawPet(false)     // 말하는 중 = 말하기 동작, 끝나면 대기로
             }
             is Bus.Ev.Level -> {
                 // 작은 잡음은 0 으로, 나머지는 10단계로 — 조용할 때 화면을 계속 다시 그리지 않음(배터리·화면 읽기 도구)
@@ -370,9 +382,93 @@ class MainActivity : Activity() {
             is Bus.Ev.Interp -> drawInterp()
             is Bus.Ev.Ask -> showAsk(e)
             is Bus.Ev.AskDone -> if (askId == e.id) { askDialog?.dismiss(); askDialog = null; askId = "" }
+            is Bus.Ev.Pet -> {
+                if (screen == "talk") drawPet(greet = !petGreeted)
+                else if (screen == "settings") petStatusText?.text = PetStore.statusText(this)
+            }
             is Bus.Ev.NeedPerm -> { Bus.line("sys", e.why); requestPermissions(arrayOf(e.perm), 2) }
             is Bus.Ev.Pc -> if (screen == "talk") show()
         }
+    }
+
+    // ---------------------------------------------------------------- 펫
+    /** 캐시에 있는 클립으로만 그린다. 인사(hello)는 처음 한 번, 그 뒤 대기/말하기를 반복. */
+    private fun drawPet(greet: Boolean) {
+        val pv = petView ?: return
+        if (!PetStore.show(this)) { pv.visibility = View.GONE; petMotion = ""; return }
+        val clips = PetStore.clips(this)
+        if (clips.isEmpty()) { pv.visibility = View.GONE; petMotion = ""; return }
+        pv.visibility = View.VISIBLE
+        if (!greet && petMotion == "hello" && !Bus.state.speaking) return   // 인사는 끝까지
+        if (greet && !petGreeted) {
+            val hello = clips["hello"] ?: clips["wave"]
+            if (hello != null) {
+                petGreeted = true; petMotion = "hello"
+                pv.onEnded = { pv.onEnded = null; petMotion = ""; drawPet(false) }
+                pv.play(hello, false)
+                return
+            }
+        }
+        pv.onEnded = null
+        val want = if (Bus.state.speaking) "talk" else "idle"
+        val f = clips[want] ?: clips["idle"] ?: return
+        petMotion = want
+        pv.play(f, true)
+    }
+
+    private fun petSwitch(label: String, checked: Boolean, onChange: (Boolean) -> Unit): android.widget.Switch =
+        android.widget.Switch(this).apply {
+            text = label; setTextColor(Ui.TEXT); textSize = 15f; isChecked = checked
+            val st = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
+            thumbTintList = android.content.res.ColorStateList(st, intArrayOf(Ui.TEXT, Ui.TEXT2))
+            trackTintList = android.content.res.ColorStateList(st, intArrayOf(Ui.ACCENT_FILL, Ui.RAISED))
+            setOnCheckedChangeListener { _, v -> onChange(v) }
+        }
+
+    private fun petOption(list: LinearLayout, id: String, label: String) {
+        val sel = PetStore.selected(this) == id
+        list.addView(TextView(this).apply {
+            text = label; setTextColor(if (sel) Ui.TEXT else Ui.TEXT2); textSize = 15f
+            setPadding(dp(this@MainActivity, 14), dp(this@MainActivity, 12), dp(this@MainActivity, 14), dp(this@MainActivity, 12))
+            background = Ui.bg(if (sel) Ui.RAISED else Color.TRANSPARENT, 10, this@MainActivity, 1, if (sel) Ui.ACCENT else Ui.LINE)
+            setOnClickListener {
+                PetStore.setSelected(this@MainActivity, id)
+                PetStore.sync(this@MainActivity, true)
+                screen = "settings"; show()
+            }
+        }, lp())
+    }
+
+    private fun petSettingsCard(): LinearLayout {
+        val c = Ui.card(this, 12)
+        c.addView(Ui.text(this, getString(R.string.pet_section), 16f, Ui.TEXT, true))
+        c.addView(petSwitch(getString(R.string.pet_show), PetStore.show(this)) { v ->
+            PetStore.setShow(this, v)
+            if (!v) { petView?.clear(); petView?.visibility = View.GONE }
+        }, lp())
+        c.addView(Ui.text(this, getString(R.string.pet_show_help), 13f, Ui.MUTED))
+        c.addView(petSwitch(getString(R.string.pet_wifi), PetStore.wifiOnly(this)) { v ->
+            PetStore.setWifiOnly(this, v)
+            if (!v) PetStore.sync(this, true)
+        }, lp())
+        c.addView(Ui.text(this, getString(R.string.pet_wifi_help), 13f, Ui.MUTED))
+        c.addView(Ui.text(this, getString(R.string.pet_pick_title), 15f, Ui.TEXT, true))
+        c.addView(Ui.text(this, getString(R.string.pet_pick_help), 13f, Ui.MUTED))
+        val list = Ui.col(this, 8)
+        val outfits = PetStore.outfits(this)
+        val pcId = PetStore.currentPcId(this)
+        val pcName = outfits.firstOrNull { it.first == pcId }?.second ?: ""
+        petOption(list, "", getString(R.string.pet_follow_pc) + (if (pcName.isNotEmpty()) " · $pcName" else ""))
+        for ((id, name, gender) in outfits) petOption(list, id, if (gender.isEmpty()) name else "$name · $gender")
+        c.addView(list, lp())
+        if (outfits.isEmpty()) c.addView(Ui.button(this, getString(R.string.pet_refresh), Ui.Kind.SECONDARY) {
+            PetStore.sync(this, true); screen = "settings"; show()
+        }, lp())
+        val st = Ui.text(this, PetStore.statusText(this), 13f, Ui.MUTED)
+        petStatusText = st
+        c.addView(st, lp())
+        PetStore.sync(this)
+        return c
     }
 
     // ---------------------------------------------------------------- 통역
@@ -474,6 +570,7 @@ class MainActivity : Activity() {
         }
         g.addView(greet, lp())
         p.addView(g, lp())
+        p.addView(petSettingsCard(), lp())
         p.addView(Ui.text(this, getString(R.string.settings_pc_help), 13f, Ui.MUTED))
         p.addView(Ui.button(this, getString(R.string.settings_disconnect), Ui.Kind.DANGER) {
             TalkService.me?.stopTalk()

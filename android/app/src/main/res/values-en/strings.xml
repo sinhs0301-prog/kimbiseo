@@ -63,6 +63,23 @@
     <string name="settings_disconnect_help">This only clears connection info on this phone. To remove it from the PC list too, go to PC Settings → Phone connection → Connected phones and tap Delete.</string>
     <string name="settings_version">Kim Biseo phone app %1$s · HighLife PC</string>
 
+    <string name="pet_section">Pet</string>
+    <string name="pet_show">Show the pet on the chat screen</string>
+    <string name="pet_show_help">Turn this off to stop pet videos and save battery. Downloaded clips stay on the phone.</string>
+    <string name="pet_wifi">Download on Wi-Fi only</string>
+    <string name="pet_wifi_help">Clips are not downloaded over mobile data. Clips already downloaded still play.</string>
+    <string name="pet_pick_title">Choose a pet for this phone</string>
+    <string name="pet_pick_help">Pick one of the outfits on your PC to use on this phone only.</string>
+    <string name="pet_follow_pc">Follow the PC</string>
+    <string name="pet_refresh">Refresh</string>
+    <string name="pet_status_wait">Getting pet info from your PC…</string>
+    <string name="pet_status_wifi">Pet clips will download when you connect to Wi-Fi.</string>
+    <string name="pet_status_ok">Downloaded %1$d pet clips (%2$s).</string>
+    <string name="pet_status_partial">Downloaded %1$d of %2$d pet clips.</string>
+    <string name="pet_status_none">The PC has no pet outfit yet. Get a pet outfit in Kim Biseo on the PC first.</string>
+    <string name="pet_status_fail">Could not download pet clips. Check the connection to your PC.</string>
+    <string name="pet_status_cached">%1$d pet clips are saved on this phone (%2$s).</string>
+
     <string name="ask_title">Run it?</string>
     <string name="ask_run">Run</string>
 
