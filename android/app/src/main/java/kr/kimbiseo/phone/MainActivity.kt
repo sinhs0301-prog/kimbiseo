@@ -3,6 +3,7 @@ package kr.kimbiseo.phone
 import android.Manifest
 import android.app.Activity
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Rect
@@ -51,6 +52,10 @@ class MainActivity : Activity() {
     private var petGreeted = false
     private var petStatusText: TextView? = null
 
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(Lang.wrap(newBase))
+    }
+
     override fun onCreate(b: Bundle?) {
         super.onCreate(b)
         L.init(this)
@@ -59,7 +64,15 @@ class MainActivity : Activity() {
         setContentView(root)
         fitKeyboard()
         handle(intent)
-        if (screen.isEmpty()) show()
+        if (screen.isEmpty()) {
+            if (pending == null && Store.mode(this) == "solo") { openSolo(); return }
+            show()
+        }
+    }
+
+    private fun openSolo() {
+        startActivity(Intent(this, SoloActivity::class.java))
+        finish()
     }
 
     override fun onNewIntent(i: Intent) { super.onNewIntent(i); setIntent(i); handle(i) }
@@ -111,11 +124,55 @@ class MainActivity : Activity() {
         root.removeAllViews()
         when {
             pending != null -> pairConfirm(pending!!)
+            Store.mode(this).isEmpty() -> modeScreen(msg)
+            Store.mode(this) == "solo" -> openSolo()
             Store.pc(this) == null -> pairScreen(msg)
             screen == "settings" -> settingsScreen()
             else -> talkScreen()
         }
     }
+
+    /** 첫 화면 — PC 와 연결할지, 폰 혼자 쓸지. (대표님 11-18 결정) */
+    private fun modeScreen(msg: String?) {
+        screen = "mode"
+        val p = page()
+        p.addView(Ui.text(this, getString(R.string.app_name), 14f, Ui.TEXT2, true))
+        p.addView(Ui.text(this, getString(R.string.mode_title), 26f, Ui.TEXT, true))
+        p.addView(Ui.text(this, getString(R.string.mode_intro), 15f, Ui.TEXT2))
+        if (msg != null) p.addView(Ui.text(this, msg, 14f, Ui.BAD))
+
+        val pc = Ui.card(this, 10)
+        pc.addView(Ui.text(this, getString(R.string.mode_pc_title), 19f, Ui.TEXT, true))
+        pc.addView(Ui.text(this, getString(R.string.mode_pc_desc), 14f, Ui.TEXT2))
+        pc.addView(Ui.button(this, getString(R.string.mode_pc_btn), Ui.Kind.PRIMARY) {
+            Store.setMode(this, "pc"); show()
+        }, lp())
+        p.addView(pc, lp())
+
+        val dev = SoloModel.device(this)
+        val solo = Ui.card(this, 10)
+        solo.addView(Ui.text(this, getString(R.string.mode_solo_title), 19f, Ui.TEXT, true))
+        solo.addView(Ui.text(this, getString(R.string.mode_solo_desc), 14f, Ui.TEXT2))
+        solo.addView(Ui.text(this, getString(R.string.mode_solo_req), 13f, Ui.MUTED))
+        if (dev.ok) {
+            solo.addView(Ui.button(this, getString(R.string.mode_solo_btn), Ui.Kind.PRIMARY) {
+                Store.setMode(this, "solo"); openSolo()
+            }, lp())
+        } else {
+            solo.addView(Ui.text(this, getString(R.string.mode_solo_no, dev.reasons.joinToString(" · ") { reason(it) }), 14f, Ui.BAD))
+            solo.addView(Ui.button(this, getString(R.string.mode_solo_btn), Ui.Kind.SECONDARY) {} .apply { isEnabled = false; alpha = 0.5f }, lp())
+        }
+        p.addView(solo, lp())
+        p.addView(Ui.text(this, getString(R.string.mode_change_later), 13f, Ui.MUTED))
+    }
+
+    private fun reason(code: String): String = getString(when (code) {
+        "ram" -> R.string.mode_solo_reason_ram
+        "abi" -> R.string.mode_solo_reason_abi
+        "android" -> R.string.mode_solo_reason_android
+        "storage" -> R.string.mode_solo_reason_storage
+        else -> R.string.mode_solo_reason_ram
+    })
 
     /**
      * 키보드·상태 표시줄·아래 막대에 화면이 가려지지 않게(모든 화면 공통).
@@ -191,6 +248,9 @@ class MainActivity : Activity() {
         c.addView(err)
         p.addView(c, lp())
         p.addView(Ui.text(this, getString(R.string.pair_footer), 13f, Ui.MUTED))
+        p.addView(Ui.button(this, getString(R.string.mode_solo_btn), Ui.Kind.QUIET) {
+            Store.setMode(this, "solo"); openSolo()
+        }, lp())
     }
 
     private fun pairConfirm(info: PairInfo) {
@@ -571,6 +631,12 @@ class MainActivity : Activity() {
         g.addView(greet, lp())
         p.addView(g, lp())
         p.addView(petSettingsCard(), lp())
+        p.addView(Ui.button(this, getString(R.string.main_mode_solo), Ui.Kind.SECONDARY) {
+            android.app.AlertDialog.Builder(this).setMessage(getString(R.string.main_mode_solo_confirm))
+                .setPositiveButton(android.R.string.ok) { _, _ -> Store.setMode(this, "solo"); openSolo() }
+                .setNegativeButton(android.R.string.cancel, null).show()
+        }, lp())
+        p.addView(Ui.text(this, getString(R.string.main_mode_solo_help), 13f, Ui.MUTED))
         p.addView(Ui.text(this, getString(R.string.settings_pc_help), 13f, Ui.MUTED))
         p.addView(Ui.button(this, getString(R.string.settings_disconnect), Ui.Kind.DANGER) {
             TalkService.me?.stopTalk()

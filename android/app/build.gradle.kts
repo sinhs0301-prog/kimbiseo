@@ -13,7 +13,9 @@ android {
         if (abis.isNotEmpty()) ndk { abiFilters += abis.split(",") }
     }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
-    kotlinOptions { jvmTarget = "17" }
+}
+kotlin { compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) } }
+android {
     val ksFile = System.getenv("KIMBISEO_KS_FILE") ?: ""
     if (ksFile.isNotEmpty()) signingConfigs { create("rel") {
         storeFile = file(ksFile); storePassword = System.getenv("KIMBISEO_KS_PASS") ?: ""
@@ -25,5 +27,8 @@ android {
 dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")              // Apache-2.0 — HTTPS·WSS(PC 인증서 지문 고정)
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")    // Apache-2.0 — 앱 안에서 QR 찍기
+    implementation("com.google.ai.edge.litertlm:litertlm-android:0.19.1") // Apache-2.0 — 폰 안 AI(Gemma 4 E2B)
     testImplementation("junit:junit:4.13.2")
+    // 단위 시험(JVM)에서 안드로이드 JSONObject 대신 진짜 구현을 쓴다(폰 동작은 안드로이드 것이 그대로).
+    testImplementation("org.json:json:20240303")
 }

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 앱이 아는 언어(안드로이드 13+ 설정 → 앱 → 언어에서도 고를 수 있게). 그 밖의 폰 언어는 English 로 보여 준다. -->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="ko" />
+    <locale android:name="en" />
+    <locale android:name="ja" />
+    <locale android:name="zh-CN" />
+</locale-config>

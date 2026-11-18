@@ -51,6 +51,15 @@ object Store {
     fun str(c: Context, k: String, def: String) = c.getSharedPreferences("ui", Context.MODE_PRIVATE).getString(k, def) ?: def
     fun setStr(c: Context, k: String, v: String) { c.getSharedPreferences("ui", Context.MODE_PRIVATE).edit().putString(k, v).apply() }
 
+    /** 쓰는 방식: "pc"(PC 연결) · "solo"(폰 단독). 비어 있으면 예전처럼 PC 가 있으면 pc, 없으면 첫 화면에서 고른다. */
+    fun mode(c: Context): String {
+        val m = str(c, "mode", "")
+        if (m == "pc" || m == "solo") return m
+        return if (pc(c) != null) "pc" else ""
+    }
+
+    fun setMode(c: Context, m: String) { setStr(c, "mode", m) }
+
     private fun key(): SecretKey {
         val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         (ks.getKey(KEY, null) as? SecretKey)?.let { return it }

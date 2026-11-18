@@ -45,8 +45,13 @@
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
+        android:localeConfig="@xml/locales_config"
         android:networkSecurityConfig="@xml/network_security"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+        <!-- LiteRT-LM 이 GPU(OpenCL)를 쓸 때만 참고하는 라이브러리. CPU 로 돌면 없어도 됨. -->
+        <uses-native-library android:name="libvndksupport.so" android:required="false" />
+        <uses-native-library android:name="libOpenCL.so" android:required="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -64,6 +69,12 @@
                 <data android:scheme="kimbiseo" android:host="pair" />
             </intent-filter>
         </activity>
+        <!-- PC 없이 폰 안 AI(Gemma 4 E2B)로만 대화하는 화면 -->
+        <activity
+            android:name=".SoloActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="fullSensor"
