@@ -48,7 +48,7 @@ const PetRuntime = {
     const st = h("p", {class: "hint", id: "set-petrt-state"});
     const prog = v["진행"];
     if (v["있음"] && !v["설치중"]) {
-      body.append(h("p", {class: "hint", id: "set-petrt-ok", text: "펫 프로그램이 설치돼 있어요." + (v["얼굴_펫"] ? "" : " (지금은 펫을 쓰지 않게 설정돼 있어요.)")}));
+      body.append(h("p", {class: "hint", id: "set-petrt-ok", text: tr("펫 프로그램이 설치돼 있어요.") + (v["얼굴_펫"] ? "" : " " + tr("(지금은 펫을 쓰지 않게 설정돼 있어요.)"))}));
       if (prog && prog["끝"] && prog["성공"]) body.append(this.startRow(st), st);
       return;
     }
@@ -57,7 +57,7 @@ const PetRuntime = {
     const failed = !v["설치중"] && prog && prog["끝"] && !prog["성공"] && prog["오류"];
     if (failed) {
       const e = prog["오류"];
-      body.append(notice("bad", "펫을 이번에도 받지 못했어요", "까닭: " + (e["까닭"] || e["이유"] || "") + " 다시 눌러 보거나 '직접 넣기'를 써 주세요."));
+      body.append(notice("bad", "펫을 이번에도 받지 못했어요", "까닭: " + (e["까닭"] || e["이유"] || "") + " " + tr("다시 눌러 보거나 '직접 넣기'를 써 주세요.")));
     } else {
       body.append(notice("warn", "펫이 아직 없어요", "설치할 때 펫을 받지 못했어요. 대화는 그대로 쓸 수 있어요."));
     }
@@ -76,7 +76,8 @@ const PetRuntime = {
       body.append(h("div", {class: "set-sub", id: "set-petrt-how"},
         h("p", {class: "hint", text: "인터넷에서 펫 파일이 받아지지 않을 때 쓰는 방법이에요. 두 단추를 차례로 눌러 주세요."}),
         h("div", {class: "row"}, b1, file),
-        h("p", {class: "hint", text: "①은 브라우저가 열리고 파일을 받아요" + (help["크기_글"] ? `(약 ${help["크기_글"]})` : "") + ". 이름을 바꾸거나 압축을 풀지 마세요. ②는 보통 '다운로드' 폴더에 있어요(" + (help["파일"] || "") + ")."}),
+        h("p", {class: "hint", text: tr("①은 브라우저가 열리고 파일을 받아요{0}. 이름을 바꾸거나 압축을 풀지 마세요. ②는 보통 '다운로드' 폴더에 있어요({1}).",
+          {0: help["크기_글"] ? tr("(약 {0})", {0: help["크기_글"]}) : "", 1: help["파일"] || ""})}),
         h("div", {class: "row"}, h("button", {class: "btn ghost", type: "button", id: "set-petrt-copy", text: "주소 복사", onclick: () => this.copy(help["주소"], st)}))));
     }
     if (v["설치중"]) {
@@ -141,7 +142,7 @@ const PetRuntime = {
     if (st) st.textContent = "펫을 켜는 중이에요.";
     let r = null;
     try { r = await a.start_pet(); } catch (_) { r = null; }
-    if (st) st.textContent = r && r.ok ? "펫을 켰어요." : "펫을 켜지 못했어요" + (r && r["이유"] ? ": " + r["이유"] : "") + " — 김비서를 껐다 다시 켜 보세요.";
+    if (st) st.textContent = r && r.ok ? tr("펫을 켰어요.") : tr("펫을 켜지 못했어요") + (r && r["이유"] ? ": " + r["이유"] : "") + " — " + tr("김비서를 껐다 다시 켜 보세요.");
     this.load();
   },
 };

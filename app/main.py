@@ -62,7 +62,7 @@ CONFIRMS = {}           # PC 창 '실행할까요?' 단추 기다림 {id: Future
 UI_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui")
 UI_EVENTS = {"status", "user", "bot", "typed", "asr", "tool", "wake_mode", "wake", "name_call", "interrupted",
              "brain_error", "speed", "settings_applied", "names", "session", "settings", "client_audio", "echo",
-             "barge", "tool_halt", "conn", "update", "interp", "confirm", "confirm_done", "voice_gate", "phone"}
+             "barge", "tool_halt", "conn", "update", "interp", "confirm", "confirm_done", "voice_gate", "phone", "debate"}
 
 
 def _make_memory():

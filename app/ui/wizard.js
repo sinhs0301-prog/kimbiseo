@@ -18,7 +18,7 @@ function NamePractice(getName, onAliases, opts) {
     tags.replaceChildren();
     if (!aliases.length) { tags.appendChild(h("span", {class: "hint", text: "따로 저장할 비슷한 이름이 없어요(잘 알아들었다는 뜻이에요)."})); return; }
     aliases.forEach((a) => tags.appendChild(h("span", {class: "tag"}, a,
-      h("button", {type: "button", "aria-label": a + " 빼기", text: "×", onclick: () => { aliases = aliases.filter((x) => x !== a); drawTags(); onAliases(aliases); }}))));
+      h("button", {type: "button", "aria-label": window.tr ? tr("{0} 빼기", {0: a}) : a + " 빼기", text: "×", onclick: () => { aliases = aliases.filter((x) => x !== a); drawTags(); onAliases(aliases); }}))));
   };
   async function learn() {
     try {
@@ -123,11 +123,11 @@ const Wizard = {
     const cur = get(K.cfg, "언어", "ko");
     b.append(h("h1", {text: "언어를 골라 주세요"}),
       h("p", {text: "화면과 대화에 쓸 언어예요. 고르면 저장하고 화면을 다시 불러옵니다. 나중에 설정의 '일반'에서 바꿀 수 있어요."}),
-      choiceGroup(Object.entries(I18N.NAMES).map(([code, name]) => ({값: code, 이름: name})), cur, async (v) => {
+      nativeNames(choiceGroup(Object.entries(I18N.NAMES).map(([code, name]) => ({값: code, 이름: name})), cur, async (v) => {
         if (v === cur) return;
         try { await saveSettings({언어: v}); location.reload(); }
         catch (e) { toast("저장하지 못했어요: " + e.message, 7000); }
-      }, {wide: true, idp: "wz-lang"}));
+      }, {wide: true, idp: "wz-lang"})));
     b.append(h("h1", {text: "반가워요. 김비서를 준비할게요"}),
       h("p", {text: "몇 가지만 고르면 바로 쓸 수 있어요. 모든 것은 나중에 설정에서 바꿀 수 있어요."}),
       h("p", {class: "big-q", text: "이 PC 를 살펴봤어요"}));
@@ -164,14 +164,16 @@ const Wizard = {
     const info = h("div", {id: "wz-pet-info"});
     const draw = () => {
       pets.replaceChildren(h("p", {class: "big-q", text: "캐릭터"}),
-        choiceGroup(ch["펫"].filter((p) => p["성별"] === this.d.펫.성별).map((p) => ({값: p.id, 이름: p["이름"] + (p["준비"] ? "" : " (준비 중)"), 설명: p["설명"]})),
+        choiceGroup(ch["펫"].filter((p) => p["성별"] === this.d.펫.성별).map((p) => ({값: p.id, 이름: tr(p["이름"]) + (p["준비"] ? "" : " " + tr("(준비 중)")), 설명: p["설명"]})),
           this.d.펫.옷, (v) => { this.d.펫.옷 = v; }, {wide: true, idp: "wz-pet"}));
       const p = ch["펫"].find((x) => x.id === this.d.펫.옷);
       info.replaceChildren();
       if (p && !p["준비"]) info.appendChild(notice("warn", "이 캐릭터는 아직 준비 중이에요", "준비되면 펫 메뉴의 '옷 더 받기'에서 받을 수 있어요. 그 전까지는 준비된 기본 펫이 화면에 나와요."));
       const vRec = (ch["성별_추천"][this.d.펫.성별] || {})["목소리"];
       const vInfo = ch["목소리"].find((x) => x.id === vRec);
-      if (vInfo && !vInfo["준비"]) info.appendChild(notice("warn", "어울리는 목소리도 준비 중이에요", `준비되기 전까지는 '${(ch["목소리"].find((x) => x["준비"]) || {})["이름"] || "기본 목소리"}'로 말해요.`));
+      if (vInfo && !vInfo["준비"]) info.appendChild(notice("warn", "어울리는 목소리도 준비 중이에요",
+        window.tr ? tr("준비되기 전까지는 '{0}'로 말해요.", {0: (ch["목소리"].find((x) => x["준비"]) || {})["이름"] || tr("기본 목소리")})
+                  : `준비되기 전까지는 '${(ch["목소리"].find((x) => x["준비"]) || {})["이름"] || "기본 목소리"}'로 말해요.`));
     };
     b.appendChild(choiceGroup([{값: "여", 이름: "여자"}, {값: "남", 이름: "남자"}], this.d.펫.성별, (v) => {
       this.d.펫.성별 = v;
@@ -266,14 +268,14 @@ const Wizard = {
       warn.replaceChildren();
       if (this.d.목소리.엔진 === "qwen" && rec["목소리_경고"]) warn.appendChild(notice("warn", "이 PC 에서는 무거울 수 있어요", rec["목소리_경고"]));
     };
-    b.appendChild(choiceGroup(ch["목소리_엔진"].map((x) => ({값: x.id, 이름: x["이름"] + ((rec["설정"] || {})["목소리.엔진"] === x.id ? " (추천)" : ""), 설명: x["설명"]})),
+    b.appendChild(choiceGroup(ch["목소리_엔진"].map((x) => ({값: x.id, 이름: window.tr ? tr(x["이름"]) + ((rec["설정"] || {})["목소리.엔진"] === x.id ? " " + tr("(추천)") : "") : x["이름"] + ((rec["설정"] || {})["목소리.엔진"] === x.id ? " (추천)" : ""), 설명: x["설명"]})),
       this.d.목소리.엔진, (v) => { this.d.목소리.엔진 = v; drawWarn(); }, {wide: true, idp: "wz-engine"}));
     b.appendChild(warn);
     b.append(h("p", {class: "big-q", text: "목소리 견본"}),
-      choiceGroup(ch["목소리"].map((x) => ({값: x.id, 이름: x["이름"] + (x["준비"] ? "" : " (준비 중)"), 설명: x["설명"], 막음: !x["준비"]})), this.d.목소리.목소리,
+      choiceGroup(ch["목소리"].map((x) => ({값: x.id, 이름: tr(x["이름"]) + (x["준비"] ? "" : " " + tr("(준비 중)")), 설명: x["설명"], 막음: !x["준비"]})), this.d.목소리.목소리,
         (v) => { this.d.목소리.목소리 = v; }, {wide: true, idp: "wz-voice"}));
     b.append(h("p", {class: "big-q", text: "말 빠르기"}),
-      choiceGroup(ch["말속도"].map((x) => ({값: x, 이름: x === 1 ? "보통" : x + "배"})), this.d.목소리.말속도, (v) => { this.d.목소리.말속도 = v; }, {idp: "wz-speed"}));
+      choiceGroup(ch["말속도"].map((x) => ({값: x, 이름: x === 1 ? tr("보통") : tr("{0}배", {0: x})})), this.d.목소리.말속도, (v) => { this.d.목소리.말속도 = v; }, {idp: "wz-speed"}));
     const st = h("p", {class: "hint", id: "wz-voice-status"});
     b.append(h("div", {class: "row"}, h("button", {class: "btn primary", type: "button", id: "wz-voice-play", text: "들어 보기", onclick: () => playSample(this.sampleVoice(), st)})), st);
     drawWarn();
@@ -304,7 +306,7 @@ const Wizard = {
         stream = m.stream;
         const d = KAudio.describe(m.info);
         aec.replaceChildren(d.aec ? notice("ok", "메아리 지우기가 켜졌어요", d.lines.join(" · "))
-          : notice("bad", "메아리 지우기가 꺼져 있어요", d.lines.join(" · ") + ". 스피커 소리를 비서가 자기 말로 잘못 들을 수 있어요. 이어폰을 쓰시거나 다른 마이크를 골라 주세요."));
+          : notice("bad", "메아리 지우기가 꺼져 있어요", d.lines.join(" · ") + ". " + tr("스피커 소리를 비서가 자기 말로 잘못 들을 수 있어요. 이어폰을 쓰시거나 다른 마이크를 골라 주세요.")));
         aec.dataset.aec = String(d.aec);
         stopMeter = KAudio.meter(stream, (v) => { meter.firstChild.style.width = Math.round(v * 100) + "%"; });
         await fill();
@@ -342,24 +344,25 @@ const Wizard = {
       h("p", {class: "hint", text: "받아쓰기가 이름을 어떻게 적는지 보고, 비슷하게 적힌 이름도 알아듣게 해 둬요."}));
     const keep = (this.d.비서.별칭 || []).slice();
     b.appendChild(NamePractice(() => this.d.비서.이름, (al) => { this.d.비서.별칭 = al; }, {keep: () => keep}));
-    if ((this.d.비서.별칭 || []).length) b.appendChild(h("p", {class: "hint", text: "지금 저장된 비슷한 이름: " + this.d.비서.별칭.join(", ")}));
+    if ((this.d.비서.별칭 || []).length) b.appendChild(h("p", {class: "hint", text: window.tr ? tr("지금 저장된 비슷한 이름: {0}", {0: this.d.비서.별칭.join(", ")}) : "지금 저장된 비슷한 이름: " + this.d.비서.별칭.join(", ")}));
   },
 
   // 7. 끝
   s7(b) {
     const ch = K.choices, d = this.d;
-    const brain = (ch["두뇌"].find((x) => x.id === d.두뇌.방식) || {})["이름"] || d.두뇌.방식;
-    const eng = (ch["목소리_엔진"].find((x) => x.id === d.목소리.엔진) || {})["이름"] || d.목소리.엔진;
-    const pet = (ch["펫"].find((x) => x.id === d.펫.옷) || {})["이름"] || d.펫.옷;
+    const T = (s) => (window.tr ? tr(s) : s);
+    const brain = T((ch["두뇌"].find((x) => x.id === d.두뇌.방식) || {})["이름"] || d.두뇌.방식);
+    const eng = T((ch["목소리_엔진"].find((x) => x.id === d.목소리.엔진) || {})["이름"] || d.목소리.엔진);
+    const pet = T((ch["펫"].find((x) => x.id === d.펫.옷) || {})["이름"] || d.펫.옷);
     b.append(h("h1", {text: "준비가 끝났어요"}), h("dl", {class: "kv", id: "wz-summary"},
       h("dt", {text: "비서 이름"}), h("dd", {text: d.비서.이름}),
-      h("dt", {text: "나를 부르는 말"}), h("dd", {text: d.사용자.호칭 || "(부르지 않음)"}),
-      h("dt", {text: "펫"}), h("dd", {text: `${pet} · ${d.펫.성별 === "남" ? "남자" : "여자"}`}),
-      h("dt", {text: "펫 옷 받기"}), h("dd", {text: d.펫.옷_받기 ? "지금 받아요" : "나중에"}),
-      h("dt", {text: "두뇌"}), h("dd", {text: `${brain} · ${d.두뇌.모드 === "꼼꼼" ? "꼼꼼 모드" : "빠른 모드"}`}),
-      h("dt", {text: "목소리"}), h("dd", {text: `${eng} · ${d.목소리.말속도 === 1 ? "보통 빠르기" : d.목소리.말속도 + "배"}`}),
-      h("dt", {text: "부르는 방식"}), h("dd", {text: d.대화.이름부르기 ? "이름을 불러야 대답" : "단추를 누르면 바로"}),
-      h("dt", {text: "비슷한 이름"}), h("dd", {text: (d.비서.별칭 || []).join(", ") || "(없음)"})),
+      h("dt", {text: "나를 부르는 말"}), h("dd", {text: d.사용자.호칭 ? T(d.사용자.호칭) : T("(부르지 않음)")}),
+      h("dt", {text: "펫"}), h("dd", {text: `${pet} · ${T(d.펫.성별 === "남" ? "남자" : "여자")}`}),
+      h("dt", {text: "펫 옷 받기"}), h("dd", {text: T(d.펫.옷_받기 ? "지금 받아요" : "나중에")}),
+      h("dt", {text: "두뇌"}), h("dd", {text: `${brain} · ${T(d.두뇌.모드 === "꼼꼼" ? "꼼꼼 모드" : "빠른 모드")}`}),
+      h("dt", {text: "목소리"}), h("dd", {text: `${eng} · ${d.목소리.말속도 === 1 ? T("보통 빠르기") : tr("{0}배", {0: d.목소리.말속도})}`}),
+      h("dt", {text: "부르는 방식"}), h("dd", {text: T(d.대화.이름부르기 ? "이름을 불러야 대답" : "단추를 누르면 바로")}),
+      h("dt", {text: "비슷한 이름"}), h("dd", {text: (d.비서.별칭 || []).join(", ") || T("(없음)")})),
     notice("", "나중에 할 수 있는 것", "내 목소리 등록(내 목소리에만 대답)과 폰 연결은 다음 판에서 설정 화면에 생겨요."),
     h("p", {text: "'시작하기'를 누르면 저장하고 대화 화면으로 가요."}));
   },

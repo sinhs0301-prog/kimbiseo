@@ -8,7 +8,7 @@
 const I18N = (() => {
   const HANGUL = /[가-힣]/;
   const PH = /\{([^{}\s]{1,40})\}/g;
-  const ATTRS = ["title", "placeholder", "aria-label", "alt"];
+  const ATTRS = ["title", "placeholder", "aria-label", "aria-valuetext", "alt"];
   let lang = "ko", exact = {}, pats = [], obs = null;
   const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -28,6 +28,19 @@ const I18N = (() => {
     }
     pats.sort((a, b) => b.n - a.n);
     document.documentElement.lang = lang === "zh" ? "zh-CN" : lang;
+    setCssText();
+  }
+
+  // CSS 의사 요소(::before·::after)의 content 는 글자 노드가 아니라 번역기가 못 바꾼다.
+  //   그래서 CSS 는 content: var(--chat-empty) 로 두고, 여기서 그 변수에 이 언어의 글을 넣는다.
+  function cssString(s) {
+    return '"' + String(s).replace(/\\/g, "\\\\").replace(/"/g, '\\"')
+      .replace(/\r/g, "\\D ").replace(/\n/g, "\\A ") + '"';
+  }
+
+  function setCssText() {
+    const k = "마이크 단추를 누르고 말씀하시거나\n아래에 글로 써서 보내세요.";
+    document.documentElement.style.setProperty("--chat-empty", cssString(lookup(k)));
   }
 
   const fill = (s, vars) => !vars ? s : s.replace(PH, (m, n) => (n in vars ? String(vars[n]) : m));
@@ -75,7 +88,9 @@ const I18N = (() => {
       if (v !== n.data) n.data = v;
       return;
     }
-    if (n.nodeType !== 1 || skip(n)) return;
+    if (n.nodeType !== 1) return;
+    if (n.tagName === "TEXTAREA") attrs(n);     // 입력 칸 글은 안 바꾸지만 placeholder 는 바꾼다
+    if (skip(n)) return;
     attrs(n);
     const w = document.createTreeWalker(n, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
       acceptNode: (x) => (x.nodeType === 1 && x.matches('[translate="no"],script,style,textarea') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT)});

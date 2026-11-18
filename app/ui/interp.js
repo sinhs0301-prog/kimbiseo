@@ -21,20 +21,20 @@ const Interp = {
     if (ev.state === "done" || ev.state === "on" || ev.state === "off") this.load();
     else if (ev.state === "translating") this.busy(ev);
     else if (ev.state === "error") { this.busy(null); toast("번역이 안 됐어요: " + (ev.why || ""), 5000); }
-    else if (ev.state === "no_voice" && ev.why) toast("통역 목소리를 못 냈어요 — 화면 글을 보여 주세요. " + ev.why, 6000);
+    else if (ev.state === "no_voice" && ev.why) toast(tr("통역 목소리를 못 냈어요 — 화면 글을 보여 주세요. {0}", {0: ev.why}), 6000);
   },
 
   busy(ev) {
     const el = document.getElementById("interp-busy");
     if (!el) return;
     el.hidden = !ev;
-    if (ev) el.textContent = `${ev.src_name || ""} → ${ev.dst_name || ""} 옮기는 중 · ${ev.src || ""}`;
+    if (ev) el.textContent = tr("{0} → {1} 옮기는 중 · {2}", {0: ev.src_name || "", 1: ev.dst_name || "", 2: ev.src || ""});
   },
 
   langOptions(sel) {
     const L = (this.v && this.v["언어"]) || {};
-    sel.replaceChildren(h("option", {value: "auto", text: "자동(말한 언어 알아듣기)"}),
-      ...Object.entries(L).map(([k, x]) => h("option", {value: k, text: x["이름"] + (x["목소리"] ? "" : " (글자만)")})));
+    sel.replaceChildren(h("option", {value: "auto", text: tr("자동(말한 언어 알아듣기)")}),
+      ...Object.entries(L).map(([k, x]) => h("option", {value: k, text: x["이름"] + (x["목소리"] ? "" : " " + tr("(글자만)"))})));
     sel.value = this.v && this.v["방식"] && this.v["켜짐"] ? this.v["방식"] : "auto";
   },
 
@@ -52,16 +52,17 @@ const Interp = {
     sel.addEventListener("change", async () => {
       try { this.v = Object.assign(this.v, await api("/api/interp", {"언어": sel.value})); this.draw(); } catch (e) { toast(e.message, 5000); }
     });
-    const who = this.v["상대이름"] ? `상대: ${this.v["상대이름"]}` : "상대 말을 기다려요";
+    let who = this.v["상대이름"] ? tr("상대: {0}", {0: this.v["상대이름"]}) : tr("상대 말을 기다려요");
+    if (this.v["두뇌"]) who += " · " + tr("번역: {0}", {0: this.v["두뇌"]});
     box.append(h("div", {class: "row between interp-head"},
-      h("strong", {text: "통역 중"}), h("span", {class: "hint", id: "interp-who", text: who + (this.v["두뇌"] ? ` · 번역: ${this.v["두뇌"]}` : "")}),
+      h("strong", {text: tr("통역 중")}), h("span", {class: "hint", id: "interp-who", text: who}),
       h("div", {class: "row"}, sel, h("button", {class: "btn", type: "button", id: "interp-off", text: "끄기", onclick: () => this.turn(false)}))),
     h("p", {class: "hint", id: "interp-busy", hidden: true}));
     const list = h("ol", {class: "interp-list", id: "interp-list"});
     for (const it of this.items.slice(-3).reverse()) {          // 방금 번역이 맨 위(가장 크게)
       list.appendChild(h("li", {"data-dst": it.dst_lang || ""},
-        h("p", {class: "interp-src", text: it.src}),
-        h("p", {class: "interp-dst", lang: it.dst_lang || null, text: it.dst}),
+        h("p", {class: "interp-src", translate: "no", text: it.src}),
+        h("p", {class: "interp-dst", lang: it.dst_lang || null, translate: "no", text: it.dst}),
         it.money ? h("p", {class: "interp-krw", text: it.money}) : null));
     }
     if (!this.items.length) list.appendChild(h("li", {}, h("p", {class: "hint", text: "내 언어로 말하면 상대 언어로, 상대가 말하면 내 언어로 옮겨요. 끝낼 땐 '통역 그만'."})));

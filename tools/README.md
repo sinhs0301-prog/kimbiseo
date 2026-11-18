@@ -78,6 +78,23 @@ python tools/release_check.py privatelist-selftest  # 비공개 낱말 목록이
 - 옷 꾸러미(`pack.json` 의 `format` 이 `hipcpet/1`)는 `pack.json` 의 `sha256`·`mouth` 칸과 `signature.json` 의 `sig` 칸을 해시 칸으로 봅니다.
 - `artifact` 의 맨 위 zip 은 항목 내용을 뺀 뼈대(이름·여분 칸·주석·목록)만 이진 검사하고, 항목은 풀어서 따로 검사합니다.
 
+## 화면 한글 남음 검사 (ui_hangul_check.py)
+
+실제 Chrome(헤드리스, 임시 프로필 — 끝나면 지움)으로 en/ja/zh 화면을 열어
+`document.body.innerText`·모든 `placeholder`/`title`/`aria-label`/`aria-valuetext`/`alt`·CSS `::before`/`::after` 의 `content`
+에 남은 한글(가-힣) 글자 수를 센다. 대화(빈 화면·글 하나 보낸 뒤)·기억·설정 모든 탭·마법사 8단계·말싸움 켬·통역 켬 상태를 연다.
+허용 목록(`tools/ui_hangul_allowlist.json`)에 적은 글(예: 언어 고르기의 '한국어' — 각 언어 화면에서도 제 이름 그대로)만 뺀다.
+
+```
+python tools/ui_hangul_check.py                       # en,ja,zh · 남은 한글 0 이면 통과(종료 코드 0)
+python tools/release_check.py ui-hangul                # release_check 를 거쳐 같은 검사
+python tools/release_check.py check --ui               # 공개 검사를 통과한 뒤 화면 검사까지
+```
+
+- 본체 서버는 임시 설정·임시 자료 폴더로 띄우고, 가짜 두뇌로 글 한 번을 주고받는다.
+- `--shots <폴더>` 를 주면 화면별 PNG 를 남긴다. `--out <파일>` 은 언어·화면별 한글 수 JSON.
+- 크롬 프로필은 임시 폴더에 만들고 끝나면 지운다(`--keep-profile` 이면 남김).
+
 ## 옷 꾸러미 도구
 
 | 파일 | 하는 일 |

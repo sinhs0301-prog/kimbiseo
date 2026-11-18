@@ -748,7 +748,7 @@
       "path": "app/i18n/en.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "31558953dbe6f50d3e4f3d96c6094f4a4a0314b6c4c85dc285750f9ffec9b4d3",
+      "sha256": "c73c4b74e41022e133ac2a9c1ec4b80d2e50092db6014ff21596f513bdd3f33c",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -772,7 +772,7 @@
       "path": "app/i18n/ja.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "292cbf842e5a8e4246d1b771b81c280b5aa5f0b547758b3b8be36fa4b3952745",
+      "sha256": "cf37c58093237042d4dcc6845ab72ee63555ee10002e9c95ccb2ef1edbe0d66d",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -796,7 +796,7 @@
       "path": "app/i18n/zh.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "2566f09511848bde26d15ed6da5a1712fd3971b6ae376902c8b97f91fc115c01",
+      "sha256": "155f96eff3ddedd0008392204642364ae21997fcbe790c2f35c95a613d168d34",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -827,7 +827,7 @@
       "path": "app/main.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "b1c77a3f32f7086e01a4c34536670fe21cd49f403082ea30984dbd5179e6ccbc",
+      "sha256": "0203a9543fe8b1480877e26244147bf0bd0773a4667ef8f4b0c6fd4243b0e965",
       "note": "본체 실행(serve/script/check)·펫 옷 설정 펫에 알리기·부모 PID 지켜보기 — 7단계"
     },
     {
@@ -965,27 +965,27 @@
       "path": "app/ui/app.js",
       "origin": "new",
       "treatment": "new",
-      "sha256": "c6c05979e30c7aa04100344dabe106d9e96ba6052f54deb0c3b26dcbdbae01ab",
+      "sha256": "316cc096b4f3c9b1cbe054af64a7e52cc5e48bc504d0a48b0a06e1e4396fb39c",
       "note": "화면(처음 화면·대화·기억·설정) — 5단계"
     },
     {
       "path": "app/ui/audio.js",
       "origin": "new",
       "treatment": "new",
-      "sha256": "ce88cce76f5c347d67f36cfba6bda70a669e7fc6c609280f747fa387d2b01565",
+      "sha256": "ee43c275c30da31aebe790542c81449878edebf14be292d2b51ea1a93acd8e88",
       "note": "화면(처음 화면·대화·기억·설정) — 5단계"
     },
     {
       "path": "app/ui/brain.js",
       "origin": "new",
       "treatment": "new",
-      "sha256": "93ec922aeae9f6ea8b7561946127939733832c687f8b07e4b2647a20e242b1f4"
+      "sha256": "73edbda727c833c51e605727b419d4aa897a5c7da90607616ebfed527c69511a"
     },
     {
       "path": "app/ui/i18n.js",
       "origin": "new",
       "treatment": "new",
-      "sha256": "5d5e046c08252f4d989c9ad49aa6517163e5750ca680435fc3c8917a4c401aa9",
+      "sha256": "2c986089bc56c2d6e73ab71221625a51f9f6ee0db1ef0bb93171fd0eb8b580ab",
       "note": "0.1.18 다국어"
     },
     {
@@ -999,20 +999,20 @@
       "path": "app/ui/index.html",
       "origin": "new",
       "treatment": "new",
-      "sha256": "d3d1a9a694f73879b1263731a574c24e9edf24ff1ad972157ee4cb480ecbc5d4",
+      "sha256": "88c2d00c85a3a927e9292ea878f206d9ee324531fcd0ea6998270bdb93947edb",
       "note": "화면(처음 화면·대화·기억·설정) — 5단계"
     },
     {
       "path": "app/ui/interp.js",
       "origin": "new",
       "treatment": "new",
-      "sha256": "c497bae35476a9507022f777d9158845f8f8dbe40e9a4d28fd724578ad08a4e5"
+      "sha256": "10a3351c814605ebd50373d8e55936f6048a418b98ecddb8623ff16d60084495"
     },
     {
       "path": "app/ui/petrt.js",
       "origin": "new",
       "treatment": "new",
-      "sha256": "9dab50c74ad028a7f24ccea26596fcd0cd81631bc06ae614bb445de717357ee3"
+      "sha256": "500abce455cd32d1432e410717e04e940dffce438a739b97f3827d1308cda85e"
     },
     {
       "path": "app/ui/phone.js",
@@ -1024,7 +1024,7 @@
       "path": "app/ui/settings.js",
       "origin": "new",
       "treatment": "new",
-      "sha256": "34c369f7beb22a393c0a193b046592f9f4aae490e0f873d010eaf6ff1397ce50",
+      "sha256": "42c48441c9c08a4b4f367eeabc75c33980528c593c117883041b66ea55f3b3e1",
       "note": "화면(처음 화면·대화·기억·설정) — 5단계"
     },
     {
@@ -1038,21 +1038,21 @@
       "path": "app/ui/style.css",
       "origin": "new",
       "treatment": "new",
-      "sha256": "4c31288ad0d59160a72af34722c2fcc316082b9a8cf77801f54d466006ffb555",
+      "sha256": "87b59c1c57bbfd24dfb53d52d395f5a627977bc9484b4358f4c1f8726875ed0f",
       "note": "화면(처음 화면·대화·기억·설정) — 5단계"
     },
     {
       "path": "app/ui/update.js",
       "origin": "new",
       "treatment": "new",
-      "sha256": "8db6865b88a2c5da5779871ef6806cc48eb812671cea56f9902d578183330a71",
+      "sha256": "8bfde37f1ec40b6e27403198166c1a1a52fdfed38142d21b9fab348f5fa0a374",
       "note": "업데이트 알림·단추 화면 — 9단계"
     },
     {
       "path": "app/ui/wizard.js",
       "origin": "new",
       "treatment": "new",
-      "sha256": "bd0721ab57e283a0517e924dada57f806304b716b39785fe64318d5a88fac961",
+      "sha256": "4704ec5c4dbf2d763ff7e86aba77ef32ca6b99f99d86d2f17a748803547ab4d5",
       "note": "처음 화면(펫 옷 받기 묻기 포함) — 7단계"
     },
     {
@@ -1868,7 +1868,7 @@
       "path": "tools/README.md",
       "origin": "new",
       "treatment": "new",
-      "sha256": "f2fa360c1f956f0decc87f53b480d2c982bb2cab546ccf995602e02d4e0c20f3"
+      "sha256": "719f2c887b69b9f1537e41bcd154885a72c1cdd4a7c60ee0a41425059b72640d"
     },
     {
       "path": "tools/allowlist.json",
@@ -1923,7 +1923,19 @@
       "path": "tools/release_check.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "8a233e1e401517e55796ae62dcfbdd661dd175cda83adb6b723b3a39fc7fa4d2"
+      "sha256": "854219517dd16342fb69c4645a92795c5aa3ef3166cae8c817ed92d3db7aea85"
+    },
+    {
+      "path": "tools/ui_hangul_allowlist.json",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "d13fc0ab4f71e06cbbbb2decb24c8fcb2ce2e05e4a75459bd81ff318a82e5285"
+    },
+    {
+      "path": "tools/ui_hangul_check.py",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "b0385f5529b8534625191a6a4ebe020b81107f1cc7cfac9230ea8b07fe8b644e"
     },
     {
       "path": "voice/README.md",

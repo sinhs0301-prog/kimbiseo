@@ -46,6 +46,7 @@ import os
 import re
 import stat
 import struct
+import subprocess
 import sys
 import unicodedata
 import zipfile
@@ -1231,7 +1232,31 @@ def cmd_check(args, only_allowlist: bool = False) -> int:
         check_git_remote(ctx, root)
     else:
         ctx.stats["files"] = len(files)
-    return finish(ctx, args, root, [])
+    rc = finish(ctx, args, root, [])
+    if rc == 0 and getattr(args, "ui", False):
+        rc = run_ui_hangul(args, root)
+    return rc
+
+
+def run_ui_hangul(args, root) -> int:
+    """실제 크롬으로 en/ja/zh 화면의 남은 한글을 센다(tools/ui_hangul_check.py)."""
+    tool = Path(root) / "tools" / "ui_hangul_check.py"
+    if not tool.is_file():
+        print("[ui-hangul] 도구가 없음:", tool)
+        return 2
+    py = getattr(args, "python", None) or sys.executable
+    cmd = [py, "-B", "-X", "utf8", str(tool), "--repo", str(root), "--python", py,
+           "--langs", getattr(args, "langs", None) or "en,ja,zh"]
+    if getattr(args, "chrome", None):
+        cmd += ["--chrome", args.chrome]
+    if getattr(args, "out", None):
+        cmd += ["--out", args.out]
+    if getattr(args, "shots", None):
+        cmd += ["--shots", args.shots]
+    if getattr(args, "keep_profile", False):
+        cmd += ["--keep-profile"]
+    print("[ui-hangul] 실제 크롬 화면 한글 검사:", " ".join(cmd[2:]))
+    return subprocess.run(cmd, cwd=str(root)).returncode
 
 
 def cmd_scan(args) -> int:
@@ -1402,7 +1427,8 @@ def build_parser() -> argparse.ArgumentParser:
     common.add_argument("--max-show", type=int, default=200)
     ap = argparse.ArgumentParser(prog="release_check", description="공개 전 검사 도구")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("check", parents=[common])
+    c = sub.add_parser("check", parents=[common])
+    c.add_argument("--ui", action="store_true", help="검사를 통과하면 실제 크롬으로 화면 한글 남음도 검사")
     sub.add_parser("allowlist-verify", parents=[common])
     s = sub.add_parser("scan", parents=[common])
     s.add_argument("paths", nargs="+")
@@ -1419,6 +1445,13 @@ def build_parser() -> argparse.ArgumentParser:
     d.add_argument("--treatment", required=True, choices=sorted(TREATMENTS))
     d.add_argument("--note")
     sub.add_parser("privatelist-selftest", parents=[common])
+    u = sub.add_parser("ui-hangul", parents=[common])
+    u.add_argument("--langs", default="en,ja,zh")
+    u.add_argument("--chrome")
+    u.add_argument("--python")
+    u.add_argument("--out")
+    u.add_argument("--shots")
+    u.add_argument("--keep-profile", action="store_true")
     return ap
 
 
@@ -1443,6 +1476,9 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_add(args)
     if args.cmd == "privatelist-selftest":
         return cmd_selftest(args)
+    if args.cmd == "ui-hangul":
+        root = Path(args.root).resolve() if args.root else default_root()
+        return run_ui_hangul(args, root)
     return 2
 
 
