@@ -9,6 +9,8 @@ import operator
 import os
 import re
 
+from app.core.i18n import tr
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -33,24 +35,24 @@ def _web_cfg(ctx):
 # ---------------- 기억
 async def remember(ctx, a):
     if ctx.memory is None:
-        return {"오류": "기억이 꺼져 있어요."}
+        return {"오류": tr("기억이 꺼져 있어요.")}
     r = ctx.memory.add(a.get("content"), source="말")
     if r.get("저장") or r.get("이미있음"):
-        r["안내"] = "'기억할게요'라고 한 번만 짧게 답하세요."
+        r["안내"] = tr("'기억할게요'라고 한 번만 짧게 답하세요.")
     return r
 
 
 async def recall(ctx, a):
     if ctx.memory is None:
-        return {"오류": "기억이 꺼져 있어요."}
+        return {"오류": tr("기억이 꺼져 있어요.")}
     r = ctx.memory.recall(a.get("query"), a.get("day"))
-    r["안내"] = "찾은 것으로만 짧게 답하세요. 없으면 기억에 없다고 말하세요."
+    r["안내"] = tr("찾은 것으로만 짧게 답하세요. 없으면 기억에 없다고 말하세요.")
     return r
 
 
 async def forget(ctx, a):
     if ctx.memory is None:
-        return {"오류": "기억이 꺼져 있어요."}
+        return {"오류": tr("기억이 꺼져 있어요.")}
     return ctx.memory.forget(a.get("what"), bool(a.get("all")))
 
 
@@ -103,7 +105,7 @@ async def speech_speed(ctx, a):
     cur = min(_STEPS, key=lambda x: abs(x - float(st.speed or 1.0)))
     v = str(a.get("speed") or "").strip().lower()
     if v == "status":
-        return {"지금_빠르기": cur, "안내": f"지금 말 빠르기는 {cur}배라고 짧게 답하세요."}
+        return {"지금_빠르기": cur, "안내": tr(f"지금 말 빠르기는 {cur}배라고 짧게 답하세요.")}
     if v == "faster":
         new = _STEPS[min(len(_STEPS) - 1, _STEPS.index(cur) + 1)]
     elif v == "slower":
@@ -112,13 +114,13 @@ async def speech_speed(ctx, a):
         try:
             new = min(_STEPS, key=lambda x: abs(x - float(v)))
         except ValueError:
-            return {"오류": "빠르기는 1.0, 1.2, 1.4 중 하나예요."}
+            return {"오류": tr("빠르기는 1.0, 1.2, 1.4 중 하나예요.")}
     st.speed = new
     save = ctx.actions.get("save_settings")
     if save:
         save({"목소리": {"말속도": new}})
     st.event("speed", speed=new)
-    return {"빠르기": new, "안내": f"다음 말부터 {new}배로 말한다고 한 문장으로만 답하세요."}
+    return {"빠르기": new, "안내": tr(f"다음 말부터 {new}배로 말한다고 한 문장으로만 답하세요.")}
 
 
 # ---------------- 대기
@@ -127,11 +129,11 @@ async def standby(ctx, a):
     link = ctx.actions.get("phone")
     if link is not None:      # 폰 앱: 이 말을 다 들려준 뒤 폰이 대화를 끝내고 첫 화면으로(다시 말하려면 마이크 단추)
         link.send({"type": "standby"})
-        return {"대기": True, "안내": "대화를 마칩니다. '네, 필요하면 다시 불러 주세요.'처럼 한 문장으로만 답하세요."}
+        return {"대기": True, "안내": tr("대화를 마칩니다. '네, 필요하면 다시 불러 주세요.'처럼 한 문장으로만 답하세요.")}
     st.set_wake(True, why="대기 도구")
     st.wake_until = 0.0
     name = st.names.name
-    return {"대기": True, "안내": f"대기에 들어갔습니다. '네, 필요하면 {name}라고 불러 주세요.'처럼 한 문장으로만 답하세요."}
+    return {"대기": True, "안내": tr(f"대기에 들어갔습니다. '네, 필요하면 {name}라고 불러 주세요.'처럼 한 문장으로만 답하세요.")}
 
 
 # ---------------- 계산
@@ -186,7 +188,7 @@ async def calc(ctx, a):
         v = calc_expr(a.get("expression"))
     except (ValueError, SyntaxError, ZeroDivisionError, OverflowError) as ex:
         return {"오류": f"계산할 수 없어요({ex})."}
-    return {"식": str(a.get("expression"))[:200], "답": v, "안내": "답을 자연스러운 한국어로 말하세요(큰 수는 만·억 단위로)."}
+    return {"식": str(a.get("expression"))[:200], "답": v, "안내": tr("답을 자연스러운 한국어로 말하세요(큰 수는 만·억 단위로).")}
 
 
 HANDLERS = {"remember": remember, "recall": recall, "forget": forget, "web_search": web_search, "read_page": read_page,

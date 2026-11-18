@@ -216,7 +216,7 @@ class VoiceTTS(TTSService):
                 yield self._hush(context_id)
                 return
             self._noticed = True
-            text = "영어로 된 답이라 소리로는 읽지 않았어요. 화면을 봐 주세요."
+            text = i18n.tr("영어로 된 답이라 소리로는 읽지 않았어요. 화면을 봐 주세요.")
         else:
             self._spoken_n += 1
         st.add_spoken(text)

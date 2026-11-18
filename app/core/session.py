@@ -25,6 +25,7 @@ from pipecat.turns.user_turn_strategies import UserTurnStrategies
 
 from . import config as C
 from . import interp, prompt, turns
+from .i18n import tr
 from .audio_smooth import Ducker
 from .brain import NoBrain, make_llm, simple_text
 from .prompt import CLI_KINDS
@@ -299,13 +300,13 @@ class Session:
         if cmd and cmd[0] == "off":
             interp.turn_off("글로 끔")
             st.event("interp", state="off", **interp.view(cfg))
-            await self.worker.queue_frame(TTSSpeakFrame("네, 통역 마칠게요.", append_to_context=False))
+            await self.worker.queue_frame(TTSSpeakFrame(tr("네, 통역 마칠게요."), append_to_context=False))
             return
         if cmd and cmd[0] == "on":
             code = interp.turn_on(cfg, cmd[1])
             interp.warm_voice(cfg, code)
             st.event("interp", state="on", **interp.view(cfg))
-            await self.worker.queue_frame(TTSSpeakFrame(f"네, {interp.L.name_of(cfg, code)}로 바꿀게요.", append_to_context=False))
+            await self.worker.queue_frame(TTSSpeakFrame(tr(f"네, {interp.L.name_of(cfg, code)}로 바꿀게요."), append_to_context=False))
             return
         interp.touch()
         dst = interp.plan(cfg, src)

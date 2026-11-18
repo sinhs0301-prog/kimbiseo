@@ -29,7 +29,7 @@ from pipecat.utils.time import time_now_iso8601
 
 from . import config as C
 from . import interp
-from .i18n import ear_request_lang, lang_of, pipecat_lang
+from .i18n import ear_request_lang, lang_of, pipecat_lang, tr
 from .state import approx_substring_similarity, apply_fixes, is_hallucination, is_repeat_junk, norm_text
 from .turns import confirm_barge
 from .voice_link import EarLink
@@ -350,8 +350,8 @@ class EarSTT(SegmentedSTTService):
             nm = interp.L.name_of(self.cfg, code)
             st.event("user", text=text)
             st.event("interp", state="on", **interp.view(self.cfg))
-            yield TTSSpeakFrame(f"네, 지금부터 {nm} 통역할게요. 한국어로 말씀하시면 {nm}로, 상대가 말하면 한국어로 옮겨 드려요. "
-                                "끝내실 땐 통역 그만, 이라고 해 주세요.", append_to_context=False)
+            yield TTSSpeakFrame(tr(f"네, 지금부터 {nm} 통역할게요. 한국어로 말씀하시면 {nm}로, 상대가 말하면 한국어로 옮겨 드려요. "
+                                   "끝내실 땐 통역 그만, 이라고 해 주세요."), append_to_context=False)
             return
         yield TranscriptionFrame(text=text, user_id="", timestamp=time_now_iso8601(), language=self._plang, finalized=True)
 
@@ -399,14 +399,14 @@ class EarSTT(SegmentedSTTService):
             interp.turn_off("말로 끔")
             st.event("user", text=text)
             st.event("interp", state="off", **interp.view(cfg))
-            yield TTSSpeakFrame("네, 통역 마칠게요.", append_to_context=False)
+            yield TTSSpeakFrame(tr("네, 통역 마칠게요."), append_to_context=False)
             return
         if cmd and cmd[0] == "on":
             code = interp.turn_on(cfg, cmd[1])
             interp.warm_voice(cfg, code)
             st.event("user", text=text)
             st.event("interp", state="on", **interp.view(cfg))
-            yield TTSSpeakFrame(f"네, {interp.L.name_of(cfg, code)}로 바꿀게요.", append_to_context=False)
+            yield TTSSpeakFrame(tr(f"네, {interp.L.name_of(cfg, code)}로 바꿀게요."), append_to_context=False)
             return
         interp.touch()
         dst = interp.plan(cfg, src)
@@ -416,7 +416,7 @@ class EarSTT(SegmentedSTTService):
         if not out:
             logger.warning(f"통역 실패 {src}→{dst}: {who} ({sec:.1f}초)")
             st.event("interp", state="error", src_lang=src, dst_lang=dst, src=text, why=who)
-            yield TTSSpeakFrame("번역이 안 됐어요. 한 번 더 말씀해 주세요.", append_to_context=False)
+            yield TTSSpeakFrame(tr("번역이 안 됐어요. 한 번 더 말씀해 주세요."), append_to_context=False)
             return
         item = interp.remember(text, out, src, dst)
         logger.info(f"통역 {src}→{dst} ({who} {sec:.2f}초, 감지 {src} {r.get('lang_conf')}, 원문 {len(text)}자 → {len(out)}자)")

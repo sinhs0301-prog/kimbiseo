@@ -25,7 +25,7 @@ from pipecat.adapters.schemas.tools_schema import ToolsSchema
 from pipecat.frames.frames import FunctionCallResultProperties, TTSSpeakFrame
 
 from ..core import config as C
-from ..core import safe_args
+from ..core import i18n, safe_args
 
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 WEB_KINDS = {"web_search": "web", "read_page": "web", "get_weather": "weather", "pc_action": "pc", "type_text": "pc"}
@@ -250,7 +250,7 @@ def register(llm, specs, handlers, ctx):
                             st.no_tools_key = params.llm.cur_user_key
                             logger.warning(f"도구 폭주 멈춤: {name} 거부 {guard.rej}번 → 도구 없이 답하게")
                             st.event("tool_halt", name=name, rejects=guard.rej)
-                            await params.llm.push_frame(TTSSpeakFrame("자료를 찾다가 너무 오래 걸려서, 아는 선에서 답할게요."))
+                            await params.llm.push_frame(TTSSpeakFrame(i18n.tr("자료를 찾다가 너무 오래 걸려서, 아는 선에서 답할게요.")))
                             await params.result_callback({"중단": True, "도구그만": True,
                                                           "안내": "도구를 더 부를 수 없습니다. 방금 '아는 선에서 답할게요'라고 말했습니다. "
                                                                  "지금까지 알아낸 것과 일반 지식으로 바로 짧게 답하세요(같은 말 반복 금지)."})
@@ -271,7 +271,7 @@ def register(llm, specs, handlers, ctx):
                 r = await task
             except Exception as ex:  # noqa: BLE001
                 logger.warning(f"도구 {name} 오류: {ex.__class__.__name__} {ex}")
-                r = {"오류": f"도구 실행 중 문제가 생겼어요({ex.__class__.__name__})."}
+                r = {"오류": i18n.tr(f"도구 실행 중 문제가 생겼어요({ex.__class__.__name__}).")}
             if not isinstance(r, dict):
                 r = {"결과": r}
             if r.pop("_run_llm", True) is False:

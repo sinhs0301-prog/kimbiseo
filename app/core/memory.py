@@ -12,7 +12,7 @@ import re
 import threading
 import time
 
-from . import redact
+from . import i18n, redact
 
 AMBIENT_HEAD = re.compile(r"^\[주변 대화[^\]]*\][^\n]*\n")
 TIME_TAG = re.compile(r"\n?\(지금 시각: [^)]*\)\s*$")
@@ -151,10 +151,13 @@ class Memory:
             self.delete(h["id"])
         return {"지움": [h["내용"] for h in hits]}
 
-    def prompt_block(self, honor="사용자", n=40):
+    def prompt_block(self, honor="사용자", n=40, lang=None):
         if not self.facts:
             return ""
         lines = [f"- {f['내용']}" for f in self.facts[-n:]]
+        if i18n.norm(lang or i18n.current()) != "ko":
+            return (f"Things remembered about {honor} (use naturally only when relevant; do not list them unless asked):\n"
+                    + "\n".join(lines))
         return (f"{honor}에 대해 기억하는 것(관련 있을 때만 자연스럽게 쓰고, 묻지 않으면 늘어놓지 않는다):\n" + "\n".join(lines))
 
     # ---------------- 자동 기억(대화에서 저절로)
@@ -164,16 +167,29 @@ class Memory:
                    "비밀번호·카드번호·계좌·주민번호 같은 값.\n"
                    "각 사실은 '사용자는 ~' 꼴의 짧은 한국어 한 문장. 없으면 빈 목록.\n"
                    "형식: {\"facts\": [\"...\", \"...\"]}  (최대 5개)")
+    AUTO_PROMPT_EN = ("Below is a conversation between a voice assistant and the user. Pick only long-lasting facts about the user that will be useful later, "
+                      "and answer only in JSON.\n"
+                      "Pick: the user's name or preferred form of address, likes and dislikes, family and pets, where they live or work, "
+                      "appointments and schedules, standing requests.\n"
+                      "Do not pick: weather or search results, small talk, one-off questions, things the assistant said, facts already in the known "
+                      "list, or secrets such as passwords, card numbers, account numbers, or national ID numbers.\n"
+                      "Write each fact as one short sentence in {language}. If there are none, an empty list.\n"
+                      "Format: {\"facts\": [\"...\", \"...\"]}  (up to 5)")
 
     def auto_request(self, msgs, honor="사용자"):
         """자동 기억 요청 메시지(두뇌에 보낼 것). 사용자 말이 없으면 None."""
         turns = plain_turns(msgs)
         if sum(1 for r, _ in turns if r == "user") < 1:
             return None
-        known = "\n".join(f"- {f['내용']}" for f in self.facts[-40:]) or "(없음)"
-        lines = "\n".join(("사용자: " if r == "user" else "비서: ") + c for r, c in turns[-30:])
-        return [{"role": "system", "content": self.AUTO_PROMPT},   # 사실은 늘 '사용자는 ~' 꼴(호칭을 넣으면 '사장님는'처럼 조사가 틀림)
-                {"role": "user", "content": f"[이미 아는 사실]\n{known}\n\n[대화]\n{lines}"}]
+        code = i18n.current()
+        known = "\n".join(f"- {f['내용']}" for f in self.facts[-40:]) or ("(없음)" if code == "ko" else "(none)")
+        if code == "ko":
+            lines = "\n".join(("사용자: " if r == "user" else "비서: ") + c for r, c in turns[-30:])
+            return [{"role": "system", "content": self.AUTO_PROMPT},   # 사실은 늘 '사용자는 ~' 꼴(호칭을 넣으면 '사장님는'처럼 조사가 틀림)
+                    {"role": "user", "content": f"[이미 아는 사실]\n{known}\n\n[대화]\n{lines}"}]
+        lines = "\n".join(("User: " if r == "user" else "Assistant: ") + c for r, c in turns[-30:])
+        return [{"role": "system", "content": self.AUTO_PROMPT_EN.replace("{language}", i18n.en_name(code))},
+                {"role": "user", "content": f"[Known facts]\n{known}\n\n[Conversation]\n{lines}"}]
 
     def auto_apply(self, reply):
         """두뇌 답(JSON) → 지식에 더함(출처 '자동'). 더한 것 목록."""
@@ -199,13 +215,21 @@ class Memory:
 
     DIARY_PROMPT = ("다음은 음성 비서와 사용자의 대화입니다. 나중에 다시 볼 일기로 한국어 2~4줄로 요약하세요. "
                     "무엇을 묻고 무엇을 했는지·정한 것·할 일 위주로. 비밀번호·카드번호 같은 값은 쓰지 마세요. 줄마다 '- '로 시작.")
+    DIARY_PROMPT_EN = ("Below is a conversation between a voice assistant and the user. Summarize it in 2-4 lines as a diary to read later, "
+                       "in {language}. Focus on what was asked, what was done, decisions, and to-dos. Do not write passwords, card numbers, "
+                       "or similar values. Start each line with '- '.")
 
     def diary_request(self, msgs):
         turns = plain_turns(msgs)
         if sum(1 for r, _ in turns if r == "user") < 1 or len(turns) < 2:
             return None
-        lines = "\n".join(("사용자: " if r == "user" else "비서: ") + c for r, c in turns[-40:])
-        return [{"role": "system", "content": self.DIARY_PROMPT}, {"role": "user", "content": lines}]
+        code = i18n.current()
+        if code == "ko":
+            lines = "\n".join(("사용자: " if r == "user" else "비서: ") + c for r, c in turns[-40:])
+            return [{"role": "system", "content": self.DIARY_PROMPT}, {"role": "user", "content": lines}]
+        lines = "\n".join(("User: " if r == "user" else "Assistant: ") + c for r, c in turns[-40:])
+        return [{"role": "system", "content": self.DIARY_PROMPT_EN.replace("{language}", i18n.en_name(code))},
+                {"role": "user", "content": lines}]
 
     def diary_add(self, summary, when=None):
         s = redact.mask(str(summary or "").strip())
@@ -217,7 +241,10 @@ class Memory:
             new = not os.path.exists(p)
             with open(p, "a", encoding="utf-8") as f:
                 if new:
-                    f.write(f"# {d.year}년 {d.month}월 {d.day}일 대화 일기\n")
+                    if i18n.current() == "ko":
+                        f.write(f"# {d.year}년 {d.month}월 {d.day}일 대화 일기\n")
+                    else:
+                        f.write(f"# Diary for {d.year}-{d.month:02d}-{d.day:02d}\n")
                 f.write(f"\n## {d.strftime('%H:%M')}\n{s}\n")
         return True
 
@@ -265,22 +292,25 @@ class Memory:
         if re.fullmatch(r"\d{4}-\d{2}-\d{2}", w):
             d = datetime.date.fromisoformat(w)
             return d, d
-        rel = {"오늘": 0, "어제": 1, "그제": 2, "그저께": 2, "엊그제": 2}
+        rel = {"오늘": 0, "어제": 1, "그제": 2, "그저께": 2, "엊그제": 2,
+               "today": 0, "yesterday": 1, "daybeforeyesterday": 2, "thedaybeforeyesterday": 2,
+               "今日": 0, "きょう": 0, "昨日": 1, "きのう": 1, "一昨日": 2, "おととい": 2,
+               "今天": 0, "昨天": 1, "前天": 2}   # 0.1.18 다국어
         if w in rel:
             d = t - datetime.timedelta(days=rel[w])
             return d, d
-        m = re.fullmatch(r"(\d+)일전", w)
+        m = re.fullmatch(r"(\d+)\s*(?:일전|days?ago)", w)
         if m:
             d = t - datetime.timedelta(days=int(m.group(1)))
             return d, d
         monday = t - datetime.timedelta(days=t.weekday())
-        if w in ("이번주", "금주"):
+        if w in ("이번주", "금주", "thisweek", "今週", "本周"):
             return monday, t
-        if w in ("지난주", "저번주"):
+        if w in ("지난주", "저번주", "lastweek", "先週", "上周"):
             return monday - datetime.timedelta(days=7), monday - datetime.timedelta(days=1)
-        if w in ("이번달",):
+        if w in ("이번달", "thismonth", "今月", "本月"):
             return t.replace(day=1), t
-        if w in ("지난달", "저번달"):
+        if w in ("지난달", "저번달", "lastmonth", "先月", "上月"):
             last = t.replace(day=1) - datetime.timedelta(days=1)
             return last.replace(day=1), last
         return None

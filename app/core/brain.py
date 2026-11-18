@@ -36,7 +36,7 @@ from pipecat.processors.frame_processor import FrameProcessor
 from pipecat.services.openai.llm import OpenAILLMService
 
 from . import config as C
-from . import keystore
+from . import i18n, keystore
 from .filters import HanziFilter, ThinkFilter
 from .memory import TIME_TAG
 from .prompt import now_tag
@@ -449,7 +449,7 @@ class BrainLLM(OpenAILLMService):
         except Exception as ex:  # noqa: BLE001
             logger.warning(f"두뇌 응답 실패: {ex.__class__.__name__} {str(ex)[:160]}")
             st.event("brain_error", reason=ex.__class__.__name__)
-            await self.push_frame(TTSSpeakFrame("두뇌에 연결이 안 돼요. 설정에서 두뇌 주소를 확인해 주세요."))
+            await self.push_frame(TTSSpeakFrame(i18n.tr("두뇌에 연결이 안 돼요. 설정에서 두뇌 주소를 확인해 주세요.")))
             self._called = True    # 다시 묻지 않음
             return
         finally:
@@ -677,7 +677,7 @@ def _claude_class():
             except Exception as ex:  # noqa: BLE001
                 logger.warning(f"두뇌(클로드) 응답 실패: {ex.__class__.__name__}")
                 st.event("brain_error", reason=ex.__class__.__name__)
-                await self.push_frame(TTSSpeakFrame("두뇌에 연결이 안 돼요. 설정에서 열쇠와 인터넷 연결을 확인해 주세요."))
+                await self.push_frame(TTSSpeakFrame(i18n.tr("두뇌에 연결이 안 돼요. 설정에서 열쇠와 인터넷 연결을 확인해 주세요.")))
 
     return ClaudeLLM
 

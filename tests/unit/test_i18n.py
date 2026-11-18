@@ -198,6 +198,38 @@ def test_wake_aliases_include_brand_names():
             assert w in al_c, (code, w, al_c)
 
 
+def test_prompt_and_memory_follow_app_language():
+    """두뇌 지시문(0.1.18 5단계) — 앱 언어가 ko 가 아니면 영어 지시문 + 'Reply only in …'.
+    기억 자동 추출·일기 프롬프트도 같은 언어로."""
+    from app.core import prompt
+    from app.core.memory import Memory
+    spec = [{"type": "function", "function": {"name": "get_weather", "description": "날씨를 알려 준다",
+                                              "parameters": {"type": "object", "properties": {"place": {"type": "string", "description": "장소"}}}}}]
+    old = i18n.current()
+    try:
+        for code, reply in (("en", "Reply only in English."), ("ja", "Reply only in Japanese."), ("zh", "Reply only in Chinese.")):
+            i18n.set_lang(code)
+            cfg = C.defaults(code)
+            text = prompt.base_prompt(cfg, spec)
+            assert "You are a voice assistant" in text and reply in text, (code, text[:300])
+            assert "너는" not in text, code
+            assert "weather" in text.lower()
+            assert prompt.now_tag(lang=code).startswith("(Current time:")
+        i18n.set_lang("ko")
+        ko = prompt.base_prompt(C.defaults("ko"), spec)
+        assert "너는" in ko and "Reply only in" not in ko
+        i18n.set_lang("en")
+        m = Memory(tempfile.mkdtemp())
+        m.add("The user likes coffee.")
+        assert "Things remembered about" in m.prompt_block("the user")
+        req = m.auto_request([{"role": "user", "content": "I like coffee."}])
+        assert "in English" in req[0]["content"]
+        dreq = m.diary_request([{"role": "user", "content": "I like coffee."}, {"role": "assistant", "content": "Okay."}])
+        assert "in English" in dreq[0]["content"]
+    finally:
+        i18n.set_lang(old)
+
+
 def test_tr_and_lookup_with_filled_placeholders():
     """tr(틀) 과 lookup(이미 채워진 글) — 자리 {n}·{이름} 를 살려 바꾸고, ko 면 원문 그대로."""
     d = tempfile.mkdtemp()
