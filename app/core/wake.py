@@ -5,18 +5,33 @@
 #   이름은 아무 말이나 여러 개 됨. 한 글자·흔한 말('야'·'저기')은 경고(name_warning).
 import re
 
-_CALL_TAIL = "야아요님씨"
+# 이름·부르는 말에 쓰는 글자 — 한국어(가-힣), 영어·숫자, 일본어 가나(ぁ-ヿ), 중국어 한자(一-鿿).
+#   0.1.18 다국어: 예전에는 [0-9a-z가-힣] 만 남겨 'キム秘書'·'金秘书'가 빈 글이 되어 깨우지 못했다.
+_KEEP = "0-9a-z가-힣ぁ-ヿ一-鿿"
+_KEEP_SP = _KEEP + r"\s"
+_CALL_TAIL = "야아요님씨さんちゃん様呀啊呢吗吧哦"
 _MENTION_TAIL = ("한테", "에게", "보고", "더러", "이랑", "랑", "하고", "처럼", "같이", "까지", "부터", "밖에", "조차", "마저",
                  "은", "는", "이", "가", "을", "를", "의", "도", "만", "에", "께", "와", "과", "로", "이라", "라고", "라는", "라도",
                  "였", "입니", "예요", "인데", "네요", "들", "라서", "라면", "란")
-_CALL_INTERJ = ("어이", "저기요", "저기", "헤이", "hey", "하이", "이봐", "오케이", "okay", "ok", "야", "아", "어", "자", "얘", "음", "네", "안녕")
-_COMMON = {"야", "저기", "저기요", "여보세요", "이봐", "어이", "헤이", "hey", "네", "응", "아", "어", "음", "자", "얘", "그거", "이거", "안녕"}
+# 앞에 와도 되는 부르는 말 — 언어마다(한국어·영어·일본어·중국어). 이름보다 먼저 떼고 본다.
+_CALL_INTERJ = ("어이", "저기요", "저기", "헤이", "hey", "하이", "이봐", "오케이", "okay", "ok", "야", "아", "어", "자", "얘", "음", "네", "안녕",
+                "hi", "hello", "yo", "excuse", "um", "uh",
+                "ねえ", "あの", "もしもし", "すみません", "おい",
+                "喂", "嘿", "哎", "你好", "嗯", "那个")
+_COMMON = {"야", "저기", "저기요", "여보세요", "이봐", "어이", "헤이", "hey", "네", "응", "아", "어", "음", "자", "얘", "그거", "이거", "안녕",
+           "hi", "hello", "yo", "ねえ", "もしもし", "喂", "嘿", "你好"}
 _HALLU = ("감사합니다", "고맙습니다", "시청해", "다음영상", "구독", "좋아요", "뉴스", "자막", "2부에서", "계속됩니다",
-          "시청", "영상편집", "번역")
+          "시청", "영상편집", "번역", "thank you for watching", "thanks for watching", "subscribe")
+_TOKEN = re.compile(r"[^" + _KEEP + r"\s]")   # 남길 글자 밖은 띄어 씀
 
 
 def compact(t):
-    return re.sub(r"[^0-9a-z가-힣]", "", str(t or "").lower())
+    return re.sub(r"[^" + _KEEP + "]", "", str(t or "").lower())
+
+
+def _tokens(text):
+    """글 → 낱말 목록(한국어·영어·일본어·중국어 글자만 남김)."""
+    return [t for t in _TOKEN.sub(" ", str(text or "").lower()).split() if t]
 
 
 def name_warning(name):
@@ -39,7 +54,7 @@ def hallucination(text):
         return True
     if len(t) >= 12 and len(set(t)) <= 3:
         return True
-    ws = [w for w in re.sub(r"[^0-9a-z가-힣\s]", " ", str(text or "").lower()).split() if w]
+    ws = _tokens(text)
     return len(ws) >= 6 and len(set(ws)) <= 2
 
 
@@ -99,13 +114,13 @@ class NameMatcher:
         """글이 비서를 '부르는 말'이면 이름, 아니면 None."""
         if not text:
             return None
-        for sent in re.split(r"[.!?。…\n]+", str(text)):
-            toks = [t for t in re.sub(r"[^0-9a-zA-Z가-힣\s]", " ", sent).lower().split() if t]
+        for sent in re.split(r"[.!?。…！？、\n]+", str(text)):
+            toks = _tokens(sent)
             while toks and toks[0] in _CALL_INTERJ and compact(toks[0]) not in self.words:
                 toks = toks[1:]
             if not toks:
                 continue
-            for k in (1, 2, 3):   # 이름이 띄어 받아써진 꼴('김 비서', '김 비 서')
+            for k in (1, 2, 3):   # 이름이 띄어 받아써진 꼴('김 비서', 'Kim Biseo')
                 if len(toks) < k:
                     break
                 head = "".join(toks[:k])
@@ -113,7 +128,9 @@ class NameMatcher:
                 if hit is None:
                     continue
                 rest = head[len(hit):]
-                if rest == "" or rest in _CALL_TAIL or (len(rest) == 2 and rest[0] in _CALL_TAIL and rest[1] == "요"):
+                # 꼬리말(한국어 야·요·님·씨 / 일본어 さん·ちゃん·様 / 중국어 呀·啊·呢 …)은 불러도 됨
+                if rest == "" or (len(rest) <= 3 and all(ch in _CALL_TAIL for ch in rest)) \
+                        or (len(rest) == 2 and rest[0] in _CALL_TAIL and rest[1] == "요"):
                     return self.name
                 r2 = rest[1:] if rest[:1] in "님씨" else rest
                 if not r2:
@@ -128,7 +145,7 @@ class NameMatcher:
         target = [_jamo(c) for c in compact(self.name)]
         if len(target) < 2 or any(j is None for j in target):
             return False
-        toks = [t for t in re.sub(r"[^0-9a-zA-Z가-힣\s]", " ", str(text)).lower().split() if t]
+        toks = _tokens(text)
         while toks and toks[0] in _CALL_INTERJ:
             toks = toks[1:]
         w = "".join(toks)
@@ -174,7 +191,7 @@ def learn_aliases(name, heard, keep=()):
     for h in heard:
         if hallucination(h):
             continue
-        toks = [t for t in re.sub(r"[^0-9a-zA-Z가-힣\s]", " ", str(h)).split() if t]
+        toks = _tokens(h)
         while toks and toks[0].lower() in _CALL_INTERJ:
             toks = toks[1:]
         w = compact("".join(toks)).rstrip(_CALL_TAIL) or compact("".join(toks))

@@ -1,9 +1,9 @@
 {
   "_설명": "English 기본값(0.1.18~) — app/config/default.json 위에 덮는다. 말로 나가는 고정 문구·호출 이름·사이트 이름만. 화면 문구는 app/i18n/en.json.",
   "비서": {
-    "이름": "KimBiseo",
-    "별칭": ["Kim Biseo", "Kim Bi Seo", "Kim Bee Seo", "Kimbiseo", "Kim Bisso", "Kim Beeso"],
-    "인사": "Yes, this is {이름}. How can I help you?",
+    "이름": "Kimmy",
+    "별칭": ["KimBiseo", "Kim Biseo", "Kim Bi Seo", "Kimbiseo", "Kim Bee Seo", "Kim Bisso", "Kim Beeso", "Kimmi", "Kimmie"],
+    "인사": "Yes, this is Kimmy. How can I help you?",
     "부름_대답": "Yes, I'm here.",
     "생각_먼저할말": ["Just a moment.", "Let me think."]
   },

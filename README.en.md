@@ -1,9 +1,9 @@
 [한국어](README.md) | **English** | [日本語](README.ja.md) | [中文](README.zh.md)
 
-# KimBiseo (김비서)
+# Kimmy (KimBiseo)
 
 A **voice-activated assistant** and **desktop character pet** that runs entirely on your own PC.
-Call out "KimBiseo," or type into its window, and it answers; the pet on your desktop moves its mouth
+Call out "Hey Kimmy" (or "Kimmy"), or type into its window, and it answers; the pet on your desktop moves its mouth
 along with the speech and changes its expression and pose.
 
 This project is made by HighlifePC.

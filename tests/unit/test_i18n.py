@@ -133,7 +133,7 @@ def test_language_defaults_ko_unchanged():
 
 
 def test_language_defaults_en_ja_zh():
-    want = {"en": ("KimBiseo", "Seoul", "Yes, this is KimBiseo. How can I help you?"),
+    want = {"en": ("Kimmy", "Seoul", "Yes, this is Kimmy. How can I help you?"),
             "ja": ("キム秘書", "ソウル", "はい、キム秘書です。どうぞ。"),
             "zh": ("金秘书", "首尔", "在，我是金秘书。请讲。")}
     for code, (name, place, hello) in want.items():
@@ -150,7 +150,7 @@ def test_language_defaults_use_by_name_and_sites():
     from app.core.wake import NameMatcher
     from app.tools.basic import pc_action
     for code, name, alias, sites in (
-            ("en", "KimBiseo", "Kim Biseo", ["YouTube", "Google Maps", "Wikipedia"]),
+            ("en", "Kimmy", "KimBiseo", ["YouTube", "Google Maps", "Wikipedia"]),
             ("ja", "キム秘書", "キムヒショ", ["ユーチューブ", "グーグルマップ"]),
             ("zh", "金秘书", "金祕書", ["百度", "谷歌地图"])):
         d = C.defaults(code)
@@ -162,6 +162,40 @@ def test_language_defaults_use_by_name_and_sites():
         for site in sites:
             url, why = pc_action.resolve_site(site, table["사이트"], table["별명"])
             assert url and url.startswith("https://"), (code, site, why)
+
+
+def test_wake_names_four_languages():
+    """호출어(0.1.18 7단계) — 한국어·영어·일본어·중국어 이름·별칭을 실제로 알아듣는지.
+    예전 wake.compact 는 [0-9a-z가-힣] 만 남겨 キム秘書·金秘书가 빈 글이 되어 깨우지 못했다."""
+    from app.core.wake import NameMatcher
+    cases = {
+        "ko": ("김비서", ["김비서", "김 비서", "김비서야", "김비서!"]),
+        "en": ("Kimmy", ["Kimmy", "Hey Kimmy", "Kimmy, turn on the light", "KimBiseo", "Kim Biseo", "Kimmy!"]),
+        "ja": ("キム秘書", ["キム秘書", "キム秘書さん", "キミー", "キム秘書、電気をつけて", "Kimmy"]),
+        "zh": ("金秘书", ["金秘书", "金秘书呀", "金祕書", "金秘书，开灯", "Kimmy"]),
+    }
+    for code, (name, calls) in cases.items():
+        d = C.defaults(code)
+        n, al = C.names(d)
+        assert n == name, (code, n)
+        m = NameMatcher(n, al)
+        for text in calls:
+            assert m.call(text) == name, (code, text, m.call(text), m.words)
+        assert m.only_name(calls[0] + "!") in (True, False)  # 터지지 않으면 됨
+    # 이름 뒤에 조사·다른 말이 붙은 '말한 것'은 부름이 아님
+    assert NameMatcher("김비서", []).call("김비서한테 물어봐") is None
+    assert NameMatcher("Kimmy", []).call("I asked Kimmy about it") is None
+
+
+def test_wake_aliases_include_brand_names():
+    """영어 기본 이름은 Kimmy, 별칭에 KimBiseo·Kim Biseo 유지. 일본어·중국어 별칭에 Kimmy."""
+    from app.core.wake import compact
+    for code, want in (("en", ["kimbiseo", "kimbiseo"]), ("ja", ["キミー", "kimmy"]), ("zh", ["kimmy"])):
+        d = C.defaults(code)
+        n, al = C.names(d)
+        al_c = [compact(x) for x in al]
+        for w in want:
+            assert w in al_c, (code, w, al_c)
 
 
 def test_tr_and_lookup_with_filled_placeholders():
@@ -204,7 +238,7 @@ def test_screen_dictionaries_cover_scan():
         hangul = [k for k, v in d.items()
                   if re.search(r"[가-힣]", re.sub(r"\{[^{}\s]{1,40}\}", "", v)) and not re.search(r"한국어|한글", v)]
         assert not hangul, (code, hangul[:3])
-        assert d["김비서"] == {"en": "KimBiseo", "ja": "キム秘書", "zh": "金秘书"}[code]
+        assert d["김비서"] == {"en": "Kimmy (KimBiseo)", "ja": "キム秘書", "zh": "金秘书"}[code]
         assert d["설정"] == {"en": "Settings", "ja": "設定", "zh": "设置"}[code]
 
 
