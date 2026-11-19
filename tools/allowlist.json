@@ -136,7 +136,7 @@
       "path": "android/app/src/main/AndroidManifest.xml",
       "origin": "new",
       "treatment": "new",
-      "sha256": "d3452f4eab9422d091845ce925704b2a8f259aa42c55c5e8b28ec7d94c726c70"
+      "sha256": "4ab3ac3730ce2c00b7fe9f72a1e5ab8ce3ce4a4164cfe93739360b9efca2dd2d"
     },
     {
       "path": "android/app/src/main/java/kr/kimbiseo/phone/Bus.kt",
@@ -148,7 +148,7 @@
       "path": "android/app/src/main/java/kr/kimbiseo/phone/Doer.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "2bfb07830bd2cec035404e926474c3cb9efcd7a5caf334835bd97ac9e612885d"
+      "sha256": "f408f00dabf1d12073c7c4ea0b183703d14f5fd5cacbdce66360bac7a86c6429"
     },
     {
       "path": "android/app/src/main/java/kr/kimbiseo/phone/L.kt",
@@ -217,22 +217,29 @@
       ]
     },
     {
+      "path": "android/app/src/main/java/kr/kimbiseo/phone/Search.kt",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "3986fcc90270e8d66dbf839d19740a6fd356c4e9c653450e21ed98079904cfb8",
+      "note": "폰 검색(쇼핑·배달·검색 앱) 규칙"
+    },
+    {
       "path": "android/app/src/main/java/kr/kimbiseo/phone/SoloAction.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "9238f823429c5535f9912e32f25ada9b1ab07f49435738b5a473383bc84820a9"
+      "sha256": "4fde0d2b805dbc4dabc52f0662fed3e03c42486974fbb257d13ca97f64bf16d3"
     },
     {
       "path": "android/app/src/main/java/kr/kimbiseo/phone/SoloActivity.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "1f3d2f08982dd3f7c73bd7b73255c34f747e8a157f1b03f714daf69f7c449048"
+      "sha256": "bcfb5aa1472ad5d64d494a1e766c8c57074608fc359dd563a8119c2341e13273"
     },
     {
       "path": "android/app/src/main/java/kr/kimbiseo/phone/SoloBrain.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "17ffa2b4506101319fea7a50cd622eee53594433147afd2e2c76cbd37eba8d03"
+      "sha256": "3bba78cfb0db5a859ea01f89bc5f594de021f4f575d574c2ca9e0a022a4cec6d"
     },
     {
       "path": "android/app/src/main/java/kr/kimbiseo/phone/SoloDownload.kt",
@@ -305,7 +312,7 @@
       "path": "android/app/src/main/res/values-en/strings.xml",
       "origin": "new",
       "treatment": "new",
-      "sha256": "ce0a11e8d893c78827a28ce471ebb3dedfc355f074777902ea8a5c7c98a159f1",
+      "sha256": "26f9f908ef475010b1b8b3269284915e6174c4ece6eb005eed8e9304a90e4013",
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충",
       "exceptions": [
         {
@@ -324,7 +331,7 @@
       "path": "android/app/src/main/res/values-ja/strings.xml",
       "origin": "new",
       "treatment": "new",
-      "sha256": "b5ba8dbc9cf0d973fd334599d7e9b28ca8024fd33984a83e2ec38b6e259e4411",
+      "sha256": "c038b9f542d4a8d0d0c237e0de122031c6012e7c2fe0e62d86a34c7217d0585c",
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충",
       "exceptions": [
         {
@@ -343,7 +350,7 @@
       "path": "android/app/src/main/res/values-zh-rCN/strings.xml",
       "origin": "new",
       "treatment": "new",
-      "sha256": "ceb6d8bf979505fb073f23b1a4d08bff6b82a940ec7572401b6047f98c8a14d4",
+      "sha256": "facf636ea62f6450cee9c189a32aac95b2bb87b92cff24b74e53b926e0848282",
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충",
       "exceptions": [
         {
@@ -368,7 +375,7 @@
       "path": "android/app/src/main/res/values/strings.xml",
       "origin": "new",
       "treatment": "new",
-      "sha256": "422d51614015df7ccd9b2fdc75bc8968a3f2e5daccaddc7fd891ffca1da987eb",
+      "sha256": "c1b983bc4210e7caec26248d3ddf8bde330a67dd87e3c4020321e4c199dbc384",
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충",
       "exceptions": [
         {
@@ -479,7 +486,7 @@
       "path": "android/app/src/test/java/kr/kimbiseo/phone/SoloRulesTest.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "9015c87670c29ab74a368426fdf912fc7b5b7b38047bb554b996924807a54324"
+      "sha256": "80dcf64e2eda884cc66ac9e50e9a97467b5f74580736112647b88dc86898bf28"
     },
     {
       "path": "android/bench_unsloth/README.md",

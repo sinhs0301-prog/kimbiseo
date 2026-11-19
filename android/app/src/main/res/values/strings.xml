@@ -170,6 +170,25 @@
     <string name="doer_no_app_name">어떤 앱인지 이름이 없어요.</string>
     <string name="doer_app_not_found">폰에서 \'%1$s\' 앱을 찾지 못했어요.</string>
     <string name="doer_app_opened">%1$s 앱을 열었어요.</string>
+    <string name="doer_no_search_query">검색어가 없어요.</string>
+    <string name="doer_no_search_app">폰에서 \'%1$s\' 앱도 인터넷 창도 열지 못했어요.</string>
+    <string name="doer_search_title">검색: %1$s</string>
+    <string name="doer_search_done">%1$s에서 \'%2$s\'를 찾아 열었어요.</string>
+    <string name="doer_search_web_done">%1$s 웹에서 \'%2$s\'를 찾아 열었어요.</string>
+    <string name="doer_search_manual">%1$s에서 \'%2$s\'를 찾아 열었어요. 담기·주문은 직접 눌러 주세요.</string>
+    <string name="doer_search_web_manual">%1$s 웹에서 \'%2$s\'를 찾아 열었어요. 담기·주문은 직접 눌러 주세요.</string>
+    <string name="doer_search_copy">%1$s 앱에서 검색어 \'%2$s\'를 복사해 뒀어요 — 검색창에 붙여 넣어 주세요. 담기·주문은 직접 눌러 주세요.</string>
+    <string name="doer_search_chrome">크롬에서 \'%1$s\'를 검색해서 열었어요.</string>
+    <string name="doer_search_browser">브라우저에서 \'%1$s\'를 검색해서 열었어요.</string>
+    <string name="doer_search_log">검색(%1$s): %2$s</string>
+    <string name="clip_search">검색어</string>
+    <string name="search_app_coupang">쿠팡</string>
+    <string name="search_app_coupangeats">쿠팡이츠</string>
+    <string name="search_app_baemin">배달의민족</string>
+    <string name="search_app_chrome">크롬</string>
+    <string name="search_app_naver">네이버</string>
+    <string name="search_app_youtube">유튜브</string>
+    <string name="search_app_web">웹 검색</string>
     <string name="clip_destination">목적지</string>
 
     <string name="nav_app_kakaomap">카카오맵</string>

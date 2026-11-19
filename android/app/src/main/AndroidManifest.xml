@@ -24,6 +24,13 @@
         <package android:name="com.skt.tmap.ku" />
         <package android:name="com.google.android.apps.maps" />
         <package android:name="com.locnall.KimGiSa" />
+        <!-- 쇼핑·배달·검색 앱의 검색 화면 열기(앱이 깔려 있는지 확인) — 권한은 늘리지 않음 -->
+        <package android:name="com.coupang.mobile" />
+        <package android:name="com.coupang.eats" />
+        <package android:name="com.sampleapp" />
+        <package android:name="com.android.chrome" />
+        <package android:name="com.nhn.android.search" />
+        <package android:name="com.google.android.youtube" />
         <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />

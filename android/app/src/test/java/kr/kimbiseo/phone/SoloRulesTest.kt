@@ -111,6 +111,9 @@ class SoloRulesTest {
             val s = SoloPrompt.system(code)
             assertTrue(code, s.contains("PHONE"))
             assertTrue(code, s.contains("\"do\":\"navigate\""))
+            assertTrue(code, s.contains("\"do\":\"search\""))
+            assertTrue(code, s.contains("coupang"))
+            assertTrue(code, s.contains("youtube"))
         }
         assertTrue(SoloPrompt.system("ko").contains("김비서"))
         assertTrue(SoloPrompt.system("en").contains("Kim Biseo"))
@@ -230,6 +233,136 @@ class SoloRulesTest {
         assertEquals("강남역", NavAppRules.destWithout("강남역 카카오내비"))
         assertEquals("천안역", NavAppRules.destWithout("카카오내비로 천안역"))
         assertEquals("Seoul Station", NavAppRules.destWithout("Seoul Station with KakaoNavi"))
+    }
+
+    @Test fun action_search_is_parsed_and_needs_query() {
+        val p = SoloAction.parse("쿠팡에서 찾아볼게요.\nPHONE {\"do\":\"search\",\"app\":\"coupang\",\"query\":\"생수\"}")
+        assertEquals("search", p.action?.optString("do"))
+        assertEquals("coupang", p.action?.optString("app"))
+        assertEquals("생수", p.action?.optString("query"))
+        assertEquals("쿠팡에서 찾아볼게요.", p.text)
+        assertNull(SoloAction.parse("PHONE {\"do\":\"search\",\"app\":\"coupang\"}").action)
+        // app 이 비어도 검색어가 있으면 받는다(폰이 사용자 말·웹 검색으로 채움).
+        assertNotNull(SoloAction.parse("PHONE {\"do\":\"search\",\"query\":\"생수\"}").action)
+    }
+
+    /** 실제로 말할 법한 검색 문장 — 한국어. */
+    @Test fun search_user_korean() {
+        val cases = listOf(
+            "쿠팡에서 생수 찾아줘" to ("coupang" to "생수"),
+            "배민에서 치킨 시켜줘" to ("baemin" to "치킨"),
+            "쿠팡이츠 떡볶이" to ("coupangeats" to "떡볶이"),
+            "크롬에서 날씨 검색" to ("chrome" to "날씨"),
+            "유튜브에서 고양이 영상 찾아줘" to ("youtube" to "고양이 영상"),
+            "네이버에서 서울 날씨 검색해줘" to ("naver" to "서울 날씨"),
+            "쿠팡에서 노트북 찾아 줘" to ("coupang" to "노트북"),
+            "배민에서 짜장면 주문해줘" to ("baemin" to "짜장면"),
+            "유튜브에서 강아지 영상 검색해줘" to ("youtube" to "강아지 영상"),
+            "생수 쿠팡에서 찾아줘" to ("coupang" to "생수"),
+        )
+        for ((said, want) in cases) {
+            val a = SoloAction.fromUser(said)
+            assertEquals(said, "search", a?.optString("do"))
+            assertEquals(said, want.first, a?.optString("app"))
+            assertEquals(said, want.second, a?.optString("query"))
+        }
+    }
+
+    /** English·日本語·中文 검색 문장. */
+    @Test fun search_user_other_languages() {
+        val cases = listOf(
+            "Search for water on Coupang" to ("coupang" to "water"),
+            "Find chicken on Baemin" to ("baemin" to "chicken"),
+            "Order chicken on Baemin" to ("baemin" to "chicken"),
+            "Search the weather in Chrome" to ("chrome" to "weather"),
+            "Look for a movie on YouTube" to ("youtube" to "movie"),
+            "Buy milk on Coupang Eats" to ("coupangeats" to "milk"),
+            "Search for shoes on Coupang" to ("coupang" to "shoes"),
+            "クーパンで水を探して" to ("coupang" to "水"),
+            "ペミンでチキンを注文して" to ("baemin" to "チキン"),
+            "クロームで天気を検索して" to ("chrome" to "天気"),
+            "クーパンイーツのトッポッキ" to ("coupangeats" to "トッポッキ"),
+            "在酷澎搜矿泉水" to ("coupang" to "矿泉水"),
+            "用Chrome搜索天气" to ("chrome" to "天气"),
+            "在배민点치킨" to ("baemin" to "치킨"),
+            "酷澎Eats 辣炒年糕" to ("coupangeats" to "辣炒年糕"),
+        )
+        for ((said, want) in cases) {
+            val a = SoloAction.fromUser(said)
+            assertEquals(said, "search", a?.optString("do"))
+            assertEquals(said, want.first, a?.optString("app"))
+            assertEquals(said, want.second, a?.optString("query"))
+        }
+    }
+
+    @Test fun search_does_not_steal_navigation_or_open() {
+        assertNull(SoloAction.fromUser("카카오내비로 천안역 안내해줘")?.takeIf { it.optString("do") == "search" })
+        assertEquals("open_app", SoloAction.fromUser("쿠팡 열어줘")?.optString("do"))
+        assertEquals("open_app", SoloAction.fromUser("유튜브 열어줘")?.optString("do"))
+        assertEquals("navigate", SoloAction.fromUser("네이버지도로 강남역 가자")?.optString("do"))
+        assertNull(SoloAction.fromUser("오늘 날씨 어때?"))
+    }
+
+    @Test fun search_urls_are_public_and_encoded() {
+        assertEquals("https://www.coupang.com/np/search?q=%EC%83%9D%EC%88%98", SearchRules.direct(SearchRules.COUPANG, "생수"))
+        assertEquals("https://www.youtube.com/results?search_query=%EA%B0%95%EC%95%84%EC%A7%80", SearchRules.direct(SearchRules.YOUTUBE, "강아지"))
+        val naver = SearchRules.direct(SearchRules.NAVER, "날씨")
+        assertNotNull(naver)
+        assertTrue(naver!!.startsWith("naversearchapp://inappbrowser?url="))
+        assertTrue(naver.contains("version=6"))
+        assertTrue(SearchRules.web(SearchRules.NAVER, "날씨").startsWith("https://search.naver.com/search.naver?query="))
+        assertTrue(SearchRules.web(SearchRules.BAEMIN, "치킨").startsWith("https://www.google.com/search?q=Baemin%20"))
+        assertTrue(SearchRules.web(SearchRules.EATS, "떡볶이").startsWith("https://www.google.com/search?q=Coupang%20Eats%20"))
+        assertEquals("https://www.google.com/search?q=%EB%82%A0%EC%94%A8", SearchRules.chrome("날씨"))
+        assertNull(SearchRules.direct(SearchRules.BAEMIN, "치킨"))
+        assertNull(SearchRules.direct(SearchRules.EATS, "떡볶이"))
+    }
+
+    @Test fun search_packages_and_kinds() {
+        assertEquals("com.coupang.mobile", SearchRules.pkg(SearchRules.COUPANG))
+        assertEquals("com.coupang.eats", SearchRules.pkg(SearchRules.EATS))
+        assertEquals("com.sampleapp", SearchRules.pkg(SearchRules.BAEMIN))
+        assertEquals("com.android.chrome", SearchRules.pkg(SearchRules.CHROME))
+        assertEquals("com.nhn.android.search", SearchRules.pkg(SearchRules.NAVER))
+        assertEquals("com.google.android.youtube", SearchRules.pkg(SearchRules.YOUTUBE))
+        assertTrue(SearchRules.shopping(SearchRules.COUPANG))
+        assertTrue(SearchRules.shopping(SearchRules.EATS))
+        assertTrue(SearchRules.shopping(SearchRules.BAEMIN))
+        assertFalse(SearchRules.shopping(SearchRules.CHROME))
+        assertTrue(SearchRules.copyOnly(SearchRules.EATS))
+        assertTrue(SearchRules.copyOnly(SearchRules.BAEMIN))
+        assertFalse(SearchRules.copyOnly(SearchRules.COUPANG))
+    }
+
+    @Test fun search_app_names_are_recognized() {
+        assertEquals("coupang", SearchRules.canonical("쿠팡 앱"))
+        assertEquals("coupang", SearchRules.canonical("Coupang"))
+        assertEquals("coupangeats", SearchRules.canonical("Coupang Eats"))
+        assertEquals("coupangeats", SearchRules.canonical("쿠팡이츠"))
+        assertEquals("baemin", SearchRules.canonical("배달의민족"))
+        assertEquals("baemin", SearchRules.canonical("Baemin"))
+        assertEquals("chrome", SearchRules.canonical("크롬"))
+        assertEquals("naver", SearchRules.canonical("NAVER"))
+        assertEquals("youtube", SearchRules.canonical("유투브"))
+        assertEquals("youtube", SearchRules.canonical("YouTube"))
+        assertNull(SearchRules.canonical("설정"))
+        assertEquals("생수", SearchRules.queryWithout("쿠팡 생수"))
+        assertEquals("치킨", SearchRules.queryWithout("배민에서 치킨"))
+    }
+
+    @Test fun enrich_search_fills_app_and_strips_app_from_query() {
+        val user = "쿠팡에서 생수 찾아줘"
+        val p = SoloAction.parse("찾아볼게요.\nPHONE {\"do\":\"search\",\"app\":\"쿠팡\",\"query\":\"쿠팡 생수\"}")
+        val a = SoloAction.enrich(p.action, user)
+        assertEquals("search", a?.optString("do"))
+        assertEquals("coupang", a?.optString("app"))
+        assertEquals("생수", a?.optString("query"))
+        // 모델이 app 을 비웠으면 사용자 말에서 채운다.
+        val p2 = SoloAction.parse("PHONE {\"do\":\"search\",\"app\":\"\",\"query\":\"생수\"}")
+        assertEquals("coupang", SoloAction.enrich(p2.action, user)?.optString("app"))
+        // 검색이 아니면 손대지 않는다.
+        val p3 = SoloAction.parse("PHONE {\"do\":\"open_app\",\"app\":\"쿠팡\"}")
+        assertEquals("open_app", SoloAction.enrich(p3.action, user)?.optString("do"))
     }
 
     @Test fun detect_language_by_script() {

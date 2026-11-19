@@ -170,6 +170,25 @@
     <string name="doer_no_app_name">No app name was given.</string>
     <string name="doer_app_not_found">Couldn\'t find the \'%1$s\' app on your phone.</string>
     <string name="doer_app_opened">Opened %1$s.</string>
+    <string name="doer_no_search_query">No search words were given.</string>
+    <string name="doer_no_search_app">Couldn\'t open the \'%1$s\' app or a browser on your phone.</string>
+    <string name="doer_search_title">Search: %1$s</string>
+    <string name="doer_search_done">%1$s opened \'%2$s\'.</string>
+    <string name="doer_search_web_done">%1$s on the web opened \'%2$s\'.</string>
+    <string name="doer_search_manual">%1$s opened \'%2$s\'. Tap Add to cart or Order yourself.</string>
+    <string name="doer_search_web_manual">%1$s on the web opened \'%2$s\'. Tap Add to cart or Order yourself.</string>
+    <string name="doer_search_copy">The search words \'%2$s\' are copied. Opening %1$s — paste them into the search box. Tap Add to cart or Order yourself.</string>
+    <string name="doer_search_chrome">Searched \'%1$s\' in Chrome.</string>
+    <string name="doer_search_browser">Searched \'%1$s\' in your browser.</string>
+    <string name="doer_search_log">Search (%1$s): %2$s</string>
+    <string name="clip_search">Search words</string>
+    <string name="search_app_coupang">Coupang</string>
+    <string name="search_app_coupangeats">Coupang Eats</string>
+    <string name="search_app_baemin">Baemin</string>
+    <string name="search_app_chrome">Chrome</string>
+    <string name="search_app_naver">Naver</string>
+    <string name="search_app_youtube">YouTube</string>
+    <string name="search_app_web">Web search</string>
     <string name="clip_destination">Destination</string>
 
     <string name="nav_app_kakaomap">KakaoMap</string>

@@ -470,7 +470,7 @@ class SoloActivity : Activity() {
     private fun finishReply(full: String) {
         val p = SoloAction.parse(full)
         // 모델이 app 칸을 빼먹었으면 사용자가 말한 앱 이름으로 채운다(사용자 말 우선).
-        val act = SoloAction.enrich(p.action, userText)
+        var act = SoloAction.enrich(p.action, userText)
         val fallback = userAction
         userAction = null
         userText = ""
@@ -483,6 +483,17 @@ class SoloActivity : Activity() {
                 Log.i(TAG, "fallback action ${fallback.optString("do")} ok=${r.optBoolean("ok")} $text")
             } catch (t: Throwable) {
                 Log.w(TAG, "fallback action failed", t)
+            }
+        } else if (act != null && act.optString("do") == "search") {
+            // 검색은 모델 답 대신 폰이 한 결과를 그대로 답한다 — "시켜줘"여도 "담기·주문은 직접" 이 빠지지 않게.
+            try {
+                val r = Doer(this).run(act)
+                val said = r.optString("말")
+                if (said.isNotBlank()) text = said
+                Log.i(TAG, "search action ok=${r.optBoolean("ok")} $said")
+                act = null
+            } catch (t: Throwable) {
+                Log.w(TAG, "search action failed", t)
             }
         }
         if (liveView != null) {

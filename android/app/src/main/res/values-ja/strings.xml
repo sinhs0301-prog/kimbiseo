@@ -170,6 +170,25 @@
     <string name="doer_no_app_name">どのアプリか名前がありません。</string>
     <string name="doer_app_not_found">スマホで「%1$s」アプリが見つかりませんでした。</string>
     <string name="doer_app_opened">%1$s アプリを開きました。</string>
+    <string name="doer_no_search_query">検索語がありません。</string>
+    <string name="doer_no_search_app">スマホで「%1$s」アプリもブラウザも開けませんでした。</string>
+    <string name="doer_search_title">検索: %1$s</string>
+    <string name="doer_search_done">%1$s で「%2$s」を開きました。</string>
+    <string name="doer_search_web_done">%1$s のウェブで「%2$s」を開きました。</string>
+    <string name="doer_search_manual">%1$s で「%2$s」を開きました。カートに入れる・注文はご自身で押してください。</string>
+    <string name="doer_search_web_manual">%1$s のウェブで「%2$s」を開きました。カートに入れる・注文はご自身で押してください。</string>
+    <string name="doer_search_copy">検索語「%2$s」をコピーしました。%1$s を開きます — 検索欄に貼り付けてください。カートに入れる・注文はご自身で押してください。</string>
+    <string name="doer_search_chrome">Chrome で「%1$s」を検索して開きました。</string>
+    <string name="doer_search_browser">ブラウザで「%1$s」を検索して開きました。</string>
+    <string name="doer_search_log">検索(%1$s): %2$s</string>
+    <string name="clip_search">検索語</string>
+    <string name="search_app_coupang">クーパン</string>
+    <string name="search_app_coupangeats">クーパンイーツ</string>
+    <string name="search_app_baemin">ペミン</string>
+    <string name="search_app_chrome">Chrome</string>
+    <string name="search_app_naver">ネイバー</string>
+    <string name="search_app_youtube">YouTube</string>
+    <string name="search_app_web">ウェブ検索</string>
     <string name="clip_destination">目的地</string>
 
     <string name="nav_app_kakaomap">カカオマップ</string>

@@ -170,6 +170,25 @@
     <string name="doer_no_app_name">没有指定应用名称。</string>
     <string name="doer_app_not_found">在手机上找不到“%1$s”应用。</string>
     <string name="doer_app_opened">已打开 %1$s。</string>
+    <string name="doer_no_search_query">没有搜索词。</string>
+    <string name="doer_no_search_app">无法在手机上打开“%1$s”应用或浏览器。</string>
+    <string name="doer_search_title">搜索：%1$s</string>
+    <string name="doer_search_done">在%1$s中打开了“%2$s”。</string>
+    <string name="doer_search_web_done">在%1$s网页中打开了“%2$s”。</string>
+    <string name="doer_search_manual">在%1$s中打开了“%2$s”。加入购物车、下单请自己按。</string>
+    <string name="doer_search_web_manual">在%1$s网页中打开了“%2$s”。加入购物车、下单请自己按。</string>
+    <string name="doer_search_copy">已复制搜索词“%2$s”，打开%1$s — 请粘贴到搜索框。加入购物车、下单请自己按。</string>
+    <string name="doer_search_chrome">已在 Chrome 中搜索并打开“%1$s”。</string>
+    <string name="doer_search_browser">已在浏览器中搜索并打开“%1$s”。</string>
+    <string name="doer_search_log">搜索(%1$s)：%2$s</string>
+    <string name="clip_search">搜索词</string>
+    <string name="search_app_coupang">酷澎</string>
+    <string name="search_app_coupangeats">酷澎Eats</string>
+    <string name="search_app_baemin">外卖民族</string>
+    <string name="search_app_chrome">Chrome</string>
+    <string name="search_app_naver">Naver</string>
+    <string name="search_app_youtube">YouTube</string>
+    <string name="search_app_web">网页搜索</string>
     <string name="clip_destination">目的地</string>
 
     <string name="nav_app_kakaomap">KakaoMap</string>

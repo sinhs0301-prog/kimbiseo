@@ -29,6 +29,7 @@ object SoloAction {
         "dial" -> o.optString("contact").isNotBlank() || o.optString("number").isNotBlank()
         "sms" -> (o.optString("contact").isNotBlank() || o.optString("number").isNotBlank())
         "open_app" -> o.optString("app").isNotBlank()
+        "search" -> o.optString("query").isNotBlank()
         else -> false
     }
 
@@ -37,13 +38,32 @@ object SoloAction {
      *  목적지에 앱 이름이 섞였으면("강남역 카카오내비") 목적지에서도 뺀다.
      */
     fun enrich(action: JSONObject?, userText: String): JSONObject? {
-        if (action == null || action.optString("do") != "navigate") return action
-        val hit = NavAppRules.find(userText)
-        if (action.optString("app").isBlank() && hit != null) action.put("app", hit.key)
-        val dest = action.optString("destination")
-        if (dest.isNotBlank()) {
-            val d = NavAppRules.destWithout(dest)
-            if (d.isNotBlank()) action.put("destination", d)
+        if (action == null) return null
+        when (action.optString("do")) {
+            "navigate" -> {
+                val hit = NavAppRules.find(userText)
+                if (action.optString("app").isBlank() && hit != null) action.put("app", hit.key)
+                val dest = action.optString("destination")
+                if (dest.isNotBlank()) {
+                    val d = NavAppRules.destWithout(dest)
+                    if (d.isNotBlank()) action.put("destination", d)
+                }
+            }
+            "search" -> {
+                val app = action.optString("app")
+                val k = SearchRules.canonical(app)
+                if (k != null) action.put("app", k)
+                if (action.optString("app").isBlank()) SearchRules.find(userText)?.let { action.put("app", it.key) }
+                var q = SearchRules.queryWithout(action.optString("query"))
+                if (q.isBlank()) {
+                    val u = SearchRules.parse(userText)
+                    if (u != null && (action.optString("app").isBlank() || u.app == action.optString("app"))) {
+                        if (action.optString("app").isBlank()) action.put("app", u.app)
+                        q = u.query
+                    }
+                }
+                if (q.isNotBlank()) action.put("query", q)
+            }
         }
         return action
     }
@@ -64,6 +84,9 @@ object SoloAction {
         }
         Regex("^(.+?)(?:アプリ)?を?(?:開いて|起動して|開けて)(?:ください)?$").find(t)?.let { return openApp(it.groupValues[1].trim()) }
         Regex("^打开(.+?)(?:应用|app)?$", RegexOption.IGNORE_CASE).find(t)?.let { return openApp(it.groupValues[1].trim()) }
+
+        // 쇼핑·배달·검색 — "쿠팡에서 생수 찾아줘", "배민에서 치킨 시켜줘", "쿠팡이츠 떡볶이", "크롬에서 날씨 검색"
+        SearchRules.parse(t)?.let { return search(it.app, it.query) }
 
         // 길안내 — 앱 이름이 섞여 있으면 먼저 떼어 내고 목적지만 남긴다("카카오내비로 천안역" → "천안역", app=kakaonavi)
         val hit = NavAppRules.find(t)
@@ -102,7 +125,8 @@ object SoloAction {
     }
 
     private fun koreanOpen(t: String): String? {
-        val m = Regex("^(.+?)\\s*(?:앱|어플)?\\s*(?:을|를|좀)?\\s*(?:열어|켜|실행해|실행)\\s*(?:줘|줘요|주세요|봐)?$").find(t) ?: return null
+        // "시켜줘"의 '켜'를 앱 열기로 잘못 보지 않게(배민에서 치킨 시켜줘 → 검색).
+        val m = Regex("^(.+?)\\s*(?:앱|어플)?\\s*(?:을|를|좀)?\\s*(?:열어|(?<!시)켜|실행해|실행)\\s*(?:줘|줘요|주세요|봐)?$").find(t) ?: return null
         return m.groupValues[1].trim().removeSuffix("앱").removeSuffix("어플").trim().ifEmpty { null }
     }
 
@@ -112,6 +136,12 @@ object SoloAction {
         val a = clean(app).removeSuffix("앱").removeSuffix("어플").trim()
         if (a.isEmpty()) return null
         return JSONObject().put("do", "open_app").put("app", a)
+    }
+
+    private fun search(app: String, query: String): JSONObject? {
+        val q = clean(query)
+        if (q.isEmpty()) return null
+        return JSONObject().put("do", "search").put("app", app).put("query", q)
     }
 
     private fun nav(dest: String, app: String? = null): JSONObject? {
