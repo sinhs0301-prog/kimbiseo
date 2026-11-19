@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KimBiseo GH</string>
+
+    <string name="gh_service_label">KimBiseo GH screen reading</string>
+    <string name="gh_service_desc">Reads the screen and taps only to put the item you asked for into the cart. It never taps pay or order.</string>
+    <string name="gh_service_summary">Reads the screen and taps for you. Never pays or orders.</string>
+    <string name="gh_overlay">KimBiseo is working — Stop</string>
+
+    <string name="gh_title">KimBiseo GH</string>
+    <string name="gh_intro">Say \"Add Samdasoo 2L to the cart on Coupang\" and it opens the search screen, reads the screen and taps step by step until the item is in the cart. It never taps pay or order.</string>
+    <string name="gh_input_hint">e.g. Add Samdasoo 2L to the cart on Coupang</string>
+    <string name="gh_example">Add Samdasoo 2L to the cart on Coupang</string>
+    <string name="gh_start">Start</string>
+    <string name="gh_stop">Stop</string>
+    <string name="gh_stopping">Stopping…</string>
+    <string name="gh_settings_btn">Settings</string>
+    <string name="gh_close">Close</string>
+    <string name="gh_footer">KimBiseo GH %1$s · accessibility up to the cart · pay yourself</string>
+    <string name="gh_busy">Already working. Wait until it finishes or press \'Stop\'.</string>
+    <string name="gh_need_cart">Say a sentence that adds something to the cart. e.g. Add Samdasoo 2L to the cart on Coupang</string>
+    <string name="gh_opening">Opening the search screen: %1$s</string>
+    <string name="gh_opening_test">Opening the test page in Chrome…</string>
+    <string name="gh_error">Something went wrong: %1$s</string>
+    <string name="gh_open_settings">Open settings</string>
+
+    <string name="gh_reading">Reading the screen…</string>
+    <string name="gh_stopped">Stopped. Ask again when you are ready.</string>
+    <string name="gh_not_target">A target app (Coupang, Coupang Eats, Baemin, Chrome, Naver) is not in front. Open it and try again.</string>
+    <string name="gh_left_target">Stopped because the target app left the screen.</string>
+    <string name="gh_no_brain">No brain address. Enter the PC brain\'s OpenAI-compatible address in Settings.</string>
+    <string name="gh_brain_fail">The brain did not give the next step, so it stopped.</string>
+    <string name="gh_done_check">Stopped here — check the cart. Pay yourself.</string>
+    <string name="gh_blocked">Did not tap the pay/order button (\'%1$s\'). Pay yourself.</string>
+    <string name="gh_secret">A password/card-number field — did not type anything.</string>
+    <string name="gh_step_tap">Tapped: %1$s</string>
+    <string name="gh_step_type">Typed: %1$s</string>
+    <string name="gh_done_cart">Added to the cart. Please pay yourself.</string>
+    <string name="gh_timeout">Could not find the add-to-cart screen within %1$d steps — please do it yourself.</string>
+    <string name="gh_notif_channel">KimBiseo GH actions</string>
+    <string name="gh_notif_title">KimBiseo GH</string>
+
+    <string name="gh_card_title">KimBiseo GH — add to cart</string>
+    <string name="gh_card_desc">Reads the screen and taps to put items in the cart. Pay and order are always yours. (GitHub build)</string>
+    <string name="gh_card_btn">Open KimBiseo GH</string>
+
+    <string name="gh_back">← Back</string>
+    <string name="gh_settings_title">KimBiseo GH settings</string>
+    <string name="gh_settings_intro">This reads the screen through accessibility and taps for you. It is off by default. When you turn it on, enable \'KimBiseo GH screen reading\' in Android accessibility settings.</string>
+    <string name="gh_switch">Read the screen and tap for me</string>
+    <string name="gh_switch_help">Turning it on shows the consent once, then opens Android accessibility settings. Enable \'KimBiseo GH screen reading\' there. Turning it off stops all screen reading.</string>
+    <string name="gh_open_accessibility">Open Android accessibility settings</string>
+    <string name="gh_consent_view">View consent</string>
+    <string name="gh_brain_title">Brain (OpenAI-compatible address)</string>
+    <string name="gh_brain_help">Sends the screen text and goal, and receives the next place to tap. To use the PC KimBiseo brain, enter that brain\'s OpenAI-compatible address.</string>
+    <string name="gh_brain_hint">http://192.168.1.23:8880/v1</string>
+    <string name="gh_brain_hint_pc">PC address %1$s — e.g. http://%1$s:8880/v1 (the PC local brain listens on 127.0.0.1 only, so the phone may not reach it)</string>
+    <string name="gh_brain_model_hint">Model name (e.g. gemma-4-E4B-it · blank = local)</string>
+    <string name="gh_brain_key_hint">API key (leave blank if none)</string>
+    <string name="gh_save">Save</string>
+    <string name="gh_saved">Saved.</string>
+    <string name="gh_brain_note">The small on-phone AI (2B) is not supported as the action brain. Enter the PC brain address. If the local brain listens only on 127.0.0.1, start it on the PC with --host 0.0.0.0 so the phone can reach it.</string>
+    <string name="gh_targets_title">Target apps</string>
+    <string name="gh_targets">It works only in Coupang, Coupang Eats, Baemin, Chrome and Naver. In other apps it neither reads nor taps the screen.</string>
+    <string name="gh_safety_title">Safety (enforced by code)</string>
+    <string name="gh_safety">Buttons with Pay · Checkout · Place order · order now · buy now · confirm order are blocked before tapping. It never types into password or card-number fields. Delivery apps stop at \'add to cart\'.</string>
+    <string name="gh_solo_note">On-phone solo mode (2B) is not supported — enter a PC brain address.</string>
+    <string name="gh_version">KimBiseo GH %1$s (GitHub build, not on Play)</string>
+    <string name="gh_need_consent">Agree first — it reads the screen and taps for you. It never pays or orders.</string>
+    <string name="gh_need_switch">Turn on \'Read the screen and tap for me\' in Settings.</string>
+    <string name="gh_need_service">The accessibility service is off — enable \'KimBiseo GH screen reading\' in Android accessibility settings.</string>
+    <string name="gh_need_brain">Enter a brain address — the PC brain\'s OpenAI-compatible address in Settings.</string>
+    <string name="gh_ready">Ready — say a sentence or press \'Start\'.</string>
+    <string name="gh_no_settings">Could not open accessibility settings. Open your phone Settings → Accessibility and enable it there.</string>
+
+    <string name="gh_consent_title">It reads the screen and taps for you</string>
+    <string name="gh_consent_body">KimBiseo GH reads the screen and taps only to put the item you asked for into the cart. It never taps pay or order. It never types into password or card-number fields.</string>
+    <string name="gh_consent_safe">Reads the screen and taps for you · never pays or orders</string>
+    <string name="gh_consent_targets">It works only in Coupang, Coupang Eats, Baemin, Chrome and Naver. Delivery apps stop at the cart.</string>
+    <string name="gh_consent_yes">Agree and turn on</string>
+</resources>

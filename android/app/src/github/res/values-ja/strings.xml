@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">キムビソ GH</string>
+
+    <string name="gh_service_label">キムビソ GH 画面読み取り</string>
+    <string name="gh_service_desc">画面の文字を読み、頼まれた品物をカートに入れるときだけ代わりにタップします。支払い・注文は絶対にタップしません。</string>
+    <string name="gh_service_summary">画面を読み、代わりにタップします。支払い・注文は絶対にしません。</string>
+    <string name="gh_overlay">キムビソ操作中 — 停止</string>
+
+    <string name="gh_title">キムビソ GH</string>
+    <string name="gh_intro">「クーパンで三多水2Lをカートに入れて」と言うと、検索画面を開き、画面を読んでカートに入るまで一歩ずつ代わりにタップします。支払い・注文は絶対にタップしません。</string>
+    <string name="gh_input_hint">例: クーパンで三多水2Lをカートに入れて</string>
+    <string name="gh_example">クーパンで三多水2Lをカートに入れて</string>
+    <string name="gh_start">実行</string>
+    <string name="gh_stop">停止</string>
+    <string name="gh_stopping">停止中…</string>
+    <string name="gh_settings_btn">設定</string>
+    <string name="gh_close">閉じる</string>
+    <string name="gh_footer">キムビソ GH %1$s · アクセシビリティでカートまで · 支払いはご自身で</string>
+    <string name="gh_busy">すでに操作中です。終わるか「停止」を押してからもう一度お試しください。</string>
+    <string name="gh_need_cart">カートに入れる文で話してください。例: クーパンで三多水2Lをカートに入れて</string>
+    <string name="gh_opening">検索画面を開きます: %1$s</string>
+    <string name="gh_opening_test">テストページをクロームで開きます…</string>
+    <string name="gh_error">操作中に問題が起きました: %1$s</string>
+    <string name="gh_open_settings">設定を開く</string>
+
+    <string name="gh_reading">画面を読んでいます…</string>
+    <string name="gh_stopped">停止しました。必要ならもう一度お願いします。</string>
+    <string name="gh_not_target">対象アプリ(クーパン・クーパンイーツ・ペミン・クローム・ネイバー)が前面にありません。開いてからもう一度お試しください。</string>
+    <string name="gh_left_target">操作中に対象アプリから離れたため停止しました。</string>
+    <string name="gh_no_brain">頭脳のアドレスがありません。設定でPC頭脳のOpenAI互換アドレスを入れてください。</string>
+    <string name="gh_brain_fail">頭脳が次の動作を返さなかったため停止しました。</string>
+    <string name="gh_done_check">ここで停止しました — カートを確認してください。支払いはご自身で。</string>
+    <string name="gh_blocked">支払い・注文ボタン(「%1$s」)は押しませんでした。支払いはご自身で。</string>
+    <string name="gh_secret">パスワード・カード番号の欄なので文字を入れませんでした。</string>
+    <string name="gh_step_tap">タップしました: %1$s</string>
+    <string name="gh_step_type">入力しました: %1$s</string>
+    <string name="gh_done_cart">カートに入れました。お支払いはご自身でお願いします。</string>
+    <string name="gh_timeout">%1$d歩以内にカート画面が見つかりませんでした — ご自身でお願いします。</string>
+    <string name="gh_notif_channel">キムビソ GH 操作</string>
+    <string name="gh_notif_title">キムビソ GH</string>
+
+    <string name="gh_card_title">キムビソ GH — カートに入れる</string>
+    <string name="gh_card_desc">画面を読み、代わりにタップしてカートに入れます。支払い・注文はいつもご自身で。(GitHub版)</string>
+    <string name="gh_card_btn">キムビソ GH を開く</string>
+
+    <string name="gh_back">← 戻る</string>
+    <string name="gh_settings_title">キムビソ GH 設定</string>
+    <string name="gh_settings_intro">アクセシビリティで画面を読み、代わりにタップする機能です。初期はオフです。オンにしたら、Androidのアクセシビリティ設定で「キムビソ GH 画面読み取り」をオンにしてください。</string>
+    <string name="gh_switch">画面を読み、代わりにタップする</string>
+    <string name="gh_switch_help">オンにすると同意(初回のみ)のあとAndroidのアクセシビリティ設定が開きます。そこで「キムビソ GH 画面読み取り」をオンにしてください。オフにすると画面を読みません。</string>
+    <string name="gh_open_accessibility">Androidのアクセシビリティ設定を開く</string>
+    <string name="gh_consent_view">同意内容を見る</string>
+    <string name="gh_brain_title">頭脳 (OpenAI互換アドレス)</string>
+    <string name="gh_brain_help">画面の文字と目標を送り、次に押す場所を受け取ります。PCキムビソの頭脳を使うには、その頭脳のOpenAI互換アドレスを入れてください。</string>
+    <string name="gh_brain_hint">http://192.168.1.23:8880/v1</string>
+    <string name="gh_brain_hint_pc">PCアドレス %1$s — 例: http://%1$s:8880/v1 (PCローカル頭脳は127.0.0.1のみなので、スマホから届かないことがあります)</string>
+    <string name="gh_brain_model_hint">モデル名 (例: gemma-4-E4B-it · 空なら local)</string>
+    <string name="gh_brain_key_hint">キー (なければ空欄)</string>
+    <string name="gh_save">保存</string>
+    <string name="gh_saved">保存しました。</string>
+    <string name="gh_brain_note">スマホ単独モードの小さいAI(2B)は操作頭脳として非対応です。PC頭脳のアドレスを入れてください。ローカル頭脳が127.0.0.1のみなら、PCで --host 0.0.0.0 で起動するとスマホから届きます。</string>
+    <string name="gh_targets_title">対象アプリ</string>
+    <string name="gh_targets">クーパン・クーパンイーツ・ペミン・クローム・ネイバーでのみ動きます。他のアプリでは画面を読むこともタップすることもありません。</string>
+    <string name="gh_safety_title">安全 (コードで強制)</string>
+    <string name="gh_safety">支払い・注文・購入・今すぐ購入・Pay・Checkout・Place order・送金・振込 の文字があるボタンは押す前に止めます。パスワード・カード番号の欄には文字を入れません。出前アプリは「カートに入れる」までです。</string>
+    <string name="gh_solo_note">スマホ単独モード(2B)は非対応 — PC頭脳のアドレスを入れてください。</string>
+    <string name="gh_version">キムビソ GH %1$s (PlayにないGitHub版)</string>
+    <string name="gh_need_consent">まず同意してください — 画面を読み、代わりにタップします。支払い・注文は絶対にしません。</string>
+    <string name="gh_need_switch">設定で「画面を読み、代わりにタップする」をオンにしてください。</string>
+    <string name="gh_need_service">アクセシビリティサービスがオフです — Androidのアクセシビリティ設定で「キムビソ GH 画面読み取り」をオンにしてください。</string>
+    <string name="gh_need_brain">頭脳アドレスを入れてください — 設定でPC頭脳のOpenAI互換アドレス。</string>
+    <string name="gh_ready">準備できました — 文を話すか「実行」を押してください。</string>
+    <string name="gh_no_settings">アクセシビリティ設定を開けませんでした。スマホの設定 → アクセシビリティでオンにしてください。</string>
+
+    <string name="gh_consent_title">画面を読み、代わりにタップします</string>
+    <string name="gh_consent_body">キムビソ GHは画面の文字を読み、頼まれた品物をカートに入れるときだけ代わりにタップします。支払い・注文は絶対にタップしません。パスワード・カード番号の欄には文字を入れません。</string>
+    <string name="gh_consent_safe">画面を読み、代わりにタップします · 支払い・注文は絶対にしません</string>
+    <string name="gh_consent_targets">クーパン・クーパンイーツ・ペミン・クローム・ネイバーでのみ動きます。出前アプリはカートまで。</string>
+    <string name="gh_consent_yes">同意してオンにする</string>
+</resources>

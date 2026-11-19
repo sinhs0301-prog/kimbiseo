@@ -428,6 +428,8 @@ class SoloActivity : Activity() {
     private fun sendText(t: String) {
         Log.i(TAG, "sendText ready=$brainReady loading=$brainLoading gen=$generating: $t")
         if (t.isBlank()) return
+        // 김비서 GH(깃허브판)에서 장바구니 문장이면 폰 모델 대신 조작 화면으로 넘긴다.
+        if (GhBridge.maybeRun(this, t)) return
         if (!brainReady) {
             pendingText = t
             if (!brainLoading) ensureBrain()
@@ -721,6 +723,7 @@ class SoloActivity : Activity() {
             m.addView(Ui.button(this, getString(R.string.solo_model_title), Ui.Kind.SECONDARY) { screen = "model"; show() }, lp())
         }
         p.addView(m, lp())
+        GhBridge.addSettings(this, p)
 
         p.addView(Ui.button(this, getString(R.string.solo_clear_history), Ui.Kind.DANGER) {
             AlertDialog.Builder(this).setMessage(getString(R.string.solo_new_chat_confirm))

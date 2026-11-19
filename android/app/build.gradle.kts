@@ -12,6 +12,17 @@ android {
         val abis = System.getenv("KIMBISEO_ABIS") ?: ""
         if (abis.isNotEmpty()) ndk { abiFilters += abis.split(",") }
     }
+    // 플레이판(지금 그대로) / 깃허브판(김비서 GH — 접근성으로 장바구니 담기까지).
+    //  github 쪽 접근성 서비스·설정 XML·문자열은 src/github 에만 있어 play 빌드에 안 들어간다.
+    flavorDimensions += "store"
+    productFlavors {
+        create("play") { dimension = "store" }
+        create("github") {
+            dimension = "store"
+            applicationIdSuffix = ".gh"      // 플레이판과 같이 깔려도 충돌 없음
+            versionNameSuffix = "-gh"
+        }
+    }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
 }
 kotlin { compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) } }

@@ -138,6 +138,7 @@ class MainActivity : Activity() {
             val a = SoloAction.enrich(p.action, user)
             android.util.Log.i("KimbiseoTest", "test_solo_line user='$user' -> action=$a text='${p.text}'")
         }
+        GhBridge.testHooks(this, i)
         i.getStringExtra("test_do")?.let { j ->
             root.postDelayed({
                 val r = Doer(this).run(org.json.JSONObject(j))
@@ -190,6 +191,7 @@ class MainActivity : Activity() {
             solo.addView(Ui.button(this, getString(R.string.mode_solo_btn), Ui.Kind.SECONDARY) {} .apply { isEnabled = false; alpha = 0.5f }, lp())
         }
         p.addView(solo, lp())
+        GhBridge.addModeCard(this, p)
         p.addView(Ui.text(this, getString(R.string.mode_change_later), 13f, Ui.MUTED))
     }
 
@@ -375,8 +377,11 @@ class MainActivity : Activity() {
             val t = input.text.toString().trim()
             if (t.isNotEmpty()) {
                 input.setText("")
-                val s = TalkService.me
-                if (s != null && Bus.state.talking) s.sendText(t) else { pendingText = t; startTalk() }
+                // 김비서 GH(깃허브판)에서 장바구니 문장이면 모델 대화 대신 조작 화면으로 넘긴다.
+                if (!GhBridge.maybeRun(this, t)) {
+                    val s = TalkService.me
+                    if (s != null && Bus.state.talking) s.sendText(t) else { pendingText = t; startTalk() }
+                }
             }
         }
         input.setOnEditorActionListener { _, a, _ -> if (a == EditorInfo.IME_ACTION_SEND) { sendIt(); true } else false }
@@ -659,6 +664,7 @@ class MainActivity : Activity() {
         g.addView(greet, lp())
         p.addView(g, lp())
         p.addView(petSettingsCard(), lp())
+        GhBridge.addSettings(this, p)
         p.addView(Ui.button(this, getString(R.string.main_mode_solo), Ui.Kind.SECONDARY) {
             android.app.AlertDialog.Builder(this).setMessage(getString(R.string.main_mode_solo_confirm))
                 .setPositiveButton(android.R.string.ok) { _, _ -> Store.setMode(this, "solo"); openSolo() }

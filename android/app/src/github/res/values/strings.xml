@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">김비서 GH</string>
+
+    <string name="gh_service_label">김비서 GH 화면 읽기</string>
+    <string name="gh_service_desc">화면 글자를 읽고, 말씀하신 물건을 장바구니에 담을 때만 대신 눌러요. 결제·주문은 절대 누르지 않아요.</string>
+    <string name="gh_service_summary">화면을 읽고 대신 누릅니다. 결제·주문은 절대 안 누름.</string>
+    <string name="gh_overlay">김비서 조작 중 — 멈추기</string>
+
+    <string name="gh_title">김비서 GH</string>
+    <string name="gh_intro">\"쿠팡에서 삼다수 2L 장바구니 담아줘\"처럼 말하면, 검색 화면을 열고 화면을 읽어 장바구니에 담을 때까지 한 걸음씩 대신 눌러요. 결제·주문은 절대 누르지 않아요.</string>
+    <string name="gh_input_hint">예: 쿠팡에서 삼다수 2L 장바구니 담아줘</string>
+    <string name="gh_example">쿠팡에서 삼다수 2L 장바구니 담아줘</string>
+    <string name="gh_start">시키기</string>
+    <string name="gh_stop">멈추기</string>
+    <string name="gh_stopping">멈추는 중…</string>
+    <string name="gh_settings_btn">설정</string>
+    <string name="gh_close">닫기</string>
+    <string name="gh_footer">김비서 GH %1$s · 접근성으로 장바구니까지 · 결제는 직접</string>
+    <string name="gh_busy">이미 조작 중이에요. 끝나거나 \'멈추기\'를 누른 뒤 다시 해 주세요.</string>
+    <string name="gh_need_cart">장바구니에 담을 문장으로 말해 주세요. 예: 쿠팡에서 삼다수 2L 장바구니 담아줘</string>
+    <string name="gh_opening">검색 화면을 엽니다: %1$s</string>
+    <string name="gh_opening_test">시험 페이지를 크롬으로 엽니다…</string>
+    <string name="gh_error">조작 중 문제가 생겼어요: %1$s</string>
+    <string name="gh_open_settings">설정 열기</string>
+
+    <string name="gh_reading">화면을 읽는 중…</string>
+    <string name="gh_stopped">멈췄어요. 필요하면 다시 시켜 주세요.</string>
+    <string name="gh_not_target">대상 앱(쿠팡·쿠팡이츠·배민·크롬·네이버)이 앞에 있지 않아요. 앱을 연 뒤 다시 해 주세요.</string>
+    <string name="gh_left_target">조작 중에 대상 앱을 벗어나 멈췄어요.</string>
+    <string name="gh_no_brain">두뇌 주소가 없어요. 설정에서 PC 두뇌의 OpenAI 호환 주소를 넣어 주세요.</string>
+    <string name="gh_brain_fail">두뇌가 다음 동작을 알려 주지 못해 멈췄어요.</string>
+    <string name="gh_done_check">여기서 멈췄어요 — 장바구니를 확인해 주세요. 결제는 직접 해 주세요.</string>
+    <string name="gh_blocked">결제·주문 버튼(\'%1$s\')은 누르지 않았어요. 결제는 직접 해 주세요.</string>
+    <string name="gh_secret">비밀번호·카드번호 칸이라 글자를 넣지 않았어요.</string>
+    <string name="gh_step_tap">눌렀어요: %1$s</string>
+    <string name="gh_step_type">글자 넣었어요: %1$s</string>
+    <string name="gh_done_cart">장바구니에 담았어요, 결제는 직접 해 주세요.</string>
+    <string name="gh_timeout">%1$d걸음 안에 담기 화면을 못 찾았어요 — 직접 해 주세요.</string>
+    <string name="gh_notif_channel">김비서 GH 조작</string>
+    <string name="gh_notif_title">김비서 GH</string>
+
+    <string name="gh_card_title">김비서 GH — 장바구니 담기</string>
+    <string name="gh_card_desc">화면을 읽고 대신 눌러 장바구니에 담아요. 결제·주문은 항상 직접. (깃허브판)</string>
+    <string name="gh_card_btn">김비서 GH 열기</string>
+
+    <string name="gh_back">← 돌아가기</string>
+    <string name="gh_settings_title">김비서 GH 설정</string>
+    <string name="gh_settings_intro">접근성으로 화면을 읽고 대신 누르는 기능이에요. 기본은 꺼짐이고, 켜면 안드로이드 접근성 설정에서 \'김비서 GH 화면 읽기\'를 켜 주세요.</string>
+    <string name="gh_switch">화면을 읽고 대신 누르기</string>
+    <string name="gh_switch_help">켜면 동의(처음 한 번) 뒤 안드로이드 접근성 설정이 열려요. 거기서 \'김비서 GH 화면 읽기\'를 켜 주세요. 끄면 더 이상 화면을 읽지 않아요.</string>
+    <string name="gh_open_accessibility">안드로이드 접근성 설정 열기</string>
+    <string name="gh_consent_view">동의 내용 보기</string>
+    <string name="gh_brain_title">두뇌 (OpenAI 호환 주소)</string>
+    <string name="gh_brain_help">화면 글자와 목표를 보내 다음에 누를 곳을 받아요. PC 김비서 두뇌를 쓰려면 그 두뇌의 OpenAI 호환 주소를 넣어 주세요.</string>
+    <string name="gh_brain_hint">http://192.168.1.23:8880/v1</string>
+    <string name="gh_brain_hint_pc">PC 주소 %1$s — 예: http://%1$s:8880/v1 (PC 로컬 두뇌는 127.0.0.1 에만 열려 있어 폰에서 닿지 않을 수 있어요)</string>
+    <string name="gh_brain_model_hint">모델 이름 (예: gemma-4-E4B-it · 비우면 local)</string>
+    <string name="gh_brain_key_hint">열쇠 (없으면 비워 두세요)</string>
+    <string name="gh_save">저장</string>
+    <string name="gh_saved">저장했어요.</string>
+    <string name="gh_brain_note">폰 혼자 모드의 작은 AI(2B)는 조작 두뇌로 지원하지 않아요. PC 두뇌 주소를 넣어 주세요. 로컬 두뇌가 127.0.0.1 에만 열려 있으면 PC 에서 --host 0.0.0.0 으로 켜야 폰에서 닿아요.</string>
+    <string name="gh_targets_title">대상 앱</string>
+    <string name="gh_targets">쿠팡 · 쿠팡이츠 · 배민 · 크롬 · 네이버에서만 움직여요. 그 밖의 앱에서는 화면을 읽지도 누르지도 않아요.</string>
+    <string name="gh_safety_title">안전 (코드가 강제)</string>
+    <string name="gh_safety">결제·주문하기·구매하기·바로구매·Pay·Checkout·Place order·송금·이체 글자의 버튼은 누르기 전에 막아요. 비밀번호·카드번호 칸에는 글자를 넣지 않아요. 배달앱은 \'장바구니 담기\'까지만 해요.</string>
+    <string name="gh_solo_note">폰 혼자 모드(2B)는 지원 안 함 — PC 두뇌 주소를 넣어 주세요.</string>
+    <string name="gh_version">김비서 GH %1$s (플레이에 없는 깃허브판)</string>
+    <string name="gh_need_consent">먼저 동의해 주세요 — 화면을 읽고 대신 누릅니다. 결제·주문은 절대 안 눌러요.</string>
+    <string name="gh_need_switch">설정에서 \'화면을 읽고 대신 누르기\'를 켜 주세요.</string>
+    <string name="gh_need_service">접근성 서비스가 꺼져 있어요 — 안드로이드 접근성 설정에서 \'김비서 GH 화면 읽기\'를 켜 주세요.</string>
+    <string name="gh_need_brain">두뇌 주소를 넣어 주세요 — 설정에서 PC 두뇌의 OpenAI 호환 주소.</string>
+    <string name="gh_ready">준비됐어요 — 문장을 말하거나 \'시키기\'를 누르세요.</string>
+    <string name="gh_no_settings">접근성 설정 화면을 열지 못했어요. 폰 설정 → 접근성에서 켜 주세요.</string>
+
+    <string name="gh_consent_title">화면을 읽고 대신 눌러요</string>
+    <string name="gh_consent_body">김비서 GH는 화면 글자를 읽고, 말씀하신 물건을 장바구니에 담을 때만 대신 눌러요. 결제·주문은 절대 누르지 않아요. 비밀번호·카드번호 칸에는 글자를 넣지 않아요.</string>
+    <string name="gh_consent_safe">화면을 읽고 대신 누릅니다 · 결제·주문은 절대 안 누름</string>
+    <string name="gh_consent_targets">쿠팡 · 쿠팡이츠 · 배민 · 크롬 · 네이버에서만 움직여요. 배달앱은 장바구니까지.</string>
+    <string name="gh_consent_yes">동의하고 켜기</string>
+</resources>

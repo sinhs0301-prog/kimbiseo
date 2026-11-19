@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 김비서 GH — 사용자가 넣는 PC 두뇌 주소(집 안 http://192.168…)를 묻기 위해 평문 http 를 허용한다.
+     github 플레이버에만 덮어쓴다. 플레이판은 main 의 cleartextTrafficPermitted=false 그대로. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

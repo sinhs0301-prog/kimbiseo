@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 깃허브판(김비서 GH)에만 들어가는 접근성 서비스·화면. 플레이판에는 병합되지 않는다. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity
+            android:name="kr.kimbiseo.phone.gh.GhChatActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name="kr.kimbiseo.phone.gh.GhSettingsActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name="kr.kimbiseo.phone.gh.GhConsentActivity"
+            android:exported="false" />
+
+        <service
+            android:name="kr.kimbiseo.phone.gh.GhAccessibilityService"
+            android:exported="true"
+            android:label="@string/gh_service_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+    </application>
+</manifest>

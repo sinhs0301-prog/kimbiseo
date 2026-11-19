@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">金秘书 GH</string>
+
+    <string name="gh_service_label">金秘书 GH 读取屏幕</string>
+    <string name="gh_service_desc">读取屏幕文字，只在把您要的商品加入购物车时替您点击。绝不点击支付或下单。</string>
+    <string name="gh_service_summary">读取屏幕并替您点击。绝不支付或下单。</string>
+    <string name="gh_overlay">金秘书操作中 — 停止</string>
+
+    <string name="gh_title">金秘书 GH</string>
+    <string name="gh_intro">说“在酷澎把三多水2L加入购物车”，它会打开搜索页面，读取屏幕，一步一步替您点击直到加入购物车。绝不点击支付或下单。</string>
+    <string name="gh_input_hint">例：在酷澎把三多水2L加入购物车</string>
+    <string name="gh_example">在酷澎把三多水2L加入购物车</string>
+    <string name="gh_start">开始</string>
+    <string name="gh_stop">停止</string>
+    <string name="gh_stopping">正在停止…</string>
+    <string name="gh_settings_btn">设置</string>
+    <string name="gh_close">关闭</string>
+    <string name="gh_footer">金秘书 GH %1$s · 用无障碍操作到购物车 · 支付请自己来</string>
+    <string name="gh_busy">正在操作。等它结束或按“停止”后再试。</string>
+    <string name="gh_need_cart">请说一句把商品加入购物车的话。例：在酷澎把三多水2L加入购物车</string>
+    <string name="gh_opening">正在打开搜索页面：%1$s</string>
+    <string name="gh_opening_test">正在用 Chrome 打开测试页面…</string>
+    <string name="gh_error">操作中出错了：%1$s</string>
+    <string name="gh_open_settings">打开设置</string>
+
+    <string name="gh_reading">正在读取屏幕…</string>
+    <string name="gh_stopped">已停止。需要时请再吩咐。</string>
+    <string name="gh_not_target">目标应用（酷澎·酷澎Eats·百民·Chrome·Naver）不在前台。请打开后再试。</string>
+    <string name="gh_left_target">操作中离开了目标应用，已停止。</string>
+    <string name="gh_no_brain">没有大脑地址。请在设置里填入 PC 大脑的 OpenAI 兼容地址。</string>
+    <string name="gh_brain_fail">大脑没有给出下一步，已停止。</string>
+    <string name="gh_done_check">在这里停下 — 请查看购物车。支付请自己来。</string>
+    <string name="gh_blocked">没有点击支付/下单按钮（“%1$s”）。支付请自己来。</string>
+    <string name="gh_secret">这是密码/卡号栏，没有输入文字。</string>
+    <string name="gh_step_tap">已点击：%1$s</string>
+    <string name="gh_step_type">已输入：%1$s</string>
+    <string name="gh_done_cart">已加入购物车，支付请自己来。</string>
+    <string name="gh_timeout">%1$d 步内没找到加入购物车的页面 — 请自己来。</string>
+    <string name="gh_notif_channel">金秘书 GH 操作</string>
+    <string name="gh_notif_title">金秘书 GH</string>
+
+    <string name="gh_card_title">金秘书 GH — 加入购物车</string>
+    <string name="gh_card_desc">读取屏幕并替您点击加入购物车。支付和下单永远自己来。（GitHub版）</string>
+    <string name="gh_card_btn">打开金秘书 GH</string>
+
+    <string name="gh_back">← 返回</string>
+    <string name="gh_settings_title">金秘书 GH 设置</string>
+    <string name="gh_settings_intro">这是用无障碍读取屏幕并替您点击的功能。默认关闭。打开后，请在 Android 无障碍设置里开启“金秘书 GH 读取屏幕”。</string>
+    <string name="gh_switch">读取屏幕并替我点击</string>
+    <string name="gh_switch_help">打开后会先显示一次同意，然后打开 Android 无障碍设置。请在那里开启“金秘书 GH 读取屏幕”。关闭后不再读取屏幕。</string>
+    <string name="gh_open_accessibility">打开 Android 无障碍设置</string>
+    <string name="gh_consent_view">查看同意内容</string>
+    <string name="gh_brain_title">大脑（OpenAI 兼容地址）</string>
+    <string name="gh_brain_help">发送屏幕文字和目标，接收下一步要点击的地方。要使用 PC 金秘书的大脑，请填入那个大脑的 OpenAI 兼容地址。</string>
+    <string name="gh_brain_hint">http://192.168.1.23:8880/v1</string>
+    <string name="gh_brain_hint_pc">PC 地址 %1$s — 例：http://%1$s:8880/v1（PC 本地大脑只监听 127.0.0.1，手机可能连不上）</string>
+    <string name="gh_brain_model_hint">模型名称（例：gemma-4-E4B-it · 留空为 local）</string>
+    <string name="gh_brain_key_hint">密钥（没有就留空）</string>
+    <string name="gh_save">保存</string>
+    <string name="gh_saved">已保存。</string>
+    <string name="gh_brain_note">手机单机模式的小 AI（2B）不支持做操作大脑。请填入 PC 大脑地址。如果本地大脑只监听 127.0.0.1，请在 PC 上用 --host 0.0.0.0 启动，手机才能连上。</string>
+    <string name="gh_targets_title">目标应用</string>
+    <string name="gh_targets">只在酷澎·酷澎Eats·百民·Chrome·Naver里动。其他应用里既不读屏幕也不点击。</string>
+    <string name="gh_safety_title">安全（代码强制）</string>
+    <string name="gh_safety">带有支付·下单·购买·立即购买·Pay·Checkout·Place order·汇款·转账文字的按钮，点击前就挡住。密码·卡号栏里不输入文字。外卖应用只到“加入购物车”。</string>
+    <string name="gh_solo_note">手机单机模式（2B）不支持 — 请填入 PC 大脑地址。</string>
+    <string name="gh_version">金秘书 GH %1$s（Play 上没有的 GitHub 版）</string>
+    <string name="gh_need_consent">请先同意 — 读取屏幕并替您点击。绝不支付或下单。</string>
+    <string name="gh_need_switch">请在设置里打开“读取屏幕并替我点击”。</string>
+    <string name="gh_need_service">无障碍服务已关闭 — 请在 Android 无障碍设置里开启“金秘书 GH 读取屏幕”。</string>
+    <string name="gh_need_brain">请填入大脑地址 — 在设置里填 PC 大脑的 OpenAI 兼容地址。</string>
+    <string name="gh_ready">准备好了 — 说一句话或按“开始”。</string>
+    <string name="gh_no_settings">打不开无障碍设置。请在手机设置 → 无障碍里开启。</string>
+
+    <string name="gh_consent_title">读取屏幕并替您点击</string>
+    <string name="gh_consent_body">金秘书 GH 读取屏幕文字，只在把您要的商品加入购物车时替您点击。绝不点击支付或下单。密码·卡号栏里不输入文字。</string>
+    <string name="gh_consent_safe">读取屏幕并替您点击 · 绝不支付或下单</string>
+    <string name="gh_consent_targets">只在酷澎·酷澎Eats·百民·Chrome·Naver里动。外卖应用到购物车为止。</string>
+    <string name="gh_consent_yes">同意并开启</string>
+</resources>
