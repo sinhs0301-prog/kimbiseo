@@ -104,13 +104,27 @@
       "path": "THIRD_PARTY_LICENSES/README.md",
       "origin": "new",
       "treatment": "new",
-      "sha256": "d24c9701df751e08af5cfa169cbf8177af2b6b619e51b11d6d1cce391a74f2c0"
+      "sha256": "684b9d282933c01159e4cbe8b4b834f2b8feb6a279bbc9211974b2aacc89e8b5",
+      "exceptions": [
+        {
+          "line": null,
+          "allow": "181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c",
+          "reason": "공식 Gemma 4 E2B 모델 sha256(공개 값)"
+        }
+      ]
     },
     {
       "path": "android/README.md",
       "origin": "new",
       "treatment": "new",
-      "sha256": "ff94e60918f50c0bc7d601b3ef63dc82ecb097eaf0acc3d5fa9a65bfbb82462e"
+      "sha256": "ff94e60918f50c0bc7d601b3ef63dc82ecb097eaf0acc3d5fa9a65bfbb82462e",
+      "exceptions": [
+        {
+          "line": null,
+          "allow": "181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c",
+          "reason": "공식 Gemma 4 E2B 모델 sha256(공개 값)"
+        }
+      ]
     },
     {
       "path": "android/app/build.gradle.kts",
@@ -122,7 +136,7 @@
       "path": "android/app/src/main/AndroidManifest.xml",
       "origin": "new",
       "treatment": "new",
-      "sha256": "d1d431b47e661d04585eb69efa78e7f0ba6a6afd9c60c3be0ed7faf434e7c883"
+      "sha256": "d3452f4eab9422d091845ce925704b2a8f259aa42c55c5e8b28ec7d94c726c70"
     },
     {
       "path": "android/app/src/main/java/kr/kimbiseo/phone/Bus.kt",
@@ -144,10 +158,16 @@
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충"
     },
     {
+      "path": "android/app/src/main/java/kr/kimbiseo/phone/Lang.kt",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "1dc2825bb2df921212880374cba27d5f83641b3192e7cc4e7f3afaf48215c798"
+    },
+    {
       "path": "android/app/src/main/java/kr/kimbiseo/phone/MainActivity.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "50925b4310b6d6ad24fa935859cbedacaef3651e0a516c7fab46d804cda3603b"
+      "sha256": "ea863362e05a3dbfc2788e56285aa498501de467b8a19803d6389c938a043296"
     },
     {
       "path": "android/app/src/main/java/kr/kimbiseo/phone/Net.kt",
@@ -197,10 +217,59 @@
       ]
     },
     {
+      "path": "android/app/src/main/java/kr/kimbiseo/phone/SoloAction.kt",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "1a82e9064c1d1c7321bfdd2ddd08b4c0947fd501e5764c57b6912725a9f1abcb"
+    },
+    {
+      "path": "android/app/src/main/java/kr/kimbiseo/phone/SoloActivity.kt",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "2972067b2029f2dc5d3a25f7a44af523b2627f5a9dfad95c60194ede8687cc64"
+    },
+    {
+      "path": "android/app/src/main/java/kr/kimbiseo/phone/SoloBrain.kt",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "fbd1a982f595d9cdabbc9e9d86e052466f2012ab1cb7e01aec2215f7f62a8db0"
+    },
+    {
+      "path": "android/app/src/main/java/kr/kimbiseo/phone/SoloDownload.kt",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "917b01e0feae3388ac7213c6672cb68f40f7b7e9d7187104d7bd87c2f7bd94af"
+    },
+    {
+      "path": "android/app/src/main/java/kr/kimbiseo/phone/SoloHistory.kt",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "f131d481d3d9a22188716a64b92c5ac19f662028603a9edbdf77495f16ee6bb7"
+    },
+    {
+      "path": "android/app/src/main/java/kr/kimbiseo/phone/SoloLang.kt",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "99fa347a751ae4535accb12fafbb044604a381c5a7069d984e468ad90b8b445c"
+    },
+    {
+      "path": "android/app/src/main/java/kr/kimbiseo/phone/SoloModel.kt",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "1ba475ab75ea82693d6a2d35ec241dc7dc8458806b71ad309b117fa537ef972f",
+      "exceptions": [
+        {
+          "line": null,
+          "allow": "181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c",
+          "reason": "공식 Gemma 4 E2B 모델 sha256(공개 값)"
+        }
+      ]
+    },
+    {
       "path": "android/app/src/main/java/kr/kimbiseo/phone/Store.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "4a99ef7116215b513cdb0fe9aebd27e502aa5ebbe3f9f94a9280ecd41498318e"
+      "sha256": "76a9f5ab30de35798a079a0e450b3a7d7f9114dbad8c8a11f788320892b364df"
     },
     {
       "path": "android/app/src/main/java/kr/kimbiseo/phone/TalkService.kt",
@@ -236,7 +305,7 @@
       "path": "android/app/src/main/res/values-en/strings.xml",
       "origin": "new",
       "treatment": "new",
-      "sha256": "68aa869d81ab8fce4bf646ef7148b33689d141c067e735051509bf9574592ca7",
+      "sha256": "ce0a11e8d893c78827a28ce471ebb3dedfc355f074777902ea8a5c7c98a159f1",
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충",
       "exceptions": [
         {
@@ -255,7 +324,7 @@
       "path": "android/app/src/main/res/values-ja/strings.xml",
       "origin": "new",
       "treatment": "new",
-      "sha256": "bbc52672a8afc8437bd73e1a8b505fb61e3ed55197f38688f8b315d1e742a68c",
+      "sha256": "b5ba8dbc9cf0d973fd334599d7e9b28ca8024fd33984a83e2ec38b6e259e4411",
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충",
       "exceptions": [
         {
@@ -274,7 +343,7 @@
       "path": "android/app/src/main/res/values-zh-rCN/strings.xml",
       "origin": "new",
       "treatment": "new",
-      "sha256": "3ae2c4902e3b68427be3df55f253a684ee29a2d657496c91713a0931833827c5",
+      "sha256": "ceb6d8bf979505fb073f23b1a4d08bff6b82a940ec7572401b6047f98c8a14d4",
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충",
       "exceptions": [
         {
@@ -299,7 +368,7 @@
       "path": "android/app/src/main/res/values/strings.xml",
       "origin": "new",
       "treatment": "new",
-      "sha256": "3aa48b23ac86626d711ae716da2c77be5250a37860122ea8177c98544bbe2137",
+      "sha256": "422d51614015df7ccd9b2fdc75bc8968a3f2e5daccaddc7fd891ffca1da987eb",
       "note": "0.1.18 다국어 진행분(다른 담당) — 허용 목록 누락분 보충",
       "exceptions": [
         {
@@ -313,6 +382,12 @@
           "reason": "제작 표기(공개판 화면에 이미 보이는 값)"
         }
       ]
+    },
+    {
+      "path": "android/app/src/main/res/xml/locales_config.xml",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "1096dd008b33972ac961c144eb44cad1bde9eb7c34c7f7c10c276778afc12fb7"
     },
     {
       "path": "android/app/src/main/res/xml/network_security.xml",
@@ -401,10 +476,34 @@
       ]
     },
     {
+      "path": "android/app/src/test/java/kr/kimbiseo/phone/SoloRulesTest.kt",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "7441877f6cbbe91f6e6254436bb3b62e8e3b674116498583d97b938562a6d99c"
+    },
+    {
+      "path": "android/bench_unsloth/README.md",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "26ecb0e4cf6f16ee10059326c31ca3135588e5a7534bc3df11596b322badd1fb"
+    },
+    {
+      "path": "android/bench_unsloth/bench_app.py",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "30de3605a3e535bbdb1573934dd823c3bbf70eacc69781b86de35cd54395a743"
+    },
+    {
+      "path": "android/bench_unsloth/bench_llama.py",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "286d94b1c899850deb862063e67d833f4a651fdec984a3e3afa0ffc43b15662c"
+    },
+    {
       "path": "android/build.gradle.kts",
       "origin": "new",
       "treatment": "new",
-      "sha256": "3682944f57bb71558679bd375b0c7960cf356acab210d737f76e5e986068fb27"
+      "sha256": "2ebd04b726af0f68dba5ba9ce4d8ceffe178e2a9a5661df3666568455b6f7636"
     },
     {
       "path": "android/build_apk.py",

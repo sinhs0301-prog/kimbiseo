@@ -1,10 +1,11 @@
 # Unsloth 모바일 GGUF(llama.cpp, 안드로이드 x86_64) 시험 — 앱과 같은 지시문·질문으로.
 #   python bench_llama.py <serial> <lang> <질문파일>
-import json, re, subprocess, sys, time
+import json, os, re, subprocess, sys, time
 
 ADB = r"C:\android-sdk\platform-tools\adb.exe"
 BENCH = "/data/local/tmp/bench"
-SRC = r"C:\Users\pc\Desktop\ai 작업폴더\자비스 공개 배포판\소스코드_다국어\android\app\src\main\java\kr\kimbiseo\phone\SoloBrain.kt"
+SRC = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                   "app", "src", "main", "java", "kr", "kimbiseo", "phone", "SoloBrain.kt")
 
 
 def adb(serial, *args, timeout=300):
