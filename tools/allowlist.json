@@ -71,7 +71,7 @@
       "path": "README.md",
       "origin": "new",
       "treatment": "new",
-      "sha256": "6ee21daa7873e0d10812ae34a529942784fddd2c7ca72d767b5ba211536cfce0",
+      "sha256": "2a0a4e6d8f7c35d5edf37a9447d962e2185cce5854ef36639e5090e195aac387",
       "exceptions": [
         {
           "line": 8,
@@ -130,7 +130,7 @@
       "path": "android/app/build.gradle.kts",
       "origin": "new",
       "treatment": "new",
-      "sha256": "b021991263b0e0d071bac0f5c50d0965dff3893ad53a5e88c2f36fb6a0f37372"
+      "sha256": "d9508dc2f8cff6db0e6275f482c4573fb3764953ead60ccb75d89e330ac8cd09"
     },
     {
       "path": "android/app/src/github/AndroidManifest.xml",
@@ -318,14 +318,14 @@
       "path": "android/app/src/main/java/kr/kimbiseo/phone/PetRules.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "4034ca572d0febe10f8751a7beeba7c807f7bdcc0577322dece764de02f44e8b",
+      "sha256": "ef7e57d2df640878728954d7e96f7b23e665c7799c5be2b21f137edc3cb6ef4b",
       "note": "0.1.18 폰 펫(대화 화면 펫·클립 받기) — 새 파일"
     },
     {
       "path": "android/app/src/main/java/kr/kimbiseo/phone/PetStore.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "0c0d1dc27b31988a5c79bb3351e5026b62d2b4c5504d7a88d5d5c4834eff3d6f",
+      "sha256": "41d63af7a262116f7ce545920a9e6aefdc1e646bdeb73331fc95410f2e1fed6e",
       "note": "0.1.18 폰 펫(대화 화면 펫·클립 받기) — 새 파일"
     },
     {
@@ -546,7 +546,7 @@
       "path": "android/app/src/test/java/kr/kimbiseo/phone/PetRulesTest.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "48743d89ac4a74aea1e883e2ec4f95cae1532efd265c82c2e0ab2b99271a6aee",
+      "sha256": "0cbb9beaa0a5939df5d8aa47154a2e11482ff9d909f182119c98fb94cf07e87d",
       "note": "0.1.18 폰 펫(대화 화면 펫·클립 받기) — 새 파일"
     },
     {
@@ -855,14 +855,14 @@
       "path": "app/core/petphone.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "ea4f28a89d752075f90636a47af19bbb21553ce0bb78b4fee22f76bd535748ac",
+      "sha256": "b8e75d93c332dad4628fe68793045952fe5b1f7162331c17d91c8421d30cf80f",
       "note": "0.1.18 폰 펫(대화 화면 펫·클립 받기) — 새 파일"
     },
     {
       "path": "app/core/phone.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "feb310a6dac7923651a4d4b7005f0aca50957cf33c08bfcef92a9b88228a6b77",
+      "sha256": "e24df6b6456230abc6e76f0aed37b15966fee2895cd39796ba5d313ebfe92972",
       "exceptions": [
         {
           "line": null,
@@ -1135,7 +1135,7 @@
       "path": "app/pet_link/face.py",
       "origin": "derived:운영판 비서 부품을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "9f34d107d305513d6521633ec95a54162dbc024f30644451e599bd7aee7c0a76",
+      "sha256": "97482513cc5db8f8f4a53fd5437c8ef351db3d5087cc35603ccfda5974050756",
       "note": "펫 표정·입·말풍선·동작 신호·설정 부르기 — 7단계"
     },
     {
@@ -1353,7 +1353,7 @@
       "path": "app/version.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "144898900df09ed3674972535a2fb97a7834f9fb8422962d20e40da768f9e890",
+      "sha256": "8fc5ce24d9f3af35575ead836e9c140c211ca3df9486dde7bf630358d29d31d0",
       "note": "판 번호 한 곳 — 9단계"
     },
     {
@@ -1989,7 +1989,7 @@
       "path": "tests/unit/test_petphone.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "87cb0b7e67e36f6f0c44889fc2db5e26ef371b9e730aaa582f085b824db97942",
+      "sha256": "07c40fd7b233b7c67bf1fbcf53e8b1214857f3faf54c875828757a54826c93b6",
       "note": "0.1.18 폰 펫(대화 화면 펫·클립 받기) — 새 파일",
       "exceptions": [
         {
@@ -2142,7 +2142,7 @@
       "path": "tests/unit/test_tools_019.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "a0b45ea6743ae33ff48a1ef2cea7df2146cc65996f8983a012ed720f71e24a62",
+      "sha256": "27abda20f4f57eb090d9707632a7da088aec51656fde28fcfc5a722f416a233c",
       "note": "0.1.9 17단계"
     },
     {
@@ -2270,7 +2270,7 @@
       "path": "tools/pack_make.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "fa16e74a18fb4e2bf6b1cd103e98e78768adff451bc5b1c426136e0dd2d58808",
+      "sha256": "ee096cb45a5e491b243aab04429b93afc1e1205f00f4154cdbcda66ce1a488f3",
       "note": "옷 꾸러미 공개용 다시 묶기·서명 — 6단계"
     },
     {
