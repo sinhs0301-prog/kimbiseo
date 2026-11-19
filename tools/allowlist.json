@@ -1697,7 +1697,7 @@
       "path": "pet/main.js",
       "origin": "derived:운영판 펫 부품을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "f622b8b0cf240bdcd634057c9121e7fa6c41cdc4129b8e8b8d8976e39ae8f218",
+      "sha256": "36775bbbcb60081e20dc4480536d0efbf529768301c7710f97b0967ca48729c7",
       "note": "공개 펫 본체(옷 꾸러미만·17961·옷 받기·자동 옷 받기·자세별 동작·춤 노래 순서) — 7단계"
     },
     {
@@ -1795,7 +1795,7 @@
       "path": "pet/renderer/real.js",
       "origin": "derived:운영판 펫 부품을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "9ef79be570b0958a3596123f4f9399c23e125abc68757846b63fbe7adf929436",
+      "sha256": "6249b900bc95eaf61c9092a15a52487337347267601dab8a8af1b521bef1d43c",
       "note": "실사 재생·자세별 동작(없으면 일어나서)·시험용 기록 — 6단계"
     },
     {

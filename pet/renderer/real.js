@@ -22,7 +22,7 @@
   const SKIN = Q.get('skin') || '';
   const CL = M.outfits && M.outfits[SKIN] ? M.outfits[SKIN].clips : (M.clips || {});
 
-  // ---------------------------------------------------------------- 0.1.7 앉아 대기·재생 기록·좌석 (대표님 11-20 02:27)
+  // ---------------------------------------------------------------- 0.1.7 앉아 대기·재생 기록·좌석 (2026-11-20 02:27)
   // 대화가 없으면 IDLE_MIN 분 뒤 앉아 대기(0 = 끔). 앉은 뒤엔 말해도 앉은 채, "일어나"·걷기·춤이면 sit_out.
   let IDLE_MIN = PD && Number.isFinite(PD.idleSit) ? PD.idleSit : 3;
   // 재생 기록: 클립 이름별 횟수·누적 초(대화 내용 없음). 이 판은 기본 꺼짐 — 본체가 켜져 있다고 알릴 때만 보냄.
@@ -988,7 +988,7 @@
     const now = performance.now();
     if (st.mood && !st.talking && !st.emoTalkK &&
         (st.moodTalked ? now - Math.max(st.talkOffAt || 0, st.moodAt) > 4000 : now - st.moodAt > 12000)) { st.mood = null; log('감정 끝(시간)'); }
-    // 0.1.7(대표님 11-20 02:27): 대화가 없으면 N분 뒤 앉아 대기(서 있을 때만). 돌아다니기·눕기 자동은 계속 끔
+    // 0.1.7(2026-11-20 02:27): 대화가 없으면 N분 뒤 앉아 대기(서 있을 때만). 돌아다니기·눕기 자동은 계속 끔
     if (IDLE_MIN > 0 && st.pose === 'stand' && !st.busy && !st.onceP && !st.talking && !st.speaking && !st.walking &&
         !st.dancing && !st.dragging && !st.menuOpen && now - st.lastConv >= IDLE_MIN * 60000) {
       log('대화 없음 ' + (Math.round(IDLE_MIN * 10) / 10) + '분 → 앉아 대기');

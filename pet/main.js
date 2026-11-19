@@ -44,7 +44,7 @@ if (process.argv.includes('--gpu-unblock')) app.commandLine.appendSwitch('ignore
 const VERSION = require('./package.json').version;
 const SIZES = { 작게: 380, 보통: 500, 크게: 660, '아주 크게': 860 };
 const MUSIC_LEVELS = ['끔', '작게', '보통', '크게'];
-// 0.1.7(대표님 11-20 02:27): 대화가 없으면 N분 뒤 앉아 대기 — 메뉴 '대화가 없으면'. 0 = 끔
+// 0.1.7(2026-11-20 02:27): 대화가 없으면 N분 뒤 앉아 대기 — 메뉴 '대화가 없으면'. 0 = 끔
 const IDLE_LEVELS = [0, 1, 3, 5, 10];
 const TEST_LINE = '안녕하세요! 김비서예요. 이렇게 말로 알려 드릴게요.';
 
@@ -100,7 +100,7 @@ if (!MUSIC_LEVELS.includes(S.musicVolume)) S.musicVolume = '보통';
 if (!(Number.isFinite(S.idleSit) && S.idleSit >= 0 && S.idleSit <= 120)) S.idleSit = DEFAULTS.idleSit;
 if (typeof S.playStats !== 'boolean') S.playStats = DEFAULTS.playStats;
 
-// ---------------------------------------------------------------- 클립 재생 기록 (0.1.7, 대표님 11-20 02:27)
+// ---------------------------------------------------------------- 클립 재생 기록 (0.1.7, 2026-11-20 02:27)
 // 클립 이름별 재생 횟수·누적 초만. 대화 내용·개인정보 없음. <프로필>\재생기록\YYYYMMDD.json — 하루 한 파일.
 const STATS_DIR = path.join(USER, '재생기록');
 const STATS = { date: '', data: null, timer: null, dirty: false };
