@@ -136,6 +136,8 @@ class SoloActivity : Activity() {
             Store.setFlag(this, "solo_consent", true); consent = true; screen = "model"; show(); startDownload()
         }
         if (tb(i, "test_solo_new")) { i.removeExtra("test_solo_new"); newChat() }
+        // 시험용 — 램 부족으로 모델 올리기가 실패한 상황을 그대로 만든다(실기에서 OOM 을 일부러 내기 어려움).
+        if (tb(i, "test_solo_nomem")) { i.removeExtra("test_solo_nomem"); loadFailed(SoloBrain.NO_MEM) }
     }
 
     /** adb `--es key 1`(문자)과 `--ez key true`(참/거짓) 둘 다 알아듣는다. */
@@ -189,6 +191,12 @@ class SoloActivity : Activity() {
             p.addView(Ui.text(this, getString(R.string.mode_solo_no, dev.reasons.joinToString(" · ") { reason(it) }), 14f, Ui.BAD))
             p.addView(Ui.button(this, getString(R.string.solo_mode_pc), Ui.Kind.PRIMARY) { switchToPc() }, lp())
             return
+        }
+        // 램 4GB 폰 — 쓸 수는 있지만 빠듯하다. 모델을 올리기 전에 다른 앱을 닫으라고 미리 알린다.
+        if (SoloModel.tight(this)) {
+            val t = Ui.card(this, 8)
+            t.addView(Ui.text(this, getString(R.string.solo_ram_tight), 14f, Ui.TEXT2))
+            p.addView(t, lp())
         }
         val c = Ui.card(this, 10)
         c.addView(Ui.text(this, getString(R.string.solo_model_title), 16f, Ui.TEXT, true))
@@ -329,9 +337,7 @@ class SoloActivity : Activity() {
             if (!on) try { tts?.stop() } catch (_: Throwable) {}
         }
         stopBtn = Ui.button(this, getString(R.string.solo_stop), Ui.Kind.DANGER) { stopReply() }
-        retryBtn = Ui.button(this, getString(R.string.solo_retry), Ui.Kind.SECONDARY) {
-            brainError = ""; ensureBrain()
-        }
+        retryBtn = Ui.button(this, getString(R.string.solo_retry), Ui.Kind.SECONDARY) { retryLoad() }
         br.addView(micBtn, lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         br.addView(speakBtn, lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         br.addView(stopBtn, lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
@@ -353,10 +359,36 @@ class SoloActivity : Activity() {
         SoloBrain.load(this, lang, history?.context() ?: emptyList(), onReady = {
             Log.i(TAG, "brain ready lang=$lang pending=${pendingText != null}")
             brainLoading = false; brainReady = true; brainLang = lang; brainError = ""; drawState(); flushPending()
-        }, onError = { e ->
-            brainLoading = false; brainReady = false; brainError = e
+        }, onError = { e -> loadFailed(e) })
+    }
+
+    /** 모델 올리기 실패 — 램 부족이면 까닭을 말하고 PC 연결 모드로 돌아갈 길을 준다(앱은 안 죽는다). */
+    private fun loadFailed(e: String) {
+        brainLoading = false; brainReady = false
+        if (SoloBrain.isNoMem(e)) {
+            brainError = getString(R.string.solo_nomem_title)
+            Bus.line("sys", getString(R.string.solo_nomem_msg)); drawState(); showNoMem()
+        } else {
+            brainError = e
             Bus.line("sys", getString(R.string.solo_load_fail, e)); drawState()
-        })
+        }
+    }
+
+    private fun showNoMem() {
+        if (isFinishing || isDestroyed) return
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.solo_nomem_title))
+            .setMessage(getString(R.string.solo_nomem_msg))
+            .setPositiveButton(getString(R.string.solo_mode_pc)) { _, _ -> switchToPc() }
+            .setNegativeButton(getString(R.string.solo_retry)) { _, _ -> retryLoad() }
+            .show()
+    }
+
+    /** 램 부족으로 실패한 뒤 '다시 해 보기' — 엔진을 닫고 다시 올린다(닫기·올리기가 같은 줄에서 차례로). */
+    private fun retryLoad() {
+        brainError = ""; brainReady = false; drawState()
+        SoloBrain.close()
+        ensureBrain()
     }
 
     private var brainLang = ""
@@ -404,10 +436,12 @@ class SoloActivity : Activity() {
         }, onError = { e ->
             if (my != sendGen) return@send
             generating = false; userAction = null; window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            val m = getString(R.string.solo_error, e)
+            val nomem = SoloBrain.isNoMem(e)
+            val m = if (nomem) getString(R.string.solo_nomem_title) else getString(R.string.solo_error, e)
             liveView?.text = m
             liveView = null
-            Bus.line("sys", m); drawState()
+            Bus.line("sys", if (nomem) getString(R.string.solo_nomem_msg) else m); drawState()
+            if (nomem) { brainError = getString(R.string.solo_nomem_title); drawState(); showNoMem() }
             Log.i(TAG, "error lang=$lang $e")
         })
     }

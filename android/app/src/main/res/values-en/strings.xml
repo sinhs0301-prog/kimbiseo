@@ -192,9 +192,9 @@
     <string name="mode_solo_title">Use on this phone</string>
     <string name="mode_solo_desc">Talk to a small AI that runs on this phone, with no PC. Download the model once and it works offline. No account or key needed.</string>
     <string name="mode_solo_btn">Use on this phone</string>
-    <string name="mode_solo_req">6GB+ RAM · Android 8.0+ · 64-bit phone</string>
+    <string name="mode_solo_req">4GB+ RAM · Android 8.0+ · 64-bit phone</string>
     <string name="mode_solo_no">This phone cannot use standalone mode: %1$s</string>
-    <string name="mode_solo_reason_ram">Less than 6GB of RAM</string>
+    <string name="mode_solo_reason_ram">Less than 4GB of RAM</string>
     <string name="mode_solo_reason_abi">Not a 64-bit phone</string>
     <string name="mode_solo_reason_android">Older than Android 8.0</string>
     <string name="mode_solo_reason_storage">Not enough storage</string>
@@ -233,6 +233,9 @@
     <string name="solo_model_missing">The model is not here. Please download it first.</string>
     <string name="solo_loading">Loading the model… (about 10 seconds the first time)</string>
     <string name="solo_load_fail">Could not load the model: %1$s</string>
+    <string name="solo_ram_tight">This phone has 4GB of RAM, which is a bit tight. Closing other apps while the model loads and you chat keeps things more stable.</string>
+    <string name="solo_nomem_title">Not enough memory</string>
+    <string name="solo_nomem_msg">Other apps are using too much memory, so the model could not load. Close other apps and try again, or switch to PC connection mode.</string>
     <string name="solo_retry">Try again</string>
 
     <!-- Standalone: chat -->

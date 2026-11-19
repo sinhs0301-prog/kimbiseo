@@ -15,10 +15,32 @@ class SoloRulesTest {
         assertTrue(d.reasons.isEmpty())
     }
 
-    @Test fun device_rejects_four_gb() {
+    @Test fun device_ok_on_four_gb() {
+        // 4GB 폰은 totalMem 이 3.5~3.9GB 로 보고된다 — 이제 받아 준다(2026-11-19 문턱 3.3GB).
         val d = SoloModel.check(listOf("arm64-v8a"), 3_800_000_000L, 34)
+        assertTrue(d.ok)
+        assertTrue(d.reasons.isEmpty())
+    }
+
+    @Test fun device_rejects_three_gb() {
+        val d = SoloModel.check(listOf("arm64-v8a"), 2_800_000_000L, 34)
         assertFalse(d.ok)
         assertEquals(listOf("ram"), d.reasons)
+    }
+
+    @Test fun tight_ram_only_for_four_gb_class() {
+        assertTrue(SoloModel.tight(3_500_000_000L))   // 4GB 폰
+        assertTrue(SoloModel.tight(4_013_932_000L))   // 4GB AVD 보고값
+        assertFalse(SoloModel.tight(5_500_000_000L))  // 6GB 폰
+        assertFalse(SoloModel.tight(2_800_000_000L))  // 3GB 폰(대상 아님)
+    }
+
+    @Test fun memory_failure_is_classified() {
+        assertTrue(SoloLoadFail.isNoMem(OutOfMemoryError("Failed to allocate a 2 byte allocation")))
+        assertTrue(SoloLoadFail.isNoMem("failed to allocate memory"))
+        assertTrue(SoloLoadFail.isNoMem(SoloLoadFail.NO_MEM))
+        assertFalse(SoloLoadFail.isNoMem("Model file not found"))
+        assertFalse(SoloLoadFail.isNoMem("busy"))
     }
 
     @Test fun device_rejects_32_bit() {

@@ -192,9 +192,9 @@
     <string name="mode_solo_title">只在这部手机上使用</string>
     <string name="mode_solo_desc">不用电脑，和手机里的小型 AI 对话。第一次下载模型后，没有网络也能用。无需账号或密钥。</string>
     <string name="mode_solo_btn">只在这部手机上使用</string>
-    <string name="mode_solo_req">内存 6GB 以上 · Android 8.0 以上 · 64 位手机</string>
+    <string name="mode_solo_req">内存 4GB 以上 · Android 8.0 以上 · 64 位手机</string>
     <string name="mode_solo_no">这部手机无法使用单机模式：%1$s</string>
-    <string name="mode_solo_reason_ram">内存不足 6GB</string>
+    <string name="mode_solo_reason_ram">内存不足 4GB</string>
     <string name="mode_solo_reason_abi">不是 64 位手机</string>
     <string name="mode_solo_reason_android">低于 Android 8.0</string>
     <string name="mode_solo_reason_storage">存储空间不足</string>
@@ -233,6 +233,9 @@
     <string name="solo_model_missing">没有模型。请先下载。</string>
     <string name="solo_loading">正在加载模型…（第一次约需 10 秒）</string>
     <string name="solo_load_fail">无法加载模型：%1$s</string>
+    <string name="solo_ram_tight">这部手机只有 4GB 内存，略显紧张。加载模型和对话时关闭其他应用会更稳定。</string>
+    <string name="solo_nomem_title">内存不足</string>
+    <string name="solo_nomem_msg">其他应用占用了太多内存，模型无法加载。请关闭其他应用后重试，或切换到 PC 连接模式使用。</string>
     <string name="solo_retry">重试</string>
 
     <!-- 手机单机：对话 -->

@@ -21,6 +21,12 @@ import java.util.concurrent.Executors
  */
 object SoloBrain {
     private const val TAG = "KimbiseoSoloBrain"
+
+    const val NO_MEM = SoloLoadFail.NO_MEM
+    fun isNoMem(t: Throwable): Boolean = SoloLoadFail.isNoMem(t)
+    fun isNoMem(s: String): Boolean = SoloLoadFail.isNoMem(s)
+    private fun why(t: Throwable): String = SoloLoadFail.why(t)
+
     private val main = Handler(Looper.getMainLooper())
     private val exec = Executors.newSingleThreadExecutor { r -> Thread(r, "solo-brain").apply { isDaemon = true } }
 
@@ -64,7 +70,7 @@ object SoloBrain {
             } catch (t: Throwable) {
                 loaded = false
                 Log.w(TAG, "load fail", t)
-                val msg = t.message ?: t.javaClass.simpleName
+                val msg = why(t)
                 main.post { onError(msg) }
             }
         }
@@ -80,7 +86,7 @@ object SoloBrain {
                 convLang = lang; gen++
                 main.post { onReady() }
             } catch (t: Throwable) {
-                main.post { onError(t.message ?: t.javaClass.simpleName) }
+                main.post { onError(why(t)) }
             }
         }
     }
@@ -116,14 +122,14 @@ object SoloBrain {
                     override fun onError(t: Throwable) {
                         busy = false
                         Log.w(TAG, "onError gen=$my", t)
-                        val m = t.message ?: t.javaClass.simpleName
+                        val m = why(t)
                         main.post { if (my == gen) onError(m) }
                     }
                 })
                 Log.i(TAG, "send returned gen=$my")
             } catch (t: Throwable) {
                 busy = false
-                val m = t.message ?: t.javaClass.simpleName
+                val m = why(t)
                 main.post { if (my == gen) onError(m) }
             }
         }
@@ -162,6 +168,20 @@ object SoloBrain {
             maxOutputToken = 768,
         )
     }
+}
+
+/** 모델을 올리다 난 실패의 분류 — 안드로이드 없이(단위 시험) 돌 수 있게 따로 둔다. */
+object SoloLoadFail {
+    /** 램이 모자란 실패를 화면이 알아보게 하는 표시(사람 글 대신). */
+    const val NO_MEM = "nomem"
+    private val memWords = Regex("(?i)out of memory|oom|failed to allocate|cannot allocate|insufficient memory|not enough memory|allocat")
+
+    /** 램 부족 실패인가 — OutOfMemoryError 와 엔진이 '메모리 할당 실패'로 낸 오류. */
+    fun isNoMem(t: Throwable): Boolean = t is OutOfMemoryError || memWords.containsMatchIn(t.message ?: "")
+
+    fun isNoMem(s: String): Boolean = s == NO_MEM || memWords.containsMatchIn(s)
+
+    fun why(t: Throwable): String = if (isNoMem(t)) NO_MEM else (t.message ?: t.javaClass.simpleName)
 }
 
 /** 폰 안 비서 지시문 — 앱 언어에 맞춰. 답도 사용자가 말한 언어로. 폰 일은 마지막 PHONE 한 줄로. */

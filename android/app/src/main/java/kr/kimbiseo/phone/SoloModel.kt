@@ -17,8 +17,14 @@ object SoloModel {
     const val SIZE = 2_588_147_712L
     const val SHA256 = "181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c"
 
-    /** 6GB 폰은 totalMem 이 보통 5.5~5.9GB 로 보고된다. 4GB 폰(3.5~3.9GB)은 막고 6GB 를 받아 준다. */
-    const val MIN_RAM = 5_000_000_000L
+    /**
+     * 최소 램. 4GB 폰은 totalMem 이 보통 3.5~3.9GB 로 보고된다 → 3.3GB 아래(3GB 이하 폰)만 막는다.
+     * (2026-11-19: 4GB AVD 에서 크래시 없이 돌아 문턱을 5GB → 3.3GB 로 낮춤. 6GB 폰은 5.5~5.9GB 로 보고된다.)
+     */
+    const val MIN_RAM = 3_300_000_000L
+
+    /** 4GB 폰(3.5~3.9GB)은 6GB 폰(5.5~5.9GB)보다 빠듯하다 — 받기 화면에서 '다른 앱을 닫으면 더 안정적' 안내. */
+    const val TIGHT_RAM = 5_000_000_000L
     const val MIN_ANDROID = 26                 // 안드로이드 8.0 — LiteRT-LM AAR minSdk 24, 앱 minSdk 26
     const val EXTRA_SPACE = 320L * 1024 * 1024 // 받는 동안 임시 여유
 
@@ -35,12 +41,22 @@ object SoloModel {
     }
 
     fun device(c: Context): Device {
+        return check(Build.SUPPORTED_ABIS?.toList() ?: emptyList(), totalRam(c), Build.VERSION.SDK_INT)
+    }
+
+    /** 전체 램(바이트). ActivityManager 가 못 주면 0. */
+    fun totalRam(c: Context): Long {
         @Suppress("DEPRECATION")
         val am = c.getSystemService(android.app.ActivityManager::class.java)
         val mi = android.app.ActivityManager.MemoryInfo()
         am?.getMemoryInfo(mi)
-        return check(Build.SUPPORTED_ABIS?.toList() ?: emptyList(), mi?.totalMem ?: 0L, Build.VERSION.SDK_INT)
+        return mi?.totalMem ?: 0L
     }
+
+    /** 쓸 수는 있지만 빠듯한 램(4GB 폰) — 받기 화면 안내용. 순수 규칙(단위 시험). */
+    fun tight(totalMem: Long): Boolean = totalMem >= MIN_RAM && totalMem < TIGHT_RAM
+
+    fun tight(c: Context): Boolean = tight(totalRam(c))
 
     fun freeBytes(c: Context): Long = try { c.filesDir.usableSpace } catch (_: Throwable) { 0L }
 

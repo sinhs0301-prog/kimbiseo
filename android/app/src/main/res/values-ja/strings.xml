@@ -192,9 +192,9 @@
     <string name="mode_solo_title">このスマホだけで使う</string>
     <string name="mode_solo_desc">PC なしで、スマホの中の小さな AI と話します。最初に一度モデルをダウンロードすれば、インターネットなしでも使えます。アカウントやキーは不要です。</string>
     <string name="mode_solo_btn">このスマホだけで使う</string>
-    <string name="mode_solo_req">RAM 6GB 以上 · Android 8.0 以上 · 64bit のスマホ</string>
+    <string name="mode_solo_req">RAM 4GB 以上 · Android 8.0 以上 · 64bit のスマホ</string>
     <string name="mode_solo_no">このスマホでは単体モードを使えません: %1$s</string>
-    <string name="mode_solo_reason_ram">RAM が 6GB 未満です</string>
+    <string name="mode_solo_reason_ram">RAM が 4GB 未満です</string>
     <string name="mode_solo_reason_abi">64bit のスマホではありません</string>
     <string name="mode_solo_reason_android">Android 8.0 より古いです</string>
     <string name="mode_solo_reason_storage">保存容量が足りません</string>
@@ -233,6 +233,9 @@
     <string name="solo_model_missing">モデルがありません。先に取得してください。</string>
     <string name="solo_loading">モデルを読み込んでいます…（初回は 10 秒ほど）</string>
     <string name="solo_load_fail">モデルを読み込めませんでした: %1$s</string>
+    <string name="solo_ram_tight">このスマホは RAM 4GB で少し余裕がありません。モデルを読み込んで会話するときは、ほかのアプリを閉じておくとより安定します。</string>
+    <string name="solo_nomem_title">メモリが足りません</string>
+    <string name="solo_nomem_msg">ほかのアプリがメモリを多く使っているため、モデルを読み込めませんでした。ほかのアプリを閉じてもう一度試すか、PC 接続モードに切り替えて使えます。</string>
     <string name="solo_retry">もう一度</string>
 
     <!-- スマホ単体: 会話 -->
