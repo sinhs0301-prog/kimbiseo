@@ -167,7 +167,7 @@
       "path": "android/app/src/main/java/kr/kimbiseo/phone/MainActivity.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "ea863362e05a3dbfc2788e56285aa498501de467b8a19803d6389c938a043296"
+      "sha256": "452c8fe8f523a13d91dfe41dea64bd642a42dc20c8e18a88f0ff0b0253aae5d2"
     },
     {
       "path": "android/app/src/main/java/kr/kimbiseo/phone/Net.kt",

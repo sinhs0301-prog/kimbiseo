@@ -141,7 +141,7 @@ class MainActivity : Activity() {
         }
     }
 
-    /** 첫 화면 — PC 와 연결할지, 폰 혼자 쓸지. (대표님 11-18 결정) */
+    /** 첫 화면 — PC 와 연결할지, 폰 혼자 쓸지. (2026-11-18 결정) */
     private fun modeScreen(msg: String?) {
         screen = "mode"
         val p = page()
