@@ -138,7 +138,7 @@ Full notices = [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES/README.md).
 
 1. In KimBiseo on the PC, open **Settings → Phone connection**, turn on "Enable phone connection", and save. If the Windows
    Firewall prompt appears, allow **private networks** only.
-2. Install the **KimBiseo app** on your phone (release asset `KimBiseo-phone-0.1.1.apk` — Android 8.0+, or build it yourself
+2. Install the **KimBiseo app** on your phone (release asset `KimBiseo-phone-0.1.3.apk` — Android 8.0+, or build it yourself
    from `android/`), then press **"Create connection code"** on the PC screen. A QR code and an 8-digit number appear
    (valid for 10 minutes, one use).
    (If you open the APK in the phone browser, it asks you to allow "install from this source" once — that is because it is

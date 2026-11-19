@@ -1,7 +1,7 @@
 {
   "schema": "kimbiseo-allowlist/1",
   "note": "이 저장소에 들어가도 되는 파일 전부. 목록 밖 파일·sha256 다른 파일이 하나라도 있으면 공개 전 검사 실패. 줄을 더하는 것은 사람이 직접.",
-   "files": [
+  "files": [
     {
       "path": ".gitattributes",
       "origin": "new",
@@ -43,7 +43,7 @@
       "path": "README.en.md",
       "origin": "new",
       "treatment": "new",
-      "sha256": "21f0188856993c1fc763e587ed06eb93dd6546c5a24bec30b29c972c3f4d0cd0",
+      "sha256": "52a6c4fa631b037dc896135255d89281e4c93f2970020c135b6c9f3fa66c362a",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -71,7 +71,7 @@
       "path": "README.md",
       "origin": "new",
       "treatment": "new",
-      "sha256": "963d957d47a68770435fc55a71d035ff1d7e101fac1abd2828268876a37912d8",
+      "sha256": "6ee21daa7873e0d10812ae34a529942784fddd2c7ca72d767b5ba211536cfce0",
       "exceptions": [
         {
           "line": 8,
@@ -206,7 +206,7 @@
       "path": "android/app/src/main/java/kr/kimbiseo/phone/Rules.kt",
       "origin": "derived:운영판 폰 앱 연락처·앱 이름 찾기 규칙을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "529c9f35b1379a72f252459b2e420d6b4c81573491c3d4a1d77f5905938e9117",
+      "sha256": "95d237ff23e1c7433aa09db6ee47227c4edc50b6283c2649f566249770b4401b",
       "note": "연락처 이름 너그럽게 찾기(호칭·띄어쓰기·모음 혼동)는 운영판 방식, 길안내·앱 이름은 새로",
       "exceptions": [
         {
@@ -486,7 +486,7 @@
       "path": "android/app/src/test/java/kr/kimbiseo/phone/SoloRulesTest.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "80dcf64e2eda884cc66ac9e50e9a97467b5f74580736112647b88dc86898bf28"
+      "sha256": "5e7ce3b9f3ed3968fdb22db3b9ba4add6cf07ca4033a066160750fe74abe5d41"
     },
     {
       "path": "android/bench_unsloth/README.md",
