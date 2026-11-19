@@ -110,13 +110,13 @@
       "path": "android/README.md",
       "origin": "new",
       "treatment": "new",
-      "sha256": "de3bb4b4e01ed9d7978a97f070daa27522bf3a89ce2b97727ae5cebcce73c057"
+      "sha256": "ff94e60918f50c0bc7d601b3ef63dc82ecb097eaf0acc3d5fa9a65bfbb82462e"
     },
     {
       "path": "android/app/build.gradle.kts",
       "origin": "new",
       "treatment": "new",
-      "sha256": "18950634253b9b2a03d7b9ac80f499d3ff73b2625453404181cd80c6701ef598"
+      "sha256": "3da13ebe057c006475093c5531a0630457123faccfcac092e0e4479c7db887b0"
     },
     {
       "path": "android/app/src/main/AndroidManifest.xml",
