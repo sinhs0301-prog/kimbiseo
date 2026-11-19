@@ -53,7 +53,7 @@
     <string name="gh_consent_view">同意内容を見る</string>
     <string name="gh_brain_title">頭脳 (OpenAI互換アドレス)</string>
     <string name="gh_brain_help">画面の文字と目標を送り、次に押す場所を受け取ります。PCキムビソの頭脳を使うには、その頭脳のOpenAI互換アドレスを入れてください。</string>
-    <string name="gh_brain_hint">http://192.168.1.23:8880/v1</string>
+    <string name="gh_brain_hint">http://192.168.x.x:8880/v1</string>
     <string name="gh_brain_hint_pc">PCアドレス %1$s — 例: http://%1$s:8880/v1 (PCローカル頭脳は127.0.0.1のみなので、スマホから届かないことがあります)</string>
     <string name="gh_brain_model_hint">モデル名 (例: gemma-4-E4B-it · 空なら local)</string>
     <string name="gh_brain_key_hint">キー (なければ空欄)</string>

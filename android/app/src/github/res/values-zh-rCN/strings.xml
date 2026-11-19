@@ -53,7 +53,7 @@
     <string name="gh_consent_view">查看同意内容</string>
     <string name="gh_brain_title">大脑（OpenAI 兼容地址）</string>
     <string name="gh_brain_help">发送屏幕文字和目标，接收下一步要点击的地方。要使用 PC 金秘书的大脑，请填入那个大脑的 OpenAI 兼容地址。</string>
-    <string name="gh_brain_hint">http://192.168.1.23:8880/v1</string>
+    <string name="gh_brain_hint">http://192.168.x.x:8880/v1</string>
     <string name="gh_brain_hint_pc">PC 地址 %1$s — 例：http://%1$s:8880/v1（PC 本地大脑只监听 127.0.0.1，手机可能连不上）</string>
     <string name="gh_brain_model_hint">模型名称（例：gemma-4-E4B-it · 留空为 local）</string>
     <string name="gh_brain_key_hint">密钥（没有就留空）</string>

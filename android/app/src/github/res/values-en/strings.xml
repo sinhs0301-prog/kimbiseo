@@ -53,7 +53,7 @@
     <string name="gh_consent_view">View consent</string>
     <string name="gh_brain_title">Brain (OpenAI-compatible address)</string>
     <string name="gh_brain_help">Sends the screen text and goal, and receives the next place to tap. To use the PC KimBiseo brain, enter that brain\'s OpenAI-compatible address.</string>
-    <string name="gh_brain_hint">http://192.168.1.23:8880/v1</string>
+    <string name="gh_brain_hint">http://192.168.x.x:8880/v1</string>
     <string name="gh_brain_hint_pc">PC address %1$s — e.g. http://%1$s:8880/v1 (the PC local brain listens on 127.0.0.1 only, so the phone may not reach it)</string>
     <string name="gh_brain_model_hint">Model name (e.g. gemma-4-E4B-it · blank = local)</string>
     <string name="gh_brain_key_hint">API key (leave blank if none)</string>
