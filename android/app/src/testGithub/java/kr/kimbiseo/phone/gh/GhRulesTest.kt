@@ -124,7 +124,7 @@ class GhRulesTest {
     }
 
     @Test fun brain_url() {
-        assertEquals("http://mypc.local:8880/v1/chat/completions", GhBrain.url("http://mypc.local:8880/v1/"))
+        assertEquals("http://brain.example:8880/v1/chat/completions", GhBrain.url("http://brain.example:8880/v1/"))
         assertEquals("http://x/v1/chat/completions", GhBrain.url("http://x/v1/chat/completions"))
     }
 }
