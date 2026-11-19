@@ -1042,7 +1042,7 @@
       "path": "app/i18n/en.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "282f5124c14b8f90395d5f6528756f178a05dface5468bc4d5b62449fd70f041",
+      "sha256": "8a205f68f6953f7225f1fa3fa370bbd3fa0893c02efde22f87fed07e2aff3086",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -1066,7 +1066,7 @@
       "path": "app/i18n/ja.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "a1fee705db4a7061755aaa7058d62ae84a5127b177b6d94060a17507da1d6392",
+      "sha256": "ddf7be0df7c6c62c85c0689cf41ee6cfff06d158f6baa7041e2d6826a82ca42f",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -1090,7 +1090,7 @@
       "path": "app/i18n/zh.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "3a50a0cf55d33d297252ad668630003ff9f306d26b57969e1fb83cffeef05596",
+      "sha256": "aebdad23a4b6068bc394bee7007b58311f5aedcdc0fccb166e599d41c119a903",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
