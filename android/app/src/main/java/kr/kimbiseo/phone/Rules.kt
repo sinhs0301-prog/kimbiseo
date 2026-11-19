@@ -64,6 +64,7 @@ object NavAppRules {
     private val ALIAS: List<Pair<String, String>> = listOf(
         // 카카오내비
         "카카오내비" to "kakaonavi", "카카오내비게이션" to "kakaonavi", "카내비" to "kakaonavi",
+        "카카오네비" to "kakaonavi", "카카오네비게이션" to "kakaonavi", "카네비" to "kakaonavi", "카카오나비" to "kakaonavi",
         "kakaonavi" to "kakaonavi", "kakaonavigation" to "kakaonavi",
         "カカオナビ" to "kakaonavi", "カカオナビゲーション" to "kakaonavi",
         "卡卡奥导航" to "kakaonavi", "卡卡奥导航仪" to "kakaonavi",
@@ -141,6 +142,8 @@ object NavAppRules {
         val tail = text.substring(e)
         var cut = tail.takeWhile { it.isWhitespace() }.length
         for (t in after) if (tail.startsWith(t, cut)) { cut += t.length; break }
+        // "네이버 지도로 해서 천안역" · "카카오내비로 해 줘서" 같은 연결말도 뗀다
+        Regex("^\\s*(?:해서|해 가지고|해가지고|켜서|열어서)").find(tail.substring(cut))?.let { cut += it.value.length }
         e += cut
         val before = listOf("with", "via", "using", "through", "on", "用", "使用")
         val head = text.substring(0, s)

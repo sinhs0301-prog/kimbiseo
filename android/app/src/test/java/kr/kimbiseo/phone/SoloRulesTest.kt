@@ -160,6 +160,10 @@ class SoloRulesTest {
             "구글지도로 대전역 안내해줘" to ("google" to "대전역"),
             "카카오내비로 강남역에서 안내해줘" to ("kakaonavi" to "강남역"),
             "다음지도로 서면역 가자" to ("kakaomap" to "서면역"),
+            "카카오네비로 천안역 안내해줘" to ("kakaonavi" to "천안역"),
+            "카카오 내비로 천안역 안내해줘" to ("kakaonavi" to "천안역"),
+            "카카오 네비로 터미널 가자" to ("kakaonavi" to "터미널"),
+            "네이버 지도로 해서 천안역 안내해줘" to ("naver" to "천안역"),
         )
         for ((said, want) in cases) {
             val a = SoloAction.fromUser(said)
@@ -170,7 +174,7 @@ class SoloRulesTest {
     }
 
     @Test fun user_open_app_map_names() {
-        val cases = listOf("네이버 지도 열어줘", "카카오내비 켜줘", "카카오맵 앱 열어줘", "티맵 실행해줘")
+        val cases = listOf("네이버 지도 열어줘", "카카오내비 켜줘", "카카오네비 열어줘", "카카오 네비 켜줘", "네이버지도 열어줘", "카카오맵 앱 열어줘", "티맵 실행해줘")
         for (said in cases) {
             val a = SoloAction.fromUser(said)
             assertEquals(said, "open_app", a?.optString("do"))
