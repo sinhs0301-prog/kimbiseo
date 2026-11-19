@@ -22,6 +22,32 @@
   const SKIN = Q.get('skin') || '';
   const CL = M.outfits && M.outfits[SKIN] ? M.outfits[SKIN].clips : (M.clips || {});
 
+  // ---------------------------------------------------------------- 0.1.7 앉아 대기·재생 기록·좌석 (대표님 11-20 02:27)
+  // 대화가 없으면 IDLE_MIN 분 뒤 앉아 대기(0 = 끔). 앉은 뒤엔 말해도 앉은 채, "일어나"·걷기·춤이면 sit_out.
+  let IDLE_MIN = PD && Number.isFinite(PD.idleSit) ? PD.idleSit : 3;
+  // 재생 기록: 클립 이름별 횟수·누적 초(대화 내용 없음). 이 판은 기본 꺼짐 — 본체가 켜져 있다고 알릴 때만 보냄.
+  const STAT = { on: !!(PD && PD.playStats), name: '', at: 0 };
+  function statPoint(name, sec, plays) {
+    if (!STAT.on || !name) return;
+    api.send('clip-play', { name, sec, plays });
+  }
+  function notePlay(name) {
+    const now = performance.now();
+    if (STAT.name) statPoint(STAT.name, (now - STAT.at) / 1000, 0);
+    STAT.name = name; STAT.at = now;
+    statPoint(name, 0, 1);
+  }
+  setInterval(() => { if (STAT.on && STAT.name) { const now = performance.now(); statPoint(STAT.name, (now - STAT.at) / 1000, 0); STAT.at = now; } }, 30000);
+  window.addEventListener('pagehide', () => { if (STAT.on && STAT.name) { statPoint(STAT.name, (performance.now() - STAT.at) / 1000, 0); STAT.name = ''; } });
+  // 좌석(seat): 꾸러미 pack.json 이나 sit 클립에 "seat":"desk" 가 있으면 사무실 책상 의자용 클립.
+  //   새 클립 5종이 오면 SEAT_ADJ 의 desk 값(dx·dy·scale)만 채우면 됨 — 지금은 0 이라 화면 그대로.
+  const SEAT = (CL.sit_loop && CL.sit_loop.seat) || (CL.sit_in && CL.sit_in.seat) || (M.outfits && M.outfits[SKIN] && M.outfits[SKIN].seat) || (PD && PD.seat) || '';
+  const SEAT_ADJ = { desk: { dx: 0, dy: 0, scale: 1 } };
+  const seatAdj = name => {
+    const s = (CL[name] && CL[name].seat) || (/^sit_/.test(name) ? SEAT : '');
+    return (s && SEAT_ADJ[s]) || null;
+  };
+
   // ---------------------------------------------------------------- 무대 크기(창에 맞춤: 서 있는 클립 폭이 들어가고 높이를 꽉)
   let scale = 1, offX = 0, offY = 0;
   function layout() {
@@ -68,7 +94,9 @@
       const src = frames[i] || (l.v.readyState >= 2 && !l.v.seeking ? l.v : null);
       if (a <= 0 || !src) continue;
       ctx.globalAlpha = a;
-      ctx.drawImage(src, l.c.x, l.c.y, l.c.w, l.c.h);
+      const adj = seatAdj(l.v.dataset.name);   // 0.1.7 좌석 보정(지금 값 = 0 → 그대로)
+      if (adj) ctx.drawImage(src, l.c.x + adj.dx, l.c.y + adj.dy, l.c.w * adj.scale, l.c.h * adj.scale);
+      else ctx.drawImage(src, l.c.x, l.c.y, l.c.w, l.c.h);
     }
     ctx.globalAlpha = 1;
     DRAW.dirty = false; DRAW.paints++;
@@ -193,10 +221,14 @@
       v.style.zIndex = ++z;
       v.classList.add('on');
       layerOn(v, CL[name], fade);
+      const cc = CL[name], adj = seatAdj(name);   // 0.1.7 좌석 보정(영상 그대로 방식에서도 같은 자리)
+      Object.assign(v.style, { left: (cc.x + (adj ? adj.dx : 0)) + 'px', top: (cc.y + (adj ? adj.dy : 0)) + 'px',
+        width: (cc.w * (adj ? adj.scale : 1)) + 'px', height: (cc.h * (adj ? adj.scale : 1)) + 'px' });
       v.play().catch(e => log('재생 실패 ' + name + ' ' + e.message));
       const old = cur;
       cur = v; curName = name;
       HIST.push({ ms: Math.round(performance.now()), name }); if (HIST.length > 50) HIST.shift();
+      notePlay(name);   // 0.1.7 재생 기록(클립이 실제로 바뀔 때 한 번)
       if (old) {
         const tShow = performance.now();
         const drop = () => {
@@ -252,7 +284,8 @@
   const st = { pose: 'stand', token: 0, onceP: null, busy: 0, talking: false, live: false, liveTimer: null, speaking: false,
     dragging: false, over: false, hitBusy: false, menuOpen: false, lastCursor: 0, lastAct: performance.now(), sleeping: false,
     nextIdle: 15000, busyUntil: 0, walkDir: 0, exprName: null, exprT: 0, exprUntil: 0,
-    mood: null, moodAt: 0, moodTalked: false, emoTalkK: null, emoT: 0, emoOut: false };
+    mood: null, moodAt: 0, moodTalked: false, emoTalkK: null, emoT: 0, emoOut: false,
+    lastConv: performance.now(), autoSat: 0 };   // 0.1.7 마지막 대화 시각 — 앉아 대기 판단
   const alive = t => t === st.token;
 
   async function once(name, t) {
@@ -418,6 +451,18 @@
     if (MUSIC_DB[v] === undefined) return;
     musicLevel = v;
     if (danceAudio) { danceAudio._gain = musicGain(danceAudio._db); fadeAudio(danceAudio, danceAudio._gain, 200, false); }
+  });
+  // 0.1.7 메뉴에서 바꾸면 바로 적용(앉아 대기 분 / 재생 기록)
+  api.on('idle-sit', v => {
+    const n = Number(v);
+    if (!(Number.isFinite(n) && n >= 0 && n <= 120)) return;
+    IDLE_MIN = n; st.lastConv = performance.now();
+    log('대화 없으면 앉기 = ' + (n ? (Math.round(n * 10) / 10) + '분' : '끔'));
+  });
+  api.on('play-stats', on => {
+    if (!on && STAT.name) statPoint(STAT.name, (performance.now() - STAT.at) / 1000, 0);
+    STAT.on = !!on; STAT.name = ''; STAT.at = performance.now();
+    log('클립 재생 기록 ' + (STAT.on ? '켬' : '끔'));
   });
   async function dance(name, t) {
     if (!has(name)) { log('춤 클립 없음(이 옷) → 건너뜀 ' + name); return; }
@@ -646,6 +691,7 @@
   }
 
   async function motion(name) {
+    st.lastConv = performance.now();   // 0.1.7 동작 명령도 '대화'로 봄(앉아 대기 시계를 되돌림)
     let r = MOTION_NAMES.resolve(name, n => has(n) || !!poseClip(n), n => !!MOTIONS[n]);   // 지금 자세 클립만 있어도 '있음'
     if (r.unknown && EX_ALIAS[exKey(name)]) r = { name: EX_ALIAS[exKey(name)], asked: EX_ALIAS[exKey(name)], unknown: false, missing: false, fallback: null };
     if (r.unknown) {
@@ -762,6 +808,7 @@
       if (ek) { emoTalk(ek); return; }
       if (st.talking && st.mood && st.pose in EMO_AT) log('이 옷·자세엔 ' + EMO_AT[st.pose] + 'talk_' + st.mood + ' 없음 → 보통 말하기');
       const n = talkClip();
+      if (st.talking && n && (st.pose === 'sit' || st.pose === 'lie')) log('앉아·누운 채 말하기 → ' + n);   // 0.1.7 확인용
       if (st.talking && n) show(n, { loop: true, fade: MOUTH[n] && LIP.on ? 0.1 : 0.18, from: lipStart(n) });
       else if (!st.talking && !st.busy && !st.onceP) park(0.25);
     } else {
@@ -922,6 +969,7 @@
 
   let clickN = 0;
   function clickReact(px, py) {
+    st.lastConv = performance.now();   // 0.1.7 클릭도 대화로 봄
     if (st.pose === 'sit') { const l = ['기쁨', 'wave', '부끄러움', '웃음']; const k = l[clickN++ % l.length]; if (k === 'wave') motion(k); else expr(k, 3, true); return; }
     if (st.pose !== 'stand') return;                              // 누워·책상·걷는 중엔 클릭으로 일어나지 않음("일어나" 로만)
     const sy = (py - offY) / scale;
@@ -940,6 +988,13 @@
     const now = performance.now();
     if (st.mood && !st.talking && !st.emoTalkK &&
         (st.moodTalked ? now - Math.max(st.talkOffAt || 0, st.moodAt) > 4000 : now - st.moodAt > 12000)) { st.mood = null; log('감정 끝(시간)'); }
+    // 0.1.7(대표님 11-20 02:27): 대화가 없으면 N분 뒤 앉아 대기(서 있을 때만). 돌아다니기·눕기 자동은 계속 끔
+    if (IDLE_MIN > 0 && st.pose === 'stand' && !st.busy && !st.onceP && !st.talking && !st.speaking && !st.walking &&
+        !st.dancing && !st.dragging && !st.menuOpen && now - st.lastConv >= IDLE_MIN * 60000) {
+      log('대화 없음 ' + (Math.round(IDLE_MIN * 10) / 10) + '분 → 앉아 대기');
+      st.lastConv = now; st.autoSat = now;
+      motion('sit');
+    }
     if (st.talking && st.pose === 'stand' && !(LIP.on && MOUTH[TALK_AT.stand]) && !st.busy && !st.talkWalkRolled && !st.onceP && !st.walking && !st.dragging && !st.menuOpen && !st.emoTalkK &&
         now - (st.talkSince || now) > 7000 && now - (st.lastTalkWalk || -1e9) > 45000) talkWalk();
   }, 1000);
@@ -951,7 +1006,7 @@
       addEventListener(n, f) { (ls[n] || (ls[n] = [])).push(f); } };
   }
   api.on('speak', async m => {
-    st.speaking = true; st.sleeping = false;
+    st.speaking = true; st.sleeping = false; st.lastConv = performance.now();   // 0.1.7 대화 시각
     const url = URL.createObjectURL(new Blob([m.wav], { type: 'audio/wav' }));
     sayBubble(m.text, 0);
     const playIt = a => new Promise(res => { a.addEventListener('ended', res); a.addEventListener('error', res); a.play().catch(res); });
@@ -984,6 +1039,7 @@
   api.on('talk', m => {
     SIG.talk++;
     if (m && m.on === false) return;
+    st.lastConv = performance.now();   // 0.1.7 대화 시각
     const n = talkClip();
     if (!LIP.on || !n || !MOUTH[n] || st.busy || st.dancing || st.speaking || st.mood) return;
     if (!st.live) log('말하기 준비 → 말하기 클립을 미리 올림');
@@ -1000,7 +1056,7 @@
     if (LIP.v) lipTick();   // 0.025초 박자를 기다리지 않고 바로 반영
     if (lv > 0.06) {
       if (!st.live) log('바깥 목소리 → 말하기 클립');
-      st.live = true; st.sleeping = false;
+      st.live = true; st.sleeping = false; st.lastConv = performance.now();   // 0.1.7 대화 시각
       setTalking(true);
       clearTimeout(st.liveTimer);
       st.liveTimer = setTimeout(() => { st.live = false; if (!st.speaking) setTalking(false); }, 900);
@@ -1021,11 +1077,12 @@
   api.on('draw', m => setDraw(typeof m === 'string' ? m : m && m.mode, (m && m.why) || '본체 알림'));
 
   // 점검·시연용 손잡이
-  window.REAL = { skin: SKIN, motion, expr, setTalking, setMood, sayBubble, extra: EXTRA, get lip() { return { on: LIP.on, clips: Object.keys(MOUTH).length, level: LIP.level, ticks: LIP.ticks, rate: cur ? cur.playbackRate : 1, holds: DRAW.holds || 0 }; }, get music() { return musicLevel; }, walk: async (dir, ms) => { const t = await begin(false); await walk(dir, t, ms); }, get pose() { return st.pose; }, get clip() { return curName; }, hist: HIST, sig: SIG, variants: VARIANT, alphaAt, st,
+  window.REAL = { skin: SKIN, motion, expr, setTalking, setMood, sayBubble, extra: EXTRA, get lip() { return { on: LIP.on, clips: Object.keys(MOUTH).length, level: LIP.level, ticks: LIP.ticks, rate: cur ? cur.playbackRate : 1, holds: DRAW.holds || 0 }; }, get music() { return musicLevel; }, walk: async (dir, ms) => { const t = await begin(false); await walk(dir, t, ms); }, get pose() { return st.pose; }, get clip() { return curName; }, get idleMin() { return IDLE_MIN; }, get stats() { return { on: STAT.on, name: STAT.name }; }, get seat() { return SEAT; }, hist: HIST, sig: SIG, variants: VARIANT, alphaAt, st,
     setDraw, get draw() { return { mode: DRAW.mode, paints: DRAW.paints, vf: DRAW.vf, fails: DRAW.fails, layers: LAYERS.map(l => ({ name: l.v.dataset.name, a: +l.a.toFixed(2), ts: l.ts })), canvas: [view.width, view.height], dpr: window.devicePixelRatio, scale }; } };
 
   setDraw(Q.get('draw') || (PD && PD.draw) || 'canvas');
   park();
-  log('준비됨 클립 ' + Object.keys(CL).length + '개, 창 ' + window.innerWidth + 'x' + window.innerHeight + ' · 입 맞추기 ' + (LIP.on ? '켬' : '끔') + '(입 메타 ' + Object.keys(MOUTH).length + '개) · 춤 노래 크기 ' + musicLevel);
+  log('준비됨 클립 ' + Object.keys(CL).length + '개, 창 ' + window.innerWidth + 'x' + window.innerHeight + ' · 입 맞추기 ' + (LIP.on ? '켬' : '끔') + '(입 메타 ' + Object.keys(MOUTH).length + '개) · 춤 노래 크기 ' + musicLevel
+    + ' · 앉아 대기 ' + (IDLE_MIN ? (Math.round(IDLE_MIN * 10) / 10) + '분' : '끔') + ' · 재생 기록 ' + (STAT.on ? '켬' : '끔') + (SEAT ? ' · 좌석 ' + SEAT : ''));
   window.dispatchEvent(new Event('pet-ready'));
 })();

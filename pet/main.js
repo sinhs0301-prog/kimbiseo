@@ -44,6 +44,8 @@ if (process.argv.includes('--gpu-unblock')) app.commandLine.appendSwitch('ignore
 const VERSION = require('./package.json').version;
 const SIZES = { 작게: 380, 보통: 500, 크게: 660, '아주 크게': 860 };
 const MUSIC_LEVELS = ['끔', '작게', '보통', '크게'];
+// 0.1.7(대표님 11-20 02:27): 대화가 없으면 N분 뒤 앉아 대기 — 메뉴 '대화가 없으면'. 0 = 끔
+const IDLE_LEVELS = [0, 1, 3, 5, 10];
 const TEST_LINE = '안녕하세요! 김비서예요. 이렇게 말로 알려 드릴게요.';
 
 // ---------------------------------------------------------------- 화면 언어(0.1.18~)
@@ -87,12 +89,56 @@ const SETTINGS = path.join(USER, 'settings.json');
 // packSource = 옷 목록 주소(비우면 config.json) · autoPack = 옷이 없을 때 기본 옷 저절로 받기(처음 화면에서 동의했을 때만) · assoc = .hipcpet 파일 연결
 // wantPack = 본체가 입으라고 한 옷(아직 없어서 받는 중일 때만 남김 — 받아서 입으면 지움)
 // appliedWant = 마지막으로 반영한 본체 설정의 펫 캐릭터(--want-pack). 본체 설정이 바뀐 것을 알아보는 데만 씀(펫 메뉴에서 직접 갈아입은 옷은 그대로 둠)
-const DEFAULTS = { skin: null, size: '보통', onTop: true, x: null, y: null, musicVolume: '보통', packSource: '', autoPack: false, assoc: false, wantPack: '', appliedWant: null };
+const DEFAULTS = { skin: null, size: '보통', onTop: true, x: null, y: null, musicVolume: '보통', packSource: '', autoPack: false, assoc: false, wantPack: '', appliedWant: null,
+  idleSit: 3, playStats: false };   // 0.1.7 배포판은 재생 기록 기본 꺼짐(설정에서 켬)
 let S = { ...DEFAULTS };
 try { S = { ...DEFAULTS, ...JSON.parse(fs.readFileSync(SETTINGS, 'utf8')) }; } catch (e) { /* 처음 실행 */ }
 if (!SIZES[S.size]) S.size = DEFAULTS.size;
 if (!(Number.isFinite(S.sizePx) && S.sizePx >= G.pctToPx(G.PCT_MIN) && S.sizePx <= G.pctToPx(G.PCT_MAX))) S.sizePx = null;   // 세밀 크기(없으면 단계 크기)
 if (!MUSIC_LEVELS.includes(S.musicVolume)) S.musicVolume = '보통';
+// 0.1.7: 대화 없으면 앉기(분). 메뉴 값은 0·1·3·5·10 이지만 settings.json 의 다른 값도 받음(시험용)
+if (!(Number.isFinite(S.idleSit) && S.idleSit >= 0 && S.idleSit <= 120)) S.idleSit = DEFAULTS.idleSit;
+if (typeof S.playStats !== 'boolean') S.playStats = DEFAULTS.playStats;
+
+// ---------------------------------------------------------------- 클립 재생 기록 (0.1.7, 대표님 11-20 02:27)
+// 클립 이름별 재생 횟수·누적 초만. 대화 내용·개인정보 없음. <프로필>\재생기록\YYYYMMDD.json — 하루 한 파일.
+const STATS_DIR = path.join(USER, '재생기록');
+const STATS = { date: '', data: null, timer: null, dirty: false };
+const statsToday = () => { const t = new Date(); return t.getFullYear() + String(t.getMonth() + 1).padStart(2, '0') + String(t.getDate()).padStart(2, '0'); };
+const statsPath = d => path.join(STATS_DIR, d + '.json');
+function statsSave() {
+  clearTimeout(STATS.timer); STATS.timer = null;
+  if (!STATS.dirty || !STATS.data) return;
+  try {
+    fs.mkdirSync(STATS_DIR, { recursive: true });
+    const f = statsPath(STATS.data.date || statsToday());
+    fs.writeFileSync(f + '.tmp', JSON.stringify(STATS.data, null, 1), 'utf8');
+    fs.renameSync(f + '.tmp', f);
+    STATS.dirty = false;
+  } catch (e) { log('재생 기록 저장 실패 ' + e.message); }
+}
+function statsLoad() {
+  const d = statsToday();
+  if (STATS.data && STATS.date === d) return;
+  if (STATS.data && STATS.dirty) statsSave();
+  STATS.date = d;
+  STATS.data = { date: d, clips: {} };
+  try {
+    const j = JSON.parse(fs.readFileSync(statsPath(d), 'utf8'));
+    if (j && j.clips && typeof j.clips === 'object' && !Array.isArray(j.clips)) STATS.data.clips = j.clips;
+  } catch (e) { /* 오늘 첫 기록 */ }
+}
+function statsAdd(name, sec, plays) {
+  if (!S.playStats) return;
+  if (typeof name !== 'string' || !/^[A-Za-z0-9_]{1,60}$/.test(name)) return;
+  statsLoad();
+  const c = STATS.data.clips[name] || (STATS.data.clips[name] = { n: 0, sec: 0 });
+  c.n += Math.max(0, Math.floor(Number(plays) || 0));
+  c.sec = Math.round((c.sec + Math.max(0, Math.min(3600, Number(sec) || 0))) * 10) / 10;
+  STATS.dirty = true;
+  clearTimeout(STATS.timer);
+  STATS.timer = setTimeout(statsSave, 5000);
+}
 const PACK_SOURCE = String(argVal('pack-source') || S.packSource || CONFIG.packs_catalog || '').trim();
 const PACK_BACKUP = String(CONFIG.packs_catalog_backup || '').trim();   // 첫 주소가 안 될 때만(공개판 = 본 저장소 최신 릴리스의 옛 packs.json)
 const ALLOWED = (Array.isArray(CONFIG.allowed_hosts) ? CONFIG.allowed_hosts : []).map(h => String(h).toLowerCase());
@@ -119,7 +165,7 @@ function refreshPacks() {
   const first = PACKS[0] || {};
   REAL_DATA = { version: 3, stage: first.stage || { w: 960, h: 960, floor: 948 }, fps: first.fps || 24, walkSpeed: first.walkSpeed || 90, clips: {}, outfits: {} };
   for (const p of PACKS) {
-    REAL_DATA.outfits[p.id] = { clips: p.clips };
+    REAL_DATA.outfits[p.id] = { clips: p.clips, seat: p.seat || '' };   // 0.1.7 좌석 표시(seat:'desk' 등)
     REAL_CLIPS[p.id] = new Set(Object.keys(p.clips));
     REAL_EXTRA[p.id] = MOTION_NAMES.extras(p.clips);
     const ex = REAL_EXTRA[p.id], nv = Object.keys(ex.variants || {}).length;
@@ -293,6 +339,7 @@ function state() {
   return { version: VERSION, outfits: outfitsState(), sizes: Object.keys(SIZES), skin: hasOutfit() ? S.skin : null,
     size: S.sizePx ? null : S.size, sizePct: sizePctNow(), sizePx: S.sizePx || SIZES[S.size], sizeRange: [G.PCT_MIN, G.PCT_MAX], onTop: S.onTop, speaking: !!current, queue: speakQueue.length, port: httpPort,
     musicVolume: S.musicVolume, musicLevels: DANCE_MUSIC ? MUSIC_LEVELS : [], danceMusic: DANCE_MUSIC,
+    idleSit: S.idleSit, idleLevels: IDLE_LEVELS, playStats: !!S.playStats,
     lang: LANG, dict: LANG === 'ko' ? null : I18N };
 }
 
@@ -345,6 +392,13 @@ function pick(type, value, temp) {
   else if (type === 'size') applySize(value);
   else if (type === 'size-step') applySizePct(sizePctNow() + (value === 'up' ? 5 : -5));     // 메뉴의 '조금 작게/조금 크게'
   else if (type === 'music') { if (MUSIC_LEVELS.includes(value)) { S.musicVolume = value; saveSettings(); petSend('music-volume', value); } }
+  else if (type === 'idle-sit') {   // 0.1.7 대화가 없으면 앉기(분, 0 = 끔)
+    const n = Number(value);
+    if (Number.isFinite(n) && n >= 0 && n <= 120) { S.idleSit = n; saveSettings(); petSend('idle-sit', n); log('대화 없으면 앉기 = ' + (n ? n + '분' : '끔')); }
+  }
+  else if (type === 'play-stats') {   // 0.1.7 클립 재생 기록 켜기/끄기(배포판 기본 꺼짐)
+    S.playStats = !!value; saveSettings(); petSend('play-stats', S.playStats); log('클립 재생 기록 ' + (S.playStats ? '켬' : '끔'));
+  }
   else if (type === 'ontop') {
     S.onTop = !!value;
     if (pet && !pet.isDestroyed()) pet.setAlwaysOnTop(S.onTop, 'floating');
@@ -464,6 +518,8 @@ function updateTray() {
     { label: T('파일로 옷 추가'), click: () => addPackByDialog() },
     { label: T('크기'), submenu: Object.keys(SIZES).map(k => ({ label: T(k), type: 'radio', checked: S.size === k, click: () => pick('size', k) })) },
     ...(DANCE_MUSIC ? [{ label: T('춤 노래 크기'), submenu: MUSIC_LEVELS.map(k => ({ label: T(k), type: 'radio', checked: S.musicVolume === k, click: () => pick('music', k) })) }] : []),
+    { label: T('대화가 없으면'), submenu: IDLE_LEVELS.map(n => ({ label: n ? T('{0}분', n) : T('끔'), type: 'radio', checked: S.idleSit === n, click: () => pick('idle-sit', n) })) },
+    { label: T('클립 재생 기록'), type: 'checkbox', checked: !!S.playStats, click: mi => pick('play-stats', mi.checked) },
     { label: T('항상 위에 두기'), type: 'checkbox', checked: S.onTop, click: mi => pick('ontop', mi.checked) },
     { label: T('말하기 시험'), click: () => pick('speak-test') },
     { label: T('펫을 화면 오른쪽 아래로'), click: () => pick('home') },
@@ -481,6 +537,8 @@ ipcMain.on('context-menu', e => { if (fromPet(e)) openMenu(); });
 ipcMain.on('speak-started', () => {});
 ipcMain.on('speak-done', (e, id) => { const f = doneWait.get(id); if (f) f('끝'); });
 ipcMain.on('pet-log', (e, msg) => log('펫: ' + String(msg).slice(0, 500)));
+// 0.1.7 클립 재생 기록: 화면이 클립이 바뀔 때 { name, sec, plays } 를 보냄(켜져 있을 때만 옴)
+ipcMain.on('clip-play', (e, d) => { if (fromPet(e) && d) statsAdd(d.name, d.sec, d.plays); });
 ipcMain.on('draw-state', (e, d) => { if (fromPet(e) && d) GPU.drawNow = d.mode === 'canvas' ? 'canvas' : 'video'; });
 ipcMain.on('none-click', e => { if (fromPet(e)) openWardrobe('get'); });   // 옷이 없을 때 펫 자리 안내를 누름
 // 걷기 범위: 캐릭터 몸(창 가운데 약 30%)이 화면 안에 다 보이는 곳까지만. roomL/roomR = 그 끝까지 남은 거리
@@ -881,7 +939,7 @@ ipcMain.on('drop-files', (e, list) => {
   for (const f of files) requestInstall(f, '끌어 놓기');
 });
 // 화면이 켤 때 한 번 받는 옷 목록(동기)
-ipcMain.on('real-data', e => { e.returnValue = REAL_DATA ? { ...REAL_DATA, draw: drawMode(), musicVolume: S.musicVolume, lip: S.lip === 'off' || process.argv.includes('--lip=off') ? 'off' : 'gate' } : null; });
+ipcMain.on('real-data', e => { e.returnValue = REAL_DATA ? { ...REAL_DATA, draw: drawMode(), musicVolume: S.musicVolume, idleSit: S.idleSit, playStats: !!S.playStats, lip: S.lip === 'off' || process.argv.includes('--lip=off') ? 'off' : 'gate' } : null; });
 
 // ---------------------------------------------------------------- 펫 신호 입구(본체 → 펫)
 function signalHandlers() {
@@ -1014,7 +1072,7 @@ if (!app.requestSingleInstanceLock()) {
     } catch (e) { log('펫 신호 입구 못 엶: ' + e.message); }
   });
   app.on('before-quit', () => {
-    quitting = true; clearInterval(cursorTimer); tts.stop(); voice.stop();
+    quitting = true; clearInterval(cursorTimer); tts.stop(); voice.stop(); statsSave();
     if (!displaced) keepPos();          // 모니터를 빼서 임시로 옮겨 둔 자리는 기억에 덮어쓰지 않음
     try { fs.writeFileSync(SETTINGS, JSON.stringify(S, null, 1), 'utf8'); } catch (e) { /* 무시 */ }
   });

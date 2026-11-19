@@ -1969,5 +1969,9 @@
  "환율": "Exchange rate",
  "환율 출처: 유럽중앙은행 기준환율(frankfurter.dev) · Rates By Exchange Rate API(open.er-api.com, 위에 없는 통화)": "Rate source: European Central Bank reference rates (frankfurter.dev) · Rates By Exchange Rate API (open.er-api.com, for currencies not listed above)",
  "환율을 못 받음:": "Couldn't fetch exchange rate:",
- "회사 인터넷이나 보안 프로그램이 받는 주소를 바꿔서 멈췄어요.": "A company network or security program changed the download address, so it stopped."
+ "회사 인터넷이나 보안 프로그램이 받는 주소를 바꿔서 멈췄어요.": "A company network or security program changed the download address, so it stopped.",
+ "대화가 없으면": "When there's no conversation",
+ "클립 재생 기록": "Clip playback log",
+ "{0}분 동안 대화가 없으면 앉아 있어요": "Sits down after {0} min without conversation",
+ "앉아 대기 끔": "Auto-sit off"
 }

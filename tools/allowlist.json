@@ -1042,7 +1042,7 @@
       "path": "app/i18n/en.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "ad6f377f72a0b13310c4b717a8796f90797d65c1e4743e50e9c593b8a738424a",
+      "sha256": "282f5124c14b8f90395d5f6528756f178a05dface5468bc4d5b62449fd70f041",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -1066,7 +1066,7 @@
       "path": "app/i18n/ja.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "27845d50af511e372d14dd018b0a994b5f45b31d19cd1345a994a45ef2abfea1",
+      "sha256": "a1fee705db4a7061755aaa7058d62ae84a5127b177b6d94060a17507da1d6392",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -1090,7 +1090,7 @@
       "path": "app/i18n/zh.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "5f9da4667f9f72668ef11a13790da8eaa5bf030e7257e540c999f789314d89e0",
+      "sha256": "3a50a0cf55d33d297252ad668630003ff9f306d26b57969e1fb83cffeef05596",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -1697,21 +1697,21 @@
       "path": "pet/main.js",
       "origin": "derived:운영판 펫 부품을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "81b6c77fd13e2be7b15d5bc67fd261ca0228215706ceb9506b5ed26029a758d0",
+      "sha256": "f622b8b0cf240bdcd634057c9121e7fa6c41cdc4129b8e8b8d8976e39ae8f218",
       "note": "공개 펫 본체(옷 꾸러미만·17961·옷 받기·자동 옷 받기·자세별 동작·춤 노래 순서) — 7단계"
     },
     {
       "path": "pet/package.json",
       "origin": "derived:운영판 펫 부품을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "614786d56cf9a36da41d22bf84d0889f65aa441ed615b6ff932fcf9e7587e3fc",
+      "sha256": "4429ab45a04057ae39559ec98dfb77c77957afccf6d47235b94b394d60192bc7",
       "note": "공개 펫 꾸러미 표시(electron 개발용만) — 6단계"
     },
     {
       "path": "pet/packs.js",
       "origin": "derived:운영판 펫 부품을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "50348dfd3200faa202e81811f223a57333479741be5bb30ab5f9e2bff241c408",
+      "sha256": "1fbaf70364611b3d9432196b04fd3fcc0506dd7013041133bb3776ceee205aed",
       "note": "옷 꾸러미 열기·서명 확인(공개키만)·옷 목록 받기·파일 연결(앱 폴더) — 7단계",
       "exceptions": [
         {
@@ -1725,7 +1725,7 @@
       "path": "pet/preload.js",
       "origin": "derived:운영판 펫 부품을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "89ab5018559404553d48f55c0093fed2b4d2badb1640239409a7e829143d33d9",
+      "sha256": "ea00d135088e63c51bfbc1a4a8fde32c9980122a63f98e0ef5d77cbdcf1d06e5",
       "note": "화면↔본체 다리(허용한 이름만) — 6단계"
     },
     {
@@ -1746,11 +1746,11 @@
       "path": "pet/renderer/menu.html",
       "origin": "derived:운영판 펫 부품을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "60a5103ee77c3b1c33b721f5a6117e939888ba24ee2346a7b8cfb64a923de40e",
+      "sha256": "6abd75dfd5ead1019de956d258fe4d0f2831fe21bcac8b44d144e8f2f49a58d0",
       "note": "오른쪽 클릭 메뉴 — 6단계",
       "exceptions": [
         {
-          "line": 81,
+          "line": 84,
           "allow": "하이라이프PC",
           "reason": "메뉴 아래 제작 표기 한 줄(남기기로 결정됨)"
         }
@@ -1760,7 +1760,7 @@
       "path": "pet/renderer/menu.js",
       "origin": "derived:운영판 펫 부품을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "13adeb0307609aaa3d89a9c00200c8c5c6bc797f3536c1ff8c805faf3a56eb91",
+      "sha256": "574c05df4183d85beab4b107fe8c03ae0da8b9d5d8241ff68b1f25ac79bdb3cc",
       "note": "메뉴 동작 — 6단계"
     },
     {
@@ -1795,7 +1795,7 @@
       "path": "pet/renderer/real.js",
       "origin": "derived:운영판 펫 부품을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "39d68f921643bbcc1604dd8c02a960e5e3dacefe6ea55e93645c914588425174",
+      "sha256": "9ef79be570b0958a3596123f4f9399c23e125abc68757846b63fbe7adf929436",
       "note": "실사 재생·자세별 동작(없으면 일어나서)·시험용 기록 — 6단계"
     },
     {

@@ -65,6 +65,21 @@
       b.onclick = () => { pick('music', z); toast(T('춤 노래 크기: {0}', T(z))); };
       mu.appendChild(b);
     }
+    const ids = $('idlesit');   // 0.1.7 대화가 없으면 앉아 대기(끔·1·3·5·10분)
+    if (ids) {
+      ids.textContent = '';
+      for (const n of (S.idleLevels || [0, 1, 3, 5, 10])) {
+        const b = el('button', 'btn' + (S.idleSit === n ? ' on' : ''), [n ? T('{0}분', n) : T('끔')]);
+        b.dataset.idlesit = String(n);
+        b.onclick = () => { pick('idle-sit', n); toast(n ? T('{0}분 동안 대화가 없으면 앉아 있어요', n) : T('앉아 대기 끔')); };
+        ids.appendChild(b);
+      }
+    }
+    const ps = $('playstats');
+    if (ps) {
+      ps.textContent = S.playStats ? T('켜짐') : T('꺼짐');
+      ps.className = 'btn' + (S.playStats ? ' on' : '');
+    }
     const t = $('ontop');
     t.textContent = S.onTop ? T('켜짐') : T('꺼짐');
     t.className = 'btn' + (S.onTop ? ' on' : '');
@@ -73,6 +88,7 @@
   }
   $('x').onclick = () => pick('close');
   $('ontop').onclick = () => pick('ontop', !S.onTop);
+  $('playstats').onclick = () => pick('play-stats', !S.playStats);
   $('dance').onclick = () => pick('dance');
   $('speak').onclick = () => pick('speak-test');
   $('home').onclick = () => { pick('home'); toast(T('화면 오른쪽 아래로 옮겼어요')); };

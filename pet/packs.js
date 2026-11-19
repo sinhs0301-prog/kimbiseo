@@ -272,7 +272,7 @@ function list(user) {
       out.push({ id: pj.id, name: pj.name, version: pj.version || '', body: pj.body || '', gender: pj.gender || '',
         voice: typeof pj.voice === 'string' && /^[a-z0-9_]{1,40}$/.test(pj.voice) ? pj.voice : '',   // voice(선택) = 이 옷만의 목소리 이름(voice/voices.json 목록)
         signed: meta.sig === '정품', dir: p, img: prev && prev.startsWith(p + path.sep) && fs.existsSync(prev) ? fileUrl(prev) : null,
-        stage: pj.stage, fps: pj.fps, walkSpeed: pj.walkSpeed, clips,
+        stage: pj.stage, fps: pj.fps, walkSpeed: pj.walkSpeed, seat: typeof pj.seat === 'string' ? pj.seat.slice(0, 20) : '', clips,
         music: (pj.music || []).map(m => ({ ...m, path: path.resolve(p, ...String(m.file).split('/')) })).filter(m => m.path.startsWith(p + path.sep) && fs.existsSync(m.path)),
         installed: meta.installed || null, mouth: mouthN, from: meta.from || '' });
     } catch (e) { /* 깨진 폴더는 건너뜀 */ }
