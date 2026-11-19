@@ -637,8 +637,9 @@ def make_gateway_app(cfg, auth, on_ws, status, pet=None):
         if pet is None:
             return {"ok": True, "옷": None, "고른옷": "", "지금옷": "", "옷목록": [], "동작": []}
         selected = str(request.query_params.get("outfit") or "")[:40]
+        all_ages = str(request.query_params.get("all") or "") in ("1", "true", "yes", "on")
         try:
-            data = await asyncio.to_thread(pet.manifest, selected)
+            data = await asyncio.to_thread(pet.manifest, selected, all_ages)
         except Exception as ex:  # noqa: BLE001
             logger.warning(f"폰 펫 목록 오류: {ex.__class__.__name__}")
             return JSONResponse({"ok": False, "오류": "펫 정보를 읽지 못했어요"}, status_code=500)
@@ -652,10 +653,11 @@ def make_gateway_app(cfg, auth, on_ws, status, pet=None):
             return err
         selected = str(request.query_params.get("outfit") or "")[:40]
         motion = str(request.query_params.get("motion") or "")[:20]
+        all_ages = str(request.query_params.get("all") or "") in ("1", "true", "yes", "on")
         if pet is None:
             return JSONResponse({"ok": False, "오류": "펫이 없어요"}, status_code=404)
         try:
-            r = await asyncio.to_thread(pet.clip, selected, motion)
+            r = await asyncio.to_thread(pet.clip, selected, motion, all_ages)
         except Exception as ex:  # noqa: BLE001
             logger.warning(f"폰 펫 클립 오류: {ex.__class__.__name__}")
             r = None

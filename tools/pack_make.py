@@ -34,7 +34,7 @@ import zlib
 from pathlib import Path
 
 TOP_KEYS = ("format", "id", "name", "version", "character", "body", "gender", "voice", "preview", "maker", "made", "note",
-            "stage", "fps", "walkSpeed", "clips", "music", "files")
+            "rating", "pc_only", "stage", "fps", "walkSpeed", "clips", "music", "files")
 VOICE_RE = re.compile(r"^[a-z0-9_]{1,40}$")
 CLIP_KEYS = {"w", "h", "x", "y", "frames", "dur", "file", "headX", "headY", "loops", "enter", "cycle", "stopAt",
              "seamOut", "oneVideo", "music", "rootDx", "mouth", "px", "motion"}
@@ -86,6 +86,8 @@ def main() -> int:
     ap.add_argument("--drop-clip", default="")
     ap.add_argument("--note", default="")
     ap.add_argument("--voice", default="", help="이 옷만의 목소리 이름(voice/voices.json 목록의 이름). 비우면 칸을 안 넣음 = 성별 규칙")
+    ap.add_argument("--rating", choices=("all", "19"), default="", help="전체이용가 all · 성인 19(폰 플레이 판에서 숨김). 비우면 칸 없음 = 모름")
+    ap.add_argument("--pc-only", action="store_true", help="PC 전용 표시(pc_only=true)")
     a = ap.parse_args()
     if not ID_RE.match(a.id):
         raise SystemExit("id 는 영어·숫자·_·- 40자까지")
@@ -148,6 +150,10 @@ def main() -> int:
         pj["note"] = a.note
     if a.voice:      # 원본 꾸러미의 voice 는 옮기지 않음(이 저장소 목록에 없는 이름일 수 있음) — 인자로 준 것만
         pj["voice"] = a.voice
+    if a.rating:     # 전체이용가 표시 — 폰 플레이 판이 이 칸을 보고 성인 옷을 숨긴다(없으면 숨김 = 안전한 쪽)
+        pj["rating"] = a.rating
+    if a.pc_only:
+        pj["pc_only"] = True
     for k in ("stage", "fps", "walkSpeed"):
         if k in old:
             pj[k] = old[k]

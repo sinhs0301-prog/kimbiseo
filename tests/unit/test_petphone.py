@@ -29,7 +29,7 @@ def fresh_cfg(user=None):
     return cfg
 
 
-def make_outfit(cfg, oid, clips=("idle", "talk", "hello", "wave"), name=None, body=b"video"):
+def make_outfit(cfg, oid, clips=("idle", "talk", "hello", "wave"), name=None, body=b"video", rating=None, pc_only=None):
     """<자료>\pet\옷\<oid> 에 pack.json 과 가짜 클립 파일을 만든다. → 옷 폴더"""
     data = C.path(cfg, "자료")
     d = os.path.join(data, "pet", "옷", oid)
@@ -40,9 +40,14 @@ def make_outfit(cfg, oid, clips=("idle", "talk", "hello", "wave"), name=None, bo
         with open(os.path.join(d, "clips", n + ".webm"), "wb") as f:
             f.write(body + n.encode("ascii"))
         meta[n] = {"file": rel, "w": 541.54, "h": 960.0, "x": 0, "y": 0, "frames": 123, "dur": 5.12}
+    pj = {"format": "hipcpet/1", "id": oid, "name": name or oid, "version": "1", "character": "실사",
+          "gender": "여", "clips": meta}
+    if rating is not None:
+        pj["rating"] = rating
+    if pc_only is not None:
+        pj["pc_only"] = pc_only
     with open(os.path.join(d, "pack.json"), "w", encoding="utf-8") as f:
-        json.dump({"format": "hipcpet/1", "id": oid, "name": name or oid, "version": "1", "character": "실사",
-                   "gender": "여", "clips": meta}, f, ensure_ascii=False)
+        json.dump(pj, f, ensure_ascii=False)
     return d
 
 
@@ -131,6 +136,34 @@ def test_no_pet_installed():
     assert m["옷"] is None and m["동작"] == [] and p.clip("", "idle") is None
 
 
+def test_rating_all_ages_hides_adult_and_unknown():
+    cfg = fresh_cfg()
+    make_outfit(cfg, "kimbiseo_f", name="여")                     # 표시 없음 → id 로 전체이용가
+    make_outfit(cfg, "kimbiseo_bikini", name="비키니")            # 표시 없음(옛 꾸러미) → id 로 성인
+    make_outfit(cfg, "kimbiseo_mix", name="혼혈", rating="all")
+    make_outfit(cfg, "my_custom", name="내 옷")                    # 표시 없음·모르는 id → 모름(숨김)
+    set_skin(cfg, "kimbiseo_bikini")
+    p = PP.PetPhone(cfg, ffmpeg="")
+    ratings = {o["id"]: o["rating"] for o in p.outfits()}
+    assert ratings == {"kimbiseo_f": "all", "kimbiseo_bikini": "19", "kimbiseo_mix": "all", "my_custom": ""}, ratings
+    full = p.manifest()
+    assert [o["id"] for o in full["옷목록"]] == ["kimbiseo_bikini", "kimbiseo_f", "kimbiseo_mix", "my_custom"]
+    assert full["옷"]["id"] == "kimbiseo_bikini"
+    safe = p.manifest(all_ages_only=True)
+    assert [o["id"] for o in safe["옷목록"]] == ["kimbiseo_f", "kimbiseo_mix"], safe["옷목록"]
+    assert safe["옷"]["id"] == "kimbiseo_f" and safe["옷"]["rating"] == "all", "성인 옷을 입고 있으면 안전한 옷으로"
+    assert all(o["rating"] == "all" for o in safe["옷목록"])
+    assert p.manifest("kimbiseo_bikini", all_ages_only=True)["옷"]["id"] == "kimbiseo_f", "고른 옷이 성인이면 대신"
+    assert p.manifest("kimbiseo_mix", all_ages_only=True)["옷"]["id"] == "kimbiseo_mix"
+    assert p.clip("kimbiseo_bikini", "idle", all_ages_only=True)[0].startswith(
+        os.path.join(C.path(cfg, "자료"), "pet", "옷", "kimbiseo_f"))
+    only_adult = fresh_cfg()
+    make_outfit(only_adult, "kimbiseo_bikini")
+    set_skin(only_adult, "kimbiseo_bikini")
+    p2 = PP.PetPhone(only_adult, ffmpeg="")
+    assert p2.manifest(all_ages_only=True)["옷"] is None and p2.clip("", "idle", all_ages_only=True) is None
+
+
 def test_gateway_pet_paths_need_token():
     from starlette.testclient import TestClient
 
@@ -150,6 +183,9 @@ def test_gateway_pet_paths_need_token():
             assert r.status_code == 200, r.text
             j = r.json()
             assert j["ok"] and j["옷"]["id"] == "kimbiseo_f" and len(j["동작"]) == 4
+            assert j["옷"]["rating"] == "all" and j["옷목록"][0]["rating"] == "all"
+            j = cl.get("/phone/api/pet", params={"all": "1"}, headers={"X-Phone-Token": tok}).json()
+            assert j["ok"] and j["옷"]["id"] == "kimbiseo_f", "전체이용가 요청도 같은 옷"
             idle = next(x for x in j["동작"] if x["이름"] == "idle")
             r = cl.get("/phone/api/pet/clip", params={"outfit": "kimbiseo_f", "motion": "idle"},
                        headers={"X-Phone-Token": tok})

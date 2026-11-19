@@ -24,13 +24,29 @@ _KW = [
     ("생각", r"죄송|미안|문제가|오류|실패|안 됩니다|안 돼요|못 했|못했|어렵|걱정|주의|조심|확인해 보|글쎄|잘 모르"),
     ("부끄러움", r"과찬|부끄럽|쑥스럽|별말씀"),
 ]
+# 춤 이름 → 꾸러미 클립 이름. 말한 이름을 그대로 펫에 넘기면 펫이 지금 옷에 그 춤이 있는지 보고
+#   없으면 기본 춤(dance1~3)으로 대신 춘다(pet/renderer/real/motion_names.js resolve·FALLBACK).
+#   4개 언어(한·영·일·중)로 부르는 말을 받는다. '춤'만 말하면 아래 기본 춤(dance).
+_DANCE_NAME = r"(?:제로\s*투|제로투|zero[\s_-]*two|zerotwo|ゼロツー|ゼロトゥ|零二|零２)"
+_DANCE_VERB = r"(?:춤|댄스|춰|추|출|보여|틀어|dance|dancing|踊|ダンス|舞|跳舞|跳)"
+_DANCE_BAD = r"(?:bad|배드|バッド)"
+_DANCE_ESTELLA = r"(?:에스텔라|estella|エステラ)"
 _MOTION_KW = [
+    # 이름 있는 춤(기본 춤보다 먼저) — '제로투 춰줘'·'Zero Two dance'·'ゼロツー踊って'·'零二跳舞'·'BAD 춰줘'
+    ("dance_zerotwo", _DANCE_NAME + r".{0,12}?" + _DANCE_VERB + r"|" + _DANCE_VERB + r".{0,12}?" + _DANCE_NAME +
+                       r"|^\s*" + _DANCE_NAME + r"\s*[.!~]*\s*$"),
+    ("dance_bad", _DANCE_BAD + r".{0,12}?" + _DANCE_VERB + r"|" + _DANCE_VERB + r".{0,12}?" + _DANCE_BAD +
+                  r"|^\s*" + _DANCE_BAD + r"\s*[.!~]*\s*$"),
+    ("dance_estella", _DANCE_ESTELLA + r".{0,12}?" + _DANCE_VERB + r"|" + _DANCE_VERB + r".{0,12}?" + _DANCE_ESTELLA +
+                       r"|^\s*" + _DANCE_ESTELLA + r"\s*[.!~]*\s*$"),
     ("stand", r"일어나|일어서|일어날래|그만 앉아"),
     ("sit", r"앉아(?!서|도|야)|앉으세요|앉을래|앉으렴"),
     ("lie", r"누워|누울래|눕자|드러누워|누우렴"),
     # '춤 좀 춰 줘'·'춤 한 번 보여 줘'·'춤춰'·'춤 춰 볼래?'·'댄스 타임'·'한 곡 춰 줘' (춤과 동사 사이에 낱말 둘까지)
+    #   영어·일본어·중국어의 '춤 춰'도 받는다(dance·dancing·踊って·ダンス·跳舞 …).
     ("dance", r"(춤|댄스)\s*(?:[가-힣]{1,4}\s*){0,2}?(춰|추자|추어|추세요|출래|출\s*수|춥시다|보여|해\s*줘|해\s*봐|타임|부탁)|"
-              r"(한\s*곡|신나게|한번|한\s*번)\s*춰|댄스|춤\s*$"),
+              r"(한\s*곡|신나게|한번|한\s*번)\s*춰|댄스|춤\s*$|"
+              r"\b(?:dance|dancing)\b|踊って|踊り|ダンス|跳舞|跳个舞|舞蹈"),
     ("heart_big", r"큰\s*하트|머리\s*위\s*하트"),
     ("heart_cheek", r"볼\s*하트"),
     ("heart_hand", r"손\s*하트|하트"),
@@ -58,8 +74,8 @@ def motion_for(text, names):
     if not t:
         return None
     for name, pat in _MOTION_KW:
-        if re.search(pat, t):
-            if name == "dance" and _NOT_DANCE.search(t):
+        if re.search(pat, t, re.IGNORECASE):
+            if name.startswith("dance") and _NOT_DANCE.search(t):
                 continue
             return name
     called = any(n and n.replace(" ", "") in t.replace(" ", "") for n in names)
@@ -77,7 +93,7 @@ _LINES = {"dance": "네, 춰 볼게요!", "sit": "네, 앉을게요.", "lie": "�
 def motion_line(text, names=()):
     """몸동작 부탁(펫)이면 그 동작에 맞는 짧은 답('네, 춰 볼게요!'), 아니면 ''. 검색 동작은 제외."""
     m = motion_for(text, names)
-    return _LINES.get(m, "") if m else ""
+    return _LINES["dance" if m and m.startswith("dance") else m] if m else ""
 
 
 def motion_for_reply(text):
@@ -85,7 +101,10 @@ def motion_for_reply(text):
     if not t or len(t) > 40 or _REPLY_NO.search(t) or not _REPLY_YES.search(t) or not _REPLY_DO.search(t):
         return None
     body = _REPLY_YES.sub("", t, count=1)
-    if re.search(r"춰|출게|춤", body):
+    if re.search(r"춰|출게|춤|dance|dancing|踊|ダンス|跳舞|舞", body, re.IGNORECASE):
+        m0 = motion_for(body, [])                   # '제로투 출게요'처럼 춤 이름을 말했으면 그 춤
+        if m0 and m0.startswith("dance"):
+            return m0
         return "dance" if re.search(r"춰\s*볼게요|출게요|춰\s*드릴게요", body) else None
     m = motion_for(body, [])
     if m is None:
@@ -93,7 +112,7 @@ def motion_for_reply(text):
                           ("stand", r"일어날게요|일어설게요|일어나겠습니다")):
             if re.search(pat, body):
                 return name
-    return m if m in _REPLY_OK else None
+    return m if (m in _REPLY_OK or (m and m.startswith("dance"))) else None
 
 
 def pet_call(cfg, path, body=None, timeout=3.0):

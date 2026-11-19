@@ -18,6 +18,31 @@ from . import config as C
 
 ID_RE = re.compile(r"^[0-9A-Za-z가-힣_-]{1,40}$")
 MOTIONS = ("idle", "talk", "hello", "wave")
+# 전체이용가 표시 — 꾸러미 pack.json 의 rating("all"/"19")·pc_only. 표시가 없는 옛 꾸러미는 id 로 가른다.
+#   공개 기본 옷(여·남·혼혈) = 전체이용가 · 비키니 = 성인/PC 전용. 모르는 옷은 표시 없음("") → 플레이 폰에서 숨김(안전한 쪽).
+ALL_AGES_IDS = frozenset({"kimbiseo_f", "kimbiseo_m", "kimbiseo_mix"})
+ADULT_IDS = frozenset({"kimbiseo_bikini"})
+
+
+def rating_of(pj, oid):
+    """꾸러미 메타 → "all" | "19" | ""(모름). pc_only·id 도 함께 본다."""
+    r = str((pj or {}).get("rating") or "").strip().lower()
+    pc = bool((pj or {}).get("pc_only"))
+    if r in ("19", "19+", "adult", "r", "m", "성인"):
+        return "19"
+    if r in ("all", "0", "g", "전체", "전체이용가"):
+        return "all"
+    if pc or oid in ADULT_IDS:
+        return "19"
+    if oid in ALL_AGES_IDS:
+        return "all"
+    return ""
+
+
+def all_ages(outfit):
+    """플레이(전체이용가) 폰에 보여도 되는 옷인가 — 표시가 "all" 이고 성인 id 가 아닐 때만."""
+    return (isinstance(outfit, dict) and outfit.get("rating") == "all"
+            and not outfit.get("pc_only") and outfit.get("id") not in ADULT_IDS)
 # 화면이 쓰는 이름 → 꾸러미 안 클립 이름 후보(없으면 다음 것, 그래도 없으면 idle)
 CANDIDATES = {
     "idle": ("idle",),
@@ -86,7 +111,9 @@ class PetPhone:
             if not isinstance(clips, dict) or not isinstance(clips.get("idle"), dict) or pj.get("id") != name:
                 continue
             out.append({"id": name, "name": str(pj.get("name") or name)[:60], "성별": str(pj.get("gender") or "")[:10],
-                        "판": str(pj.get("version") or "")[:40], "폴더": p, "clips": clips})
+                        "판": str(pj.get("version") or "")[:40], "폴더": p, "clips": clips,
+                        "rating": rating_of(pj, name), "pc_only": bool(pj.get("pc_only")),
+                        "note": str(pj.get("note") or "")[:120]})
         out.sort(key=lambda o: o["id"])
         return out
 
@@ -218,12 +245,17 @@ class PetPhone:
         return path, MEDIA[ext], sha, False, c
 
     # ---------------------------------------------------------------- 폰에 줄 것
-    def manifest(self, selected=""):
-        """폰이 받을 목록. 옷이 없어도 ok=true(옷=null)로 답해 폰이 '아직 없음'을 알게 한다."""
+    def manifest(self, selected="", all_ages_only=False):
+        """폰이 받을 목록. 옷이 없어도 ok=true(옷=null)로 답해 폰이 '아직 없음'을 알게 한다.
+        all_ages_only = 플레이(전체이용가) 폰: rating 이 "all" 인 옷만 목록·적용에 넣고, 지금 입은 옷이
+          성인/모름이면 전체이용가 옷으로 대신한다(하나도 없으면 옷=null)."""
         outfits = self.outfits()
+        if all_ages_only:
+            outfits = [o for o in outfits if all_ages(o)]
         cur = self.current_id(outfits)
         outfit = self._pick(outfits, selected)
-        lst = [{"id": o["id"], "name": o["name"], "성별": o["성별"], "판": o["판"]} for o in outfits]
+        lst = [{"id": o["id"], "name": o["name"], "성별": o["성별"], "판": o["판"],
+                "rating": o["rating"], "pc_only": o["pc_only"]} for o in outfits]
         if outfit is None:
             return {"옷": None, "고른옷": "", "지금옷": cur, "옷목록": lst, "동작": []}
         motions = []
@@ -251,15 +283,20 @@ class PetPhone:
             motions.append(item)
         logger.debug(f"폰 펫 목록: {outfit['id']} · {len(motions)}개 · "
                      f"{sum(x['바이트'] for x in seen.values()) / 1e6:.1f}MB")
-        return {"옷": {"id": outfit["id"], "name": outfit["name"], "성별": outfit["성별"], "판": outfit["판"]},
+        return {"옷": {"id": outfit["id"], "name": outfit["name"], "성별": outfit["성별"], "판": outfit["판"],
+                       "rating": outfit["rating"], "pc_only": outfit["pc_only"]},
                 "고른옷": outfit["id"], "지금옷": cur, "옷목록": lst, "동작": motions}
 
-    def clip(self, selected, motion):
-        """(파일 경로, 미디어 종류, sha256) 또는 None. motion 은 idle·talk·hello·wave 만."""
+    def clip(self, selected, motion, all_ages_only=False):
+        """(파일 경로, 미디어 종류, sha256) 또는 None. motion 은 idle·talk·hello·wave 만.
+        all_ages_only 면 manifest 와 같은 규칙으로 전체이용가 옷에서만 고른다."""
         m = str(motion or "")
         if m not in MOTIONS:
             return None
-        outfit = self._pick(self.outfits(), selected)
+        outfits = self.outfits()
+        if all_ages_only:
+            outfits = [o for o in outfits if all_ages(o)]
+        outfit = self._pick(outfits, selected)
         if outfit is None:
             return None
         r = self._clip(outfit, m)

@@ -485,6 +485,27 @@ def test_dance_phrases():
         assert motion_for(t, ["김비서"]) != "dance", t
 
 
+def test_named_dance_phrases():
+    from app.pet_link.face import motion_for, motion_line, motion_for_reply
+    # 말한 춤 이름을 그대로 펫에 넘긴다(펫이 그 옷에 없으면 기본 춤으로 대신 춤)
+    cases = {
+        "dance_zerotwo": ("제로투 춰줘", "제로투 춤 보여 줘", "Zero Two dance", "zero-two dancing", "ゼロツー踊って",
+                          "零二跳舞", "제로투"),
+        "dance_bad": ("BAD 춰줘", "bad dance", "배드 춤 춰 줘", "バッド踊って", "에스텔라 말고 BAD 춰줘"),
+        "dance_estella": ("에스텔라 춰줘", "Estella dance", "エステラ踊って", "에스텔라 춤"),
+    }
+    for want, texts in cases.items():
+        for t in texts:
+            assert motion_for(t, ["김비서"]) == want, (t, motion_for(t, ["김비서"]))
+    assert motion_for("댄스 타임", ["김비서"]) == "dance", "이름 없는 춤은 기본 춤"
+    assert motion_for("dance", ["김비서"]) == "dance"
+    assert motion_for("제로투 춤 추지 마", ["김비서"]) != "dance_zerotwo", "안 춘다고 하면 빼기"
+    assert motion_line("제로투 춰줘") == "네, 춰 볼게요!"
+    assert motion_for_reply("네, 제로투 출게요.") == "dance_zerotwo"
+    assert motion_for_reply("네, BAD 춰 볼게요.") == "dance_bad"
+    assert motion_for_reply("네, 춤 출게요.") == "dance"
+
+
 # ================================================================ 날씨 지명·가격 조사(인터넷 없이)
 def test_geocode_korea_first():
     tries = WEB._geo_tries("광주", "광주")
