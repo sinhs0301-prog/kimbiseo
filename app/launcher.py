@@ -360,6 +360,13 @@ class Launcher:
             log(f"{KO[k]}: 이미 켜져 있음(포트 {self.port(k)}) — 그대로 씀")
             return True
         if k != "pet" and port_busy(self.port(k)):
+            if k == "brain":     # 본체가 설정 저장 직후 먼저 켰을 수 있다 — 잠깐 준비를 기다려 본다(다른 프로그램이면 실패)
+                for _ in range(40):
+                    if self.healthy(k):
+                        self._set(k, "이미 켜져 있음", f"포트 {self.port(k)} 에서 이미 돌고 있어요(본체가 먼저 켬 — 끄지 않음)")
+                        log(f"{KO[k]}: 이미 켜져 있음(포트 {self.port(k)}, 본체가 먼저 켬)")
+                        return True
+                    time.sleep(0.5)
             self._set(k, "실패", f"포트 {self.port(k)} 를 다른 프로그램이 쓰고 있어요. 그 프로그램을 끄거나 설정에서 포트를 바꿔 주세요.")
             log(f"{KO[k]}: 포트 {self.port(k)} 사용 중 → 못 켬")
             return False

@@ -217,7 +217,20 @@ function onEvent(ev) {
   if (t === "interrupted") { Chat.cut(); return; }
   if (t === "tool" && ev.state === "start") { Chat.sys(tr(TOOL_TEXT[ev.name] || "도구를 쓰고 있어요") + "."); return; }
   if (t === "tool_halt") { Chat.sys(tr("도구를 너무 많이 불러서 멈췄어요.")); return; }
-  if (t === "brain_error") { Chat.sys(tr("두뇌 연결에 문제가 있어요: {0}", {0: ev.reason || ""})); return; }
+  if (t === "brain_error") { Chat.sys(ev.text || ev.reason || tr("두뇌 연결에 문제가 있어요.")); return; }
+  if (t === "brain_prepare" || t === "brain_ready") {
+    // 두뇌를 바꾼 직후 로컬 두뇌를 켜고 모델을 읽는 동안 — '두뇌 준비 중(n초)'을 아래 줄에 보여 준다.
+    const el = document.getElementById("talk-state");
+    if (t === "brain_prepare") {
+      const txt = tr("두뇌 준비 중({0}초)", {0: ev["초"] == null ? 0 : ev["초"]});
+      if (Talk.on) el.textContent = txt;
+      setTop(txt, "busy");
+    } else if (Talk.on) {
+      el.textContent = STATE_TEXT[K.lastStatus] || K.lastStatus || "";
+      setTop(K.lastStatus || "준비됨", K.lastStatus === "듣는 중" ? "on" : "busy");
+    }
+    return;
+  }
   if (t === "wake_mode") { Chat.sys(ev.on ? tr("이름({0})을 부르면 대답해요.", {0: get(K.cfg, "비서.이름", "김비서")}) : tr("지금은 이름 없이도 대답해요.")); return; }
   if (t === "names") { setName(ev.name); return; }
   if (t === "settings") { loadSettings().catch(() => {}); return; }

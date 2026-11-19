@@ -474,8 +474,14 @@
       "path": "app/core/brain.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "d6dc17aeeb9e71b13ecaaefe51c1c88cfc3c6a19b755317b65083af88d39e07e",
+      "sha256": "256d626d0c3293aa68ea57e10e65d26c389f5851cd3691d3667a1dcc5bc3e98b",
       "note": "두뇌 제공자 4가지·캐시 가드·글 도구 건지기 연결"
+    },
+    {
+      "path": "app/core/brainserver.py",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "5b51dd07f5b252e9399ef91bea7dd537da2bbc78376c8e4a61ec339b87debec5"
     },
     {
       "path": "app/core/cli_brain.py",
@@ -644,14 +650,14 @@
       "path": "app/core/session.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "bf51525137e4ddc8767ed6cc379fec06bc976acce5999a1377c661e7d2b89b9d",
+      "sha256": "7b8bbceae4accbe26e691b502f122ae65f522d30190df324e95591365e30dbbd",
       "note": "파이프라인 묶기·글 입력·저장"
     },
     {
       "path": "app/core/settings_api.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "3edc1d75a9fa106f759f621c6835f398d3f671386d00fbe89b7172554e9c2d77",
+      "sha256": "208a98b0bef4d05080923289fd75a0d3830457c1b8b8c4cefb70be1a6c2ee2a5",
       "note": "설정 화면 값 검사·반영 시점·열쇠 저장·두뇌 연결 시험·펫 옷 받기 — 7단계"
     },
     {
@@ -748,7 +754,7 @@
       "path": "app/i18n/en.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "c73c4b74e41022e133ac2a9c1ec4b80d2e50092db6014ff21596f513bdd3f33c",
+      "sha256": "d95b62af9a9233b854fe200f42ac83d1beed5c6a26607e44db72b1dd3fd56fc7",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -772,7 +778,7 @@
       "path": "app/i18n/ja.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "cf37c58093237042d4dcc6845ab72ee63555ee10002e9c95ccb2ef1edbe0d66d",
+      "sha256": "1e759d42a5791c6a49d7eca24c80aea6678fecd2ce01afcfe31127961f975d77",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -796,7 +802,7 @@
       "path": "app/i18n/zh.json",
       "origin": "new",
       "treatment": "new",
-      "sha256": "155f96eff3ddedd0008392204642364ae21997fcbe790c2f35c95a613d168d34",
+      "sha256": "9377d64fc4bdd94c41d85f0fe3b3ce46bc6372e72e5a355d4db5b6ccf96cef34",
       "note": "0.1.18 다국어",
       "exceptions": [
         {
@@ -820,14 +826,14 @@
       "path": "app/launcher.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "704bc60ed590f32d1a6bf25021db40eca594157d846e931ca7ab779d1aedadbf",
+      "sha256": "9e0a7b6ca221e6b701bfcf899f2ae4c7825f46c8a8b5057f1a506c550cd30aeb",
       "note": "실행기(두뇌·귀·목소리·본체·펫 켜고 끄기, 자기 PID 만) — 7단계"
     },
     {
       "path": "app/main.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "0203a9543fe8b1480877e26244147bf0bd0773a4667ef8f4b0c6fd4243b0e965",
+      "sha256": "5d9337ee22115cc40d92fa17333ef49476adc89b3c5a6d6227190a1a168b7638",
       "note": "본체 실행(serve/script/check)·펫 옷 설정 펫에 알리기·부모 PID 지켜보기 — 7단계"
     },
     {
@@ -965,7 +971,7 @@
       "path": "app/ui/app.js",
       "origin": "new",
       "treatment": "new",
-      "sha256": "316cc096b4f3c9b1cbe054af64a7e52cc5e48bc504d0a48b0a06e1e4396fb39c",
+      "sha256": "cc301a9b23214d1d086ea70ca1d2e28bf079729b2acdfb3d5aceb6c5e0e4e69b",
       "note": "화면(처음 화면·대화·기억·설정) — 5단계"
     },
     {
@@ -1616,6 +1622,12 @@
       "note": "본체 단위 시험"
     },
     {
+      "path": "tests/unit/test_brain_switch.py",
+      "origin": "new",
+      "treatment": "new",
+      "sha256": "d3b8b42696a174c696b8ff7e61721fa8ec72d0a9dba0e4f97105914e9d0b87c4"
+    },
+    {
       "path": "tests/unit/test_brain_tools.py",
       "origin": "new",
       "treatment": "new",
@@ -1793,7 +1805,7 @@
       "path": "tests/unit/test_settings.py",
       "origin": "new",
       "treatment": "new",
-      "sha256": "87ce5f6b04c93aa4ed2e969400a16434d345d3d8c757ae8737caa09253a4f55e",
+      "sha256": "0b81d2f395b6d2d93fe694d2374be39fd23271ff4897721ddc0b3288a594852d",
       "note": "설정 단위 시험 — 5단계"
     },
     {

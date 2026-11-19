@@ -51,8 +51,12 @@ class Session:
         self.state = SessionState(cfg, self._send_ui, pet=pet)
         self.ear, self.voice = ear, voice
         self.worker = None
+        self.pipeline = None
         self.context = None
         self.llm = None
+        self.handlers = {}
+        self.tool_ctx = None
+        self._retired = []          # 두뇌를 바꿔 파이프라인에서 뺀 옛 두뇌(끝날 때 정리)
         self.observer = None
         self.end_report = {}
         self.restored_n = 0
@@ -114,7 +118,9 @@ class Session:
             acts.update(phone=link, confirm=link.confirm)      # 위험한 도구의 '실행할까요?' = 폰 화면 단추
         elif self.opts.get("confirm") is not None:
             acts["confirm"] = self.opts["confirm"]             # PC 창의 확인 단추
-        self.tool_guard = register(self.llm, specs, handlers, ToolContext(st, cfg, self.memory, actions=acts))
+        self.handlers = handlers
+        self.tool_ctx = ToolContext(st, cfg, self.memory, actions=acts)
+        self.tool_guard = register(self.llm, specs, handlers, self.tool_ctx)
         stt = EarSTT(st, cfg["포트"]["귀"], ear=self.ear, voiceprint=self.opts.get("voiceprint"))
         tts = VoiceTTS(st, voice=self.voice)
         self._tts = tts
@@ -142,6 +148,7 @@ class Session:
         trim = ContextTrim(turns=int(cfg["두뇌"].get("기억_차례", 12)), keep_head=1)
         pipeline = Pipeline([self.transport.input(), stt, pair.user(), trim, self.llm, tts,
                              self.transport.output(), pair.assistant()])
+        self.pipeline = pipeline
         self.observer = Observer(st, vad_stop)
         self.worker = PipelineWorker(pipeline, params=PipelineParams(audio_in_sample_rate=16000, audio_out_sample_rate=24000,
                                                                      enable_metrics=True),
@@ -168,10 +175,17 @@ class Session:
                 logger.warning(f"말싸움 지시문으로 구독 두뇌 다시 띄우기 실패: {ex.__class__.__name__}")
 
     # ---- 화면에서 설정을 바꿨을 때(self.cfg 는 이미 새 값) — '즉시' 항목만 지금 대화에 반영
-    def apply_settings(self, keys):
-        """keys = 바뀐 설정 경로들('비서.이름' 등). 반영한 것의 이름 목록을 돌려줌."""
+    async def apply_settings(self, keys):
+        """keys = 바뀐 설정 경로들('비서.이름' 등). 반영한 것의 이름 목록을 돌려줌.
+        두뇌(방식·주소·모델·열쇠)가 바뀌면 지금 대화의 두뇌 부품을 새로 만들어 파이프라인에서 갈아 끼운다 —
+        다음 말부터 새 두뇌가 답한다(대화를 다시 연결하지 않아도 됨)."""
         st, cfg, done = self.state, self.cfg, []
         keys = set(keys)
+        brain_keys = {k for k in keys if k.startswith("두뇌.") and k != "두뇌.모드"}
+        if brain_keys and self.llm is not None:
+            kind = await self._rebuild_brain()
+            if kind:
+                done.append("두뇌")
         if keys & {"비서.이름", "비서.별칭"}:
             st.refresh_names()
             if st.pet is not None:
@@ -206,6 +220,65 @@ class Session:
         if done:
             st.event("settings_applied", what=done)
         return done
+
+    # ---- 두뇌 바꾸기(설정 저장 직후 — 대화를 다시 연결하지 않고 다음 말부터 새 두뇌)
+    async def _rebuild_brain(self):
+        """지금 대화의 두뇌 부품을 지금 설정으로 새로 만들어 파이프라인에서 갈아 끼운다.
+        도구도 새 두뇌에 다시 달고, 지시문(구독·로컬 두뇌의 말투 차이)도 새로 만든다. 실패해도 대화는 살아 있게 NoBrain."""
+        old = self.llm
+        names = [s["function"]["name"] for s in (self.specs or ())]
+        try:
+            new = make_llm(self.state, self.cfg, names, self.guards, session_key=self.sid)
+        except RuntimeError as ex:      # 열쇠 없음·꾸러미 없음 — 다음 말에 까닭을 말해 준다
+            logger.warning(f"두뇌를 바꿀 수 없음: {ex}")
+            msg = tr(str(ex))[:300]
+            self.state.event("brain_error", reason=msg, text=msg)
+            new = NoBrain(str(ex))
+        self.cli = str((self.cfg.get("두뇌") or {}).get("방식") or "") in CLI_KINDS
+        try:
+            self.tool_guard = register(new, self.specs or [], self.handlers, self.tool_ctx)
+        except Exception as ex:  # noqa: BLE001
+            logger.warning(f"새 두뇌에 도구를 달지 못함: {ex.__class__.__name__}")
+        if self.pipeline is not None and old is not None:
+            await self._swap_llm(old, new)
+        else:
+            self.llm = new
+        self._refresh_system()
+        logger.info(f"두뇌 바꿈: {getattr(old, 'kind', '?')} → {getattr(self.llm, 'kind', '?')} (다음 말부터)")
+        return getattr(self.llm, "kind", "")
+
+    async def _swap_llm(self, old, new):
+        """파이프라인에서 옛 두뇌 부품 자리에 새 두뇌를 넣는다(앞뒤 연결·설정 그대로).
+        옛 두뇌는 이미 흐르는 답을 마칠 수 있게 연결을 그대로 두고, 대화가 끝날 때 정리한다."""
+        try:
+            setup = getattr(old, "_setup", None)
+            if setup is not None:
+                new._setup_started()
+                await new.setup(setup)
+                new._setup_finished()
+                from pipecat.frames.frames import StartFrame
+                await new.queue_frame(StartFrame())      # 새 부품의 입력 처리 시작(이미 흐르던 StartFrame 대신)
+            prev, nxt = old._prev, old._next
+            if prev is not None:
+                prev.link(new)
+            if nxt is not None:
+                new.link(nxt)
+            procs = self.pipeline._processors
+            i = procs.index(old)
+            procs[i] = new
+            self.llm = new
+            self._retired.append(old)
+        except Exception as ex:  # noqa: BLE001
+            logger.warning(f"두뇌 갈아 끼우기 실패({ex.__class__.__name__}) — 다음 연결부터 새 두뇌")
+            self.llm = new if getattr(new, "_setup", None) is None else old
+
+    async def _cleanup_retired(self):
+        for p in self._retired:
+            try:
+                await p.cleanup()
+            except Exception as ex:  # noqa: BLE001
+                logger.debug(f"옛 두뇌 정리: {ex.__class__.__name__}")
+        self._retired.clear()
 
     # ---- 시작 인사·앞부분 미리 읽히기
     def _pairs(self, msgs):
@@ -376,6 +449,7 @@ class Session:
     async def finish(self):
         """대화 원문 보관 → 일기 → 자동 기억 → 이어가기(요약 포함). 두뇌가 없거나 실패해도 원문·이어가기는 남김."""
         rep = {}
+        await self._cleanup_retired()
         mem = self.memory
         if mem is None:
             return rep
