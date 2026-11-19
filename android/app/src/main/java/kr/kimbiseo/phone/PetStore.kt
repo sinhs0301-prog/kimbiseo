@@ -40,6 +40,9 @@ object PetStore {
     private fun dir(c: Context) = File(c.filesDir, "pet")
     private fun manifestFile(c: Context) = File(dir(c), "manifest.json")
 
+    /** 플레이(전체이용가) 판인가 — GH 판(접근성)은 성인 옷도 보여 줄 수 있다. */
+    private fun playOnly(): Boolean = !GhBridge.available
+
     @Synchronized
     private fun load(c: Context) {
         if (loaded) return
@@ -50,10 +53,14 @@ object PetStore {
     /** PC 에서 고른 옷 id(폰 선택이 없을 때 화면에 알려 주기용). */
     fun currentPcId(c: Context): String {
         load(c)
-        return PetRules.cleanOutfit(manifest?.optString("지금옷"))
+        val id = PetRules.cleanOutfit(manifest?.optString("지금옷"))
+        if (id.isEmpty()) return ""
+        // 플레이 판에서 PC 가 성인 옷을 입고 있으면 'PC 따라가기' 이름도 안전한 옷으로(목록에 없으면 빈 값).
+        if (playOnly() && outfits(c).none { it.first == id }) return ""
+        return id
     }
 
-    /** 폰에서 따로 고를 수 있는 옷 목록 — (id, 이름, 성별) */
+    /** 폰에서 따로 고를 수 있는 옷 목록 — (id, 이름, 성별). 플레이 판은 rating "all" 만. */
     fun outfits(c: Context): List<Triple<String, String, String>> {
         load(c)
         val a = manifest?.optJSONArray("옷목록") ?: return emptyList()
@@ -62,6 +69,7 @@ object PetStore {
             val o = a.optJSONObject(i) ?: continue
             val id = PetRules.cleanOutfit(o.optString("id"))
             if (id.isEmpty()) continue
+            if (playOnly() && !PetRules.isAllAges(o.optString("rating"), id)) continue
             out.add(Triple(id, o.optString("name").ifEmpty { id }, o.optString("성별")))
         }
         return out
@@ -74,6 +82,8 @@ object PetStore {
         val outfit = m.optJSONObject("옷") ?: return emptyMap()
         val id = PetRules.cleanOutfit(outfit.optString("id"))
         if (id.isEmpty()) return emptyMap()
+        // 옛 PC 가 성인 옷 클립을 보냈거나 rating 을 못 읽으면 플레이 판에서는 보여 주지 않는다.
+        if (playOnly() && !PetRules.isAllAges(outfit.optString("rating"), id)) return emptyMap()
         val arr = m.optJSONArray("동작") ?: return emptyMap()
         val out = LinkedHashMap<String, File>()
         for (i in 0 until arr.length()) {
@@ -121,7 +131,13 @@ object PetStore {
     private fun doSync(c: Context) {
         val pc = Store.pc(c) ?: return
         val sel = selected(c)
-        val path = "/phone/api/pet" + if (sel.isNotEmpty()) "?outfit=" + enc(sel) else ""
+        // 플레이(전체이용가) 판은 PC 에게도 전체이용가 옷만 달라고 한다(PC 0.1.20+). PC 가 옛 판이면
+        //   rating 이 안 와서 아래 outfits/clips 가 표시를 못 읽은 옷을 숨긴다(안전한 쪽).
+        val path = buildString {
+            append("/phone/api/pet")
+            if (sel.isNotEmpty()) append("?outfit=").append(enc(sel))
+            if (playOnly()) append(if (sel.isNotEmpty()) "&all=1" else "?all=1")
+        }
         val client = Net.fileClient(pc.fp)
         var json: JSONObject? = null
         var host = ""
@@ -143,6 +159,9 @@ object PetStore {
         val outfit = j.optJSONObject("옷")
         if (outfit == null) { status = L.s(R.string.pet_status_none); return }
         val id = PetRules.cleanOutfit(outfit.optString("id"))
+        if (playOnly() && !PetRules.isAllAges(outfit.optString("rating"), id)) {
+            status = L.s(R.string.pet_status_none); return      // 옛 PC 가 성인 옷을 보냄 → 받지도 보여 주지도 않음
+        }
         val arr = j.optJSONArray("동작") ?: JSONArray()
         if (id.isEmpty() || arr.length() == 0) { status = L.s(R.string.pet_status_none); return }
 
