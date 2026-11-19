@@ -8,7 +8,7 @@
   /* 색 하나(분홍 #FF005A, 글자는 진한 #D6004C — 운영 캐릭터펫 메뉴와 같은 색), 단추 줄 = 4칸 같은 폭 격자, 굵기 600/500/400, 테두리 1px, 간격 8 단위, '항상 위' = 켜짐/꺼짐 스위치 */
   :root { --ink: #262b40; --sub: #5d6382; --line: #d8dcea; --hover: #f2a7c3; --accent: #FF005A; --accent-ink: #D6004C; --accent-soft: #fff0f5; --bg: #ffffff; }
   html, body { margin: 0; background: transparent; font-family: "Malgun Gothic", sans-serif; color: var(--ink); user-select: none; overflow: hidden; }
-  #card { margin: 8px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 8px 24px rgba(30, 30, 70, 0.18); padding: 8px 16px 16px; }
+  #card { max-height: calc(100vh - 16px); overflow-y: auto; box-sizing: border-box; scrollbar-width: thin; margin: 8px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 8px 24px rgba(30, 30, 70, 0.18); padding: 8px 16px 16px; }
   header { display: flex; align-items: center; justify-content: space-between; }
   header b { font-size: 18px; font-weight: 600; }
   #x { width: 40px; height: 40px; border: 0; background: transparent; font-size: 24px; color: var(--sub); border-radius: 8px; cursor: pointer; margin-right: -8px; }

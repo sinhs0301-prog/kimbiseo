@@ -602,11 +602,11 @@ ipcMain.on('menu-height', (e, h) => {
   const nh = Math.max(200, Math.min(900, Math.round(+h || 0)));
   if (nh === menuState.h) return;
   menuState.h = nh;
-  if (menuState.visible) {
-    const wa = env.workAreaAt({ x: menuState.x, y: menuState.y });
-    menuState.y = Math.max(wa.y + 4, Math.min(menuState.y, wa.y + wa.height - nh - 4));
-  }
-  menu.setBounds({ x: menuState.x, y: menuState.y, width: menuState.w, height: nh });
+  // 화면(작업 표시줄 제외)보다 길면 창은 화면 높이까지만, 나머지는 메뉴 안에서 스크롤
+  const wa = env.workAreaAt({ x: menuState.x, y: menuState.y });
+  const vh = Math.min(nh, wa.height - 8);
+  if (menuState.visible) menuState.y = Math.max(wa.y + 4, Math.min(menuState.y, wa.y + wa.height - vh - 4));
+  menu.setBounds({ x: menuState.x, y: menuState.y, width: menuState.w, height: vh });
 });
 
 // ---------------------------------------------------------------- 옷 관리·옷 더 받기 창, 파일로 추가·끌어 놓기·두 번 누르기

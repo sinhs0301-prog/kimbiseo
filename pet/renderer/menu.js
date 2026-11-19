@@ -69,7 +69,7 @@
     t.textContent = S.onTop ? T('켜짐') : T('꺼짐');
     t.className = 'btn' + (S.onTop ? ' on' : '');
     $('ver').textContent = 'v' + S.version + (S.port ? ' · ' + T('펫 신호 입구') + ' 127.0.0.1:' + S.port : '');
-    requestAnimationFrame(() => api.send('menu-height', Math.ceil(document.getElementById('card').getBoundingClientRect().height + 12)));
+    requestAnimationFrame(() => api.send('menu-height', Math.ceil(document.getElementById('card').scrollHeight + 14)));
   }
   $('x').onclick = () => pick('close');
   $('ontop').onclick = () => pick('ontop', !S.onTop);
