@@ -5,6 +5,21 @@
   const $ = id => document.getElementById(id);
   const pick = (type, value) => api.send('menu-pick', { type, value });
   let S = null, toastTimer = null;
+  // 화면 언어(0.1.18~) — 본체가 state 로 넘겨 주는 사전(한국어 원문이 열쇠). 한국어면 그대로.
+  const D = k => (S && S.dict && S.dict[k]) || k;
+  function T(s, ...a) { let t = D(s); a.forEach((v, i) => { t = t.split('{' + i + '}').join(String(v)); }); return t; }
+  function applyStatic() {
+    try { document.documentElement.lang = (S && S.lang) || 'ko'; } catch (e) { /* 무시 */ }
+    if (!S || !S.lang || S.lang === 'ko' || !S.dict) return;
+    const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = []; while (walk.nextNode()) nodes.push(walk.currentNode);
+    for (const n of nodes) {
+      const t = n.nodeValue, k = t.trim();
+      if (k && S.dict[k]) n.nodeValue = t.replace(k, S.dict[k]);
+    }
+    document.querySelectorAll('[title]').forEach(e => { const v = e.getAttribute('title'); if (v && S.dict[v]) e.setAttribute('title', S.dict[v]); });
+    document.querySelectorAll('[placeholder]').forEach(e => { const v = e.getAttribute('placeholder'); if (v && S.dict[v]) e.setAttribute('placeholder', S.dict[v]); });
+  }
 
   function el(tag, cls, kids) {
     const e = document.createElement(tag);
@@ -17,17 +32,18 @@
 
   function render() {
     if (!S) return;
+    applyStatic();
     const o = $('outfits'); o.textContent = ''; o.className = 'outfits' + (S.outfits.length === 1 ? ' one' : '');
-    if (!S.outfits.length) o.appendChild(el('div', 'empty', ['넣은 옷이 없어요 — 아래 「옷 더 받기」를 눌러 주세요']));
+    if (!S.outfits.length) o.appendChild(el('div', 'empty', [T('넣은 옷이 없어요 — 아래 「옷 더 받기」를 눌러 주세요')]));
     for (const f of S.outfits) {
-      const b = el('button', 'outfit' + (S.skin === f.id ? ' on' : ''), [img(/^(file|data):/.test(f.img || '') ? f.img : 'img/icon.png'), el('span', '', [f.name + (f.songs || S.danceMusic === false ? '' : ' · 노래 없음')])]);
+      const b = el('button', 'outfit' + (S.skin === f.id ? ' on' : ''), [img(/^(file|data):/.test(f.img || '') ? f.img : 'img/icon.png'), el('span', '', [T(f.name) + (f.songs || S.danceMusic === false ? '' : ' · ' + T('노래 없음'))])]);
       b.dataset.skin = f.id;
-      b.onclick = () => { pick('skin', f.id); toast(f.name + ' 입었어요'); };
+      b.onclick = () => { pick('skin', f.id); toast(T('{0} 입었어요', T(f.name))); };
       o.appendChild(b);
     }
     const s = $('sizes'); s.textContent = '';
     for (const z of S.sizes) {
-      const b = el('button', 'btn' + (S.size === z ? ' on' : ''), [z]);
+      const b = el('button', 'btn' + (S.size === z ? ' on' : ''), [T(z)]);
       b.dataset.size = z;
       b.onclick = () => pick('size', z);
       s.appendChild(b);
@@ -36,30 +52,30 @@
     if (fine) {
       fine.textContent = '';
       const pct = S.sizePct || 100, rng = S.sizeRange || [50, 200];
-      const dn = el('button', 'btn', ['조금 작게']); dn.dataset.sizestep = 'down'; dn.disabled = pct <= rng[0]; dn.onclick = () => pick('size-step', 'down');
-      const up = el('button', 'btn', ['조금 크게']); up.dataset.sizestep = 'up'; up.disabled = pct >= rng[1]; up.onclick = () => pick('size-step', 'up');
+      const dn = el('button', 'btn', [T('조금 작게')]); dn.dataset.sizestep = 'down'; dn.disabled = pct <= rng[0]; dn.onclick = () => pick('size-step', 'down');
+      const up = el('button', 'btn', [T('조금 크게')]); up.dataset.sizestep = 'up'; up.disabled = pct >= rng[1]; up.onclick = () => pick('size-step', 'up');
       const lab = el('span', 'pct', [pct + '%']); lab.id = 'sizepct';
       fine.append(dn, lab, up);
     }
     const mu = $('music'); mu.textContent = '';   // 춤 노래 크기(기본 보통 = 목소리보다 작게) — 춤 노래를 끈 판이면 칸째 숨김
     mu.style.display = $('music-h').style.display = (S.musicLevels || []).length ? '' : 'none';
     for (const z of S.musicLevels || []) {
-      const b = el('button', 'btn' + (S.musicVolume === z ? ' on' : ''), [z]);
+      const b = el('button', 'btn' + (S.musicVolume === z ? ' on' : ''), [T(z)]);
       b.dataset.music = z;
-      b.onclick = () => { pick('music', z); toast('춤 노래 크기: ' + z); };
+      b.onclick = () => { pick('music', z); toast(T('춤 노래 크기: {0}', T(z))); };
       mu.appendChild(b);
     }
     const t = $('ontop');
-    t.textContent = S.onTop ? '켜짐' : '꺼짐';
+    t.textContent = S.onTop ? T('켜짐') : T('꺼짐');
     t.className = 'btn' + (S.onTop ? ' on' : '');
-    $('ver').textContent = 'v' + S.version + (S.port ? ' · 펫 신호 입구 127.0.0.1:' + S.port : '');
+    $('ver').textContent = 'v' + S.version + (S.port ? ' · ' + T('펫 신호 입구') + ' 127.0.0.1:' + S.port : '');
     requestAnimationFrame(() => api.send('menu-height', Math.ceil(document.getElementById('card').getBoundingClientRect().height + 12)));
   }
   $('x').onclick = () => pick('close');
   $('ontop').onclick = () => pick('ontop', !S.onTop);
   $('dance').onclick = () => pick('dance');
   $('speak').onclick = () => pick('speak-test');
-  $('home').onclick = () => { pick('home'); toast('화면 오른쪽 아래로 옮겼어요'); };
+  $('home').onclick = () => { pick('home'); toast(T('화면 오른쪽 아래로 옮겼어요')); };
   $('ward').onclick = () => pick('wardrobe', 'mine');
   $('wardget').onclick = () => pick('wardrobe', 'get');
   $('packfile').onclick = () => pick('pack-file');

@@ -24,7 +24,7 @@ from pipecat.utils.text.base_text_aggregator import Aggregation, TextType
 from pipecat.utils.text.simple_text_aggregator import SimpleTextAggregator
 
 from .audio_smooth import SeamSmoother
-from . import i18n, interp, voice_choice
+from . import debate, i18n, interp, voice_choice
 from .filters import app_clean, foreign_clean, lang_active, mostly_english, tts_clean
 from .voice_link import EarLink, VoiceLink, speech_rate, text_norm
 
@@ -93,7 +93,7 @@ class FirstCommaAggregator(SimpleTextAggregator):
 class VoiceTTS(TTSService):
     def __init__(self, state, voice=None, **kw):
         async def _norm(text, _type):
-            if interp.speak_lang(text):      # 통역 번역문 — 그 언어 글자 그대로(한자·가나·태국 글자를 지우지 않음)
+            if interp.speak_lang(text, i18n.lang_of(state.cfg)):   # 통역 번역문 — 그 언어 글자 그대로(한자·가나·태국 글자를 지우지 않음)
                 return re.sub(r"[*_#`~]+", " ", text).strip()
             if text_norm.has_yawn(text):
                 state.event("yawn", text=text[:60])
@@ -197,7 +197,13 @@ class VoiceTTS(TTSService):
 
     async def run_tts(self, text: str, context_id: str):
         text = text.strip()
-        lang = interp.speak_lang(text)
+        st = self.state
+        if debate.on(st):
+            text = debate.filter_text(text, st)     # 말싸움: 개인 값이 든 문장은 읽지 않는다(화면도 observer 가 거른다)
+            if not text.strip():
+                yield self._hush(context_id)
+                return
+        lang = interp.speak_lang(text, i18n.lang_of(st.cfg))
         if lang:
             async for fr in self._interp_say(text, lang, context_id):
                 yield fr
@@ -216,7 +222,7 @@ class VoiceTTS(TTSService):
                 yield self._hush(context_id)
                 return
             self._noticed = True
-            text = "영어로 된 답이라 소리로는 읽지 않았어요. 화면을 봐 주세요."
+            text = i18n.tr("영어로 된 답이라 소리로는 읽지 않았어요. 화면을 봐 주세요.")
         else:
             self._spoken_n += 1
         st.add_spoken(text)

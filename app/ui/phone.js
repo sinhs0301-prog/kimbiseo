@@ -20,8 +20,7 @@ const Phone = {
     const [l1, i1] = box("ph-on", "폰 연결 켜기", "폰.켜기", false);
     const [l2, i2] = box("ph-ts", "테일스케일로도 연결 받기(집 밖에서 쓸 때)", "폰.테일스케일_허용", false);
     const [l3, i3] = box("ph-pc", "폰으로 말해도 이 PC 조작하기(검색·사이트·프로그램 열기·메모장)", "폰.PC조작_허용", true);
-    s1.append(h("p", {class: "hint", text: "내 폰에 '김비서' 앱을 깔고 이 PC 와 연결하면, 폰으로 말해도 이 PC 의 김비서가 대답해요. " +
-      "같은 와이파이(집 안 네트워크)에서만 연결되고, 연결한 폰만 들어올 수 있어요. 쓰지 않으면 꺼 두세요(꺼져 있으면 아무 연결도 받지 않아요)."}),
+    s1.append(h("p", {class: "hint", text: "내 폰에 '김비서' 앱을 깔고 이 PC 와 연결하면, 폰으로 말해도 이 PC 의 김비서가 대답해요. 같은 와이파이(집 안 네트워크)에서만 연결되고, 연결한 폰만 들어올 수 있어요. 쓰지 않으면 꺼 두세요(꺼져 있으면 아무 연결도 받지 않아요)."}),
     l1, l2, l3,
     h("p", {class: "hint", text: "처음 켤 때 윈도우 방화벽 창이 뜨면 '개인 네트워크'만 허용해 주세요. 테일스케일은 폰과 PC 에 둘 다 깔아 같은 계정으로 로그인했을 때만 켜세요."}),
     Settings.saveRow("ph-save", () => ({폰: {켜기: i1.checked, 테일스케일_허용: i2.checked, PC조작_허용: i3.checked}})));
@@ -111,8 +110,7 @@ const MyVoice = {
     try { v = await api("/api/voiceprint"); } catch (e) { body.replaceChildren(notice("bad", "읽지 못했어요", e.message)); return; }
     body.replaceChildren();
     const c = K.cfg;
-    body.appendChild(h("p", {class: "hint", text: "내 목소리를 등록해 두면, 김비서가 등록한 목소리의 말만 명령으로 받게 할 수 있어요(TV·다른 사람 말에 대답하지 않게). " +
-      "목소리 특징(숫자 192개)만 이 PC 에 저장하고, 읽은 소리는 저장하지 않아요. 기본은 꺼져 있어요."}));
+    body.appendChild(h("p", {class: "hint", text: "내 목소리를 등록해 두면, 김비서가 등록한 목소리의 말만 명령으로 받게 할 수 있어요(TV·다른 사람 말에 대답하지 않게). 목소리 특징(숫자 192개)만 이 PC 에 저장하고, 읽은 소리는 저장하지 않아요. 기본은 꺼져 있어요."}));
 
     // 1) 확인 모델
     const s0 = h("div", {class: "set-sec", id: "mv-model"}, h("h2", {text: "목소리 확인 모델"}));

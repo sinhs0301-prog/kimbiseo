@@ -68,11 +68,12 @@ def hot_transcribe(ear, x, language="default"):
 def lang_transcribe(ear, x, msg):
     """통역 중 받아쓰기: 후보 언어 안에서 감지 → 그 언어로 받아씀. → (글, 언어, 신뢰도, 확률)"""
     cands = [c for c in (msg.get("langs") or []) if isinstance(c, str)][:20]
+    home = IL.home_of(STATE["cfg"])
     if not cands:
-        return ear.transcribe(x), "ko", 1.0, {}
+        return ear.transcribe(x), home, 1.0, {}
     probs = {cands[0]: 1.0} if len(cands) == 1 else IL.detect(ear.pipe, x, cands)
     lang, conf = IL.choose(probs, last=msg.get("last"), need=float(msg.get("need") or 0.9), fixed=msg.get("fixed"),
-                           audio_sec=len(x) / 16000)
+                           audio_sec=len(x) / 16000, home=home)
     from ear import token_cap
     text = ear.pipe({"raw": x, "sampling_rate": 16000}, generate_kwargs={"language": lang, "task": "transcribe",
                                                                          "max_new_tokens": token_cap(len(x) / 16000)})["text"].strip()
@@ -234,7 +235,8 @@ def handle(conn, ear):
                             text, lang, conf, probs = lang_transcribe(ear, x, msg)
                             extra = {"lang": lang, "lang_conf": round(conf, 3),
                                      "lang_p": {**{k: round(v, 3) for k, v in sorted(probs.items(), key=lambda kv: -kv[1])[:4]},
-                                                "ko": round(probs.get("ko", 0.0), 3)}}
+                                                "ko": round(probs.get("ko", 0.0), 3),
+                                                "home": round(probs.get(home, 0.0), 3)}}
                         else:
                             text = hot_transcribe(ear, x, rl)
                 except Exception as ex:  # noqa: BLE001

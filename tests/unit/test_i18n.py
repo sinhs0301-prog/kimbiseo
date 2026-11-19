@@ -133,7 +133,7 @@ def test_language_defaults_ko_unchanged():
 
 
 def test_language_defaults_en_ja_zh():
-    want = {"en": ("KimBiseo", "Seoul", "Yes, this is KimBiseo. How can I help you?"),
+    want = {"en": ("Kimmy", "Seoul", "Yes, this is Kimmy. How can I help you?"),
             "ja": ("キム秘書", "ソウル", "はい、キム秘書です。どうぞ。"),
             "zh": ("金秘书", "首尔", "在，我是金秘书。请讲。")}
     for code, (name, place, hello) in want.items():
@@ -150,7 +150,7 @@ def test_language_defaults_use_by_name_and_sites():
     from app.core.wake import NameMatcher
     from app.tools.basic import pc_action
     for code, name, alias, sites in (
-            ("en", "KimBiseo", "Kim Biseo", ["YouTube", "Google Maps", "Wikipedia"]),
+            ("en", "Kimmy", "KimBiseo", ["YouTube", "Google Maps", "Wikipedia"]),
             ("ja", "キム秘書", "キムヒショ", ["ユーチューブ", "グーグルマップ"]),
             ("zh", "金秘书", "金祕書", ["百度", "谷歌地图"])):
         d = C.defaults(code)
@@ -162,6 +162,87 @@ def test_language_defaults_use_by_name_and_sites():
         for site in sites:
             url, why = pc_action.resolve_site(site, table["사이트"], table["별명"])
             assert url and url.startswith("https://"), (code, site, why)
+
+
+def test_wake_names_four_languages():
+    """호출어(0.1.18 7단계) — 한국어·영어·일본어·중국어 이름·별칭을 실제로 알아듣는지.
+    예전 wake.compact 는 [0-9a-z가-힣] 만 남겨 キム秘書·金秘书가 빈 글이 되어 깨우지 못했다."""
+    from app.core.wake import NameMatcher
+    cases = {
+        "ko": ("김비서", ["김비서", "김 비서", "김비서야", "김비서!"]),
+        "en": ("Kimmy", ["Kimmy", "Hey Kimmy", "Kimmy, turn on the light", "KimBiseo", "Kim Biseo", "Kimmy!"]),
+        "ja": ("キム秘書", ["キム秘書", "キム秘書さん", "キミー", "キム秘書、電気をつけて", "Kimmy"]),
+        "zh": ("金秘书", ["金秘书", "金秘书呀", "金祕書", "金秘书，开灯", "Kimmy"]),
+    }
+    for code, (name, calls) in cases.items():
+        d = C.defaults(code)
+        n, al = C.names(d)
+        assert n == name, (code, n)
+        m = NameMatcher(n, al)
+        for text in calls:
+            assert m.call(text) == name, (code, text, m.call(text), m.words)
+        assert m.only_name(calls[0] + "!") in (True, False)  # 터지지 않으면 됨
+    # 이름 뒤에 조사·다른 말이 붙은 '말한 것'은 부름이 아님
+    assert NameMatcher("김비서", []).call("김비서한테 물어봐") is None
+    assert NameMatcher("Kimmy", []).call("I asked Kimmy about it") is None
+
+
+def test_wake_aliases_include_brand_names():
+    """영어 기본 이름은 Kimmy, 별칭에 KimBiseo·Kim Biseo 유지. 일본어·중국어 별칭에 Kimmy."""
+    from app.core.wake import compact
+    for code, want in (("en", ["kimbiseo", "kimbiseo"]), ("ja", ["キミー", "kimmy"]), ("zh", ["kimmy"])):
+        d = C.defaults(code)
+        n, al = C.names(d)
+        al_c = [compact(x) for x in al]
+        for w in want:
+            assert w in al_c, (code, w, al_c)
+
+
+def test_prompt_and_memory_follow_app_language():
+    """두뇌 지시문(0.1.18 5단계) — 앱 언어가 ko 가 아니면 영어 지시문 + 'Reply only in …'.
+    기억 자동 추출·일기 프롬프트도 같은 언어로."""
+    from app.core import prompt
+    from app.core.memory import Memory
+    spec = [{"type": "function", "function": {"name": "get_weather", "description": "날씨를 알려 준다",
+                                              "parameters": {"type": "object", "properties": {"place": {"type": "string", "description": "장소"}}}}}]
+    old = i18n.current()
+    try:
+        for code, reply in (("en", "Reply only in English."), ("ja", "Reply only in Japanese."), ("zh", "Reply only in Chinese.")):
+            i18n.set_lang(code)
+            cfg = C.defaults(code)
+            text = prompt.base_prompt(cfg, spec)
+            assert "You are a voice assistant" in text and reply in text, (code, text[:300])
+            assert "너는" not in text, code
+            assert "weather" in text.lower()
+            assert prompt.now_tag(lang=code).startswith("(Current time:")
+        i18n.set_lang("ko")
+        ko = prompt.base_prompt(C.defaults("ko"), spec)
+        assert "너는" in ko and "Reply only in" not in ko
+        i18n.set_lang("en")
+        m = Memory(tempfile.mkdtemp())
+        m.add("The user likes coffee.")
+        assert "Things remembered about" in m.prompt_block("the user")
+        req = m.auto_request([{"role": "user", "content": "I like coffee."}])
+        assert "in English" in req[0]["content"]
+        dreq = m.diary_request([{"role": "user", "content": "I like coffee."}, {"role": "assistant", "content": "Okay."}])
+        assert "in English" in dreq[0]["content"]
+    finally:
+        i18n.set_lang(old)
+
+
+def test_existing_settings_stay_korean():
+    """0.1.17 까지 쓰던 사람(설정에 '언어' 없음)은 한국어 그대로 — 완료 기준 ②."""
+    d = tempfile.mkdtemp()
+    p = os.path.join(d, "settings.json")
+    with open(p, "w", encoding="utf-8") as f:
+        json.dump({"비서": {"이름": "김비서"}, "화면": {"글자": "크게"}}, f, ensure_ascii=False)
+    c = C.load(p, warn=lambda m: None)
+    assert c["언어"] == "ko" and c["비서"]["이름"] == "김비서"
+    # 화면 사전은 고른 언어 것만 내려간다(한국어는 빈 사전)
+    assert i18n.table("ko") == {}
+    en = i18n.table("en")
+    assert en["김비서"] == "Kimmy (KimBiseo)" and len(en) > 1000
+    assert i18n.table("ja")["김비서"] == "キム秘書" and i18n.table("zh")["김비서"] == "金秘书"
 
 
 def test_tr_and_lookup_with_filled_placeholders():
@@ -204,8 +285,29 @@ def test_screen_dictionaries_cover_scan():
         hangul = [k for k, v in d.items()
                   if re.search(r"[가-힣]", re.sub(r"\{[^{}\s]{1,40}\}", "", v)) and not re.search(r"한국어|한글", v)]
         assert not hangul, (code, hangul[:3])
-        assert d["김비서"] == {"en": "KimBiseo", "ja": "キム秘書", "zh": "金秘书"}[code]
+        assert d["김비서"] == {"en": "Kimmy (KimBiseo)", "ja": "キム秘書", "zh": "金秘书"}[code]
         assert d["설정"] == {"en": "Settings", "ja": "設定", "zh": "设置"}[code]
+
+
+def test_installer_language():
+    """설치기(installer/setup_core.py)도 같은 사전 — 영어로 고르면 단계 이름·진행 글이 영어가 되고, 조각을 이어 붙여도 한글이 남지 않는다."""
+    import re
+    sys.path.insert(0, os.path.join(ROOT, "installer"))
+    try:
+        import setup_core as SC
+    finally:
+        sys.path.pop(0)
+    old = SC.LANG
+    try:
+        assert SC.set_lang("en") == "en"
+        assert not re.search(r"[가-힣]", SC.L(dict(SC.STEPS)["python"]))
+        assert SC.L("프로그램 파일을 설치 폴더에 복사해요.") == "Copying program files to the install folder."
+        label = SC.T("{0} 부품 {1}/{2} {3}", SC.L("본체"), 51, 81, "packaging")
+        assert label == "Main app component 51/81 packaging", label
+        assert not re.search(r"[가-힣]", SC.T("{0} 확인 중(원본과 같은지)", label))
+        assert SC.L(SC.took(75)) == "1 min 15 sec"
+    finally:
+        SC.set_lang(old)
 
 
 def main():

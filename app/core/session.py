@@ -24,7 +24,8 @@ from pipecat.processors.aggregators.llm_response_universal import LLMContextAggr
 from pipecat.turns.user_turn_strategies import UserTurnStrategies
 
 from . import config as C
-from . import interp, prompt, turns
+from . import debate, interp, prompt, turns
+from .i18n import tr
 from .audio_smooth import Ducker
 from .brain import NoBrain, make_llm, simple_text
 from .prompt import CLI_KINDS
@@ -50,8 +51,12 @@ class Session:
         self.state = SessionState(cfg, self._send_ui, pet=pet)
         self.ear, self.voice = ear, voice
         self.worker = None
+        self.pipeline = None
         self.context = None
         self.llm = None
+        self.handlers = {}
+        self.tool_ctx = None
+        self._retired = []          # 두뇌를 바꿔 파이프라인에서 뺀 옛 두뇌(끝날 때 정리)
         self.observer = None
         self.end_report = {}
         self.restored_n = 0
@@ -79,6 +84,9 @@ class Session:
         dc = cfg["대화"]
         turns.WIDE.update(dict(dc.get("말끝_넓게") or {}))
         link = self.opts.get("phone")          # 폰 앱으로 대화(core/phone.PhoneLink) — 폰 도구 묶음을 더 붙임
+        st.debate_memory = self.memory
+        st.debate_adult_allowed = link is None     # 폰 앱(전체 이용가)은 성인 말싸움 항상 끔 — PC 판만
+        st.on_debate_change = self._refresh_system
         if link is not None:                   # 폰은 앱의 마이크 단추가 부르는 몫 — 이름을 불러야 대답하는 모드는 끔
             st.always_name = False
             st.set_wake(False, why="폰 대화")
@@ -95,7 +103,8 @@ class Session:
         if self.memory is not None and rc.get("이어가기", True) and not self.opts.get("새대화"):
             restored, summary = self.memory.load_context(float(rc.get("이어가기_시간", 6)))
         self.restored_n, self.summary_in = len(restored), summary
-        sysmsg = prompt.system_prompt(cfg, specs, memory=self.memory, summary=summary)
+        sysmsg = prompt.system_prompt(cfg, specs, memory=self.memory, summary=summary,
+                                      debate=debate.on(st), adult=debate.adult(st))
         self.context = LLMContext(messages=[{"role": "system", "content": sysmsg}] + list(restored),
                                   tools=tools_schema(specs))
         try:
@@ -109,19 +118,26 @@ class Session:
             acts.update(phone=link, confirm=link.confirm)      # 위험한 도구의 '실행할까요?' = 폰 화면 단추
         elif self.opts.get("confirm") is not None:
             acts["confirm"] = self.opts["confirm"]             # PC 창의 확인 단추
-        self.tool_guard = register(self.llm, specs, handlers, ToolContext(st, cfg, self.memory, actions=acts))
+        self.handlers = handlers
+        self.tool_ctx = ToolContext(st, cfg, self.memory, actions=acts)
+        self.tool_guard = register(self.llm, specs, handlers, self.tool_ctx)
         stt = EarSTT(st, cfg["포트"]["귀"], ear=self.ear, voiceprint=self.opts.get("voiceprint"))
         tts = VoiceTTS(st, voice=self.voice)
         self._tts = tts
         self._stt = stt
         vad_stop = float(dc.get("말끝_무음_초", 0.2))
+        vad_an = SileroVADAnalyzer(params=VADParams(stop_secs=vad_stop))
+        turn_an = LocalSmartTurnAnalyzerV3()
+        st.vad, st.vad_stop_base = vad_an, vad_stop      # 말싸움: 켜면 말 끝 기다림을 늘리고 끄면 원래 값
+        st.smart_turn = turn_an
+        st.smart_stop_base = float(getattr(getattr(turn_an, "params", None), "stop_secs", 3.0) or 3.0)
         pair = LLMContextAggregatorPair(
             self.context,
             user_params=LLMUserAggregatorParams(
-                vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=vad_stop)),
+                vad_analyzer=vad_an,
                 user_turn_strategies=UserTurnStrategies(
                     start=[turns.BargeStrategy(st)],
-                    stop=[turns.KoreanEndStrategy(turn_analyzer=LocalSmartTurnAnalyzerV3())]),
+                    stop=[turns.KoreanEndStrategy(state=st, turn_analyzer=turn_an)]),
                 empty_user_turn=None))
         self.pair = pair
         self._asst_stopped = asyncio.Event()
@@ -132,6 +148,7 @@ class Session:
         trim = ContextTrim(turns=int(cfg["두뇌"].get("기억_차례", 12)), keep_head=1)
         pipeline = Pipeline([self.transport.input(), stt, pair.user(), trim, self.llm, tts,
                              self.transport.output(), pair.assistant()])
+        self.pipeline = pipeline
         self.observer = Observer(st, vad_stop)
         self.worker = PipelineWorker(pipeline, params=PipelineParams(audio_in_sample_rate=16000, audio_out_sample_rate=24000,
                                                                      enable_metrics=True),
@@ -140,26 +157,44 @@ class Session:
                  tools=names, name=st.names.name)
         return self
 
+    # ---- 말싸움 켜기/끄기·성인 단계 — 지시문을 지금 대화에 바로 바꾼다(구독 두뇌는 세션도 다시)
+    def _refresh_system(self):
+        if self.context is None:
+            return
+        msgs = list(self.context.messages)
+        if not msgs or not isinstance(msgs[0], dict) or msgs[0].get("role") != "system":
+            return
+        msgs[0] = {**msgs[0], "content": prompt.system_prompt(
+            self.cfg, getattr(self, "specs", ()), memory=self.memory, summary=self.summary_in,
+            debate=debate.on(self.state), adult=debate.adult(self.state))}
+        self.context.set_messages(msgs)
+        if getattr(self, "cli", False) and hasattr(self.llm, "prepare"):
+            try:
+                asyncio.ensure_future(self.llm.prepare(msgs[0]["content"], list(self.llm.be.history)))
+            except Exception as ex:  # noqa: BLE001
+                logger.warning(f"말싸움 지시문으로 구독 두뇌 다시 띄우기 실패: {ex.__class__.__name__}")
+
     # ---- 화면에서 설정을 바꿨을 때(self.cfg 는 이미 새 값) — '즉시' 항목만 지금 대화에 반영
-    def apply_settings(self, keys):
-        """keys = 바뀐 설정 경로들('비서.이름' 등). 반영한 것의 이름 목록을 돌려줌."""
+    async def apply_settings(self, keys):
+        """keys = 바뀐 설정 경로들('비서.이름' 등). 반영한 것의 이름 목록을 돌려줌.
+        두뇌(방식·주소·모델·열쇠)가 바뀌면 지금 대화의 두뇌 부품을 새로 만들어 파이프라인에서 갈아 끼운다 —
+        다음 말부터 새 두뇌가 답한다(대화를 다시 연결하지 않아도 됨)."""
         st, cfg, done = self.state, self.cfg, []
         keys = set(keys)
+        brain_keys = {k for k in keys if k.startswith("두뇌.") and k != "두뇌.모드"}
+        if brain_keys and self.llm is not None:
+            kind = await self._rebuild_brain()
+            if kind:
+                done.append("두뇌")
         if keys & {"비서.이름", "비서.별칭"}:
             st.refresh_names()
             if st.pet is not None:
                 st.pet.names = [st.names.name] + [a for a in C.names(cfg)[1]]
             done.append("깨우는 이름")
-        if self.context is not None and keys & {"비서.이름", "비서.말투", "비서.성격", "비서.답길이", "사용자.호칭", "사용자.기본장소", "화면.얼굴"}:
-            # 지시문(자기소개·호칭·말투·성격·답 길이)을 새로 — 앞부분이 바뀌므로 두뇌 캐시는 한 번 다시 읽음(캐시 가드는 공통 앞부분만 허용)
-            msgs = list(self.context.messages)
-            if msgs and isinstance(msgs[0], dict) and msgs[0].get("role") == "system":
-                msgs[0] = {"role": "system", "content": prompt.system_prompt(cfg, getattr(self, "specs", ()),
-                                                                             memory=self.memory, summary=self.summary_in)}
-                self.context.set_messages(msgs)
-                if getattr(self, "cli", False) and hasattr(self.llm, "prepare"):   # 구독 두뇌: 새 지시문으로 세션을 다시(지금까지 대화는 이어서)
-                    asyncio.ensure_future(self.llm.prepare(msgs[0]["content"], list(self.llm.be.history)))
-                done.append("자기소개·호칭·말투")
+        if self.context is not None and keys & {"비서.이름", "비서.말투", "비서.성격", "비서.답길이", "사용자.호칭", "사용자.기본장소", "화면.얼굴", "말싸움.성인"}:
+            # 지시문(자기소개·호칭·말투·성격·답 길이·말싸움 단계)을 새로 — 앞부분이 바뀌므로 두뇌 캐시는 한 번 다시 읽음
+            self._refresh_system()
+            done.append("자기소개·호칭·말투")
         if "목소리.말속도" in keys:
             st.speed = float((cfg.get("목소리") or {}).get("말속도", 1.0) or 1.0)
             done.append("말 빠르기")
@@ -185,6 +220,65 @@ class Session:
         if done:
             st.event("settings_applied", what=done)
         return done
+
+    # ---- 두뇌 바꾸기(설정 저장 직후 — 대화를 다시 연결하지 않고 다음 말부터 새 두뇌)
+    async def _rebuild_brain(self):
+        """지금 대화의 두뇌 부품을 지금 설정으로 새로 만들어 파이프라인에서 갈아 끼운다.
+        도구도 새 두뇌에 다시 달고, 지시문(구독·로컬 두뇌의 말투 차이)도 새로 만든다. 실패해도 대화는 살아 있게 NoBrain."""
+        old = self.llm
+        names = [s["function"]["name"] for s in (self.specs or ())]
+        try:
+            new = make_llm(self.state, self.cfg, names, self.guards, session_key=self.sid)
+        except RuntimeError as ex:      # 열쇠 없음·꾸러미 없음 — 다음 말에 까닭을 말해 준다
+            logger.warning(f"두뇌를 바꿀 수 없음: {ex}")
+            msg = tr(str(ex))[:300]
+            self.state.event("brain_error", reason=msg, text=msg)
+            new = NoBrain(str(ex))
+        self.cli = str((self.cfg.get("두뇌") or {}).get("방식") or "") in CLI_KINDS
+        try:
+            self.tool_guard = register(new, self.specs or [], self.handlers, self.tool_ctx)
+        except Exception as ex:  # noqa: BLE001
+            logger.warning(f"새 두뇌에 도구를 달지 못함: {ex.__class__.__name__}")
+        if self.pipeline is not None and old is not None:
+            await self._swap_llm(old, new)
+        else:
+            self.llm = new
+        self._refresh_system()
+        logger.info(f"두뇌 바꿈: {getattr(old, 'kind', '?')} → {getattr(self.llm, 'kind', '?')} (다음 말부터)")
+        return getattr(self.llm, "kind", "")
+
+    async def _swap_llm(self, old, new):
+        """파이프라인에서 옛 두뇌 부품 자리에 새 두뇌를 넣는다(앞뒤 연결·설정 그대로).
+        옛 두뇌는 이미 흐르는 답을 마칠 수 있게 연결을 그대로 두고, 대화가 끝날 때 정리한다."""
+        try:
+            setup = getattr(old, "_setup", None)
+            if setup is not None:
+                new._setup_started()
+                await new.setup(setup)
+                new._setup_finished()
+                from pipecat.frames.frames import StartFrame
+                await new.queue_frame(StartFrame())      # 새 부품의 입력 처리 시작(이미 흐르던 StartFrame 대신)
+            prev, nxt = old._prev, old._next
+            if prev is not None:
+                prev.link(new)
+            if nxt is not None:
+                new.link(nxt)
+            procs = self.pipeline._processors
+            i = procs.index(old)
+            procs[i] = new
+            self.llm = new
+            self._retired.append(old)
+        except Exception as ex:  # noqa: BLE001
+            logger.warning(f"두뇌 갈아 끼우기 실패({ex.__class__.__name__}) — 다음 연결부터 새 두뇌")
+            self.llm = new if getattr(new, "_setup", None) is None else old
+
+    async def _cleanup_retired(self):
+        for p in self._retired:
+            try:
+                await p.cleanup()
+            except Exception as ex:  # noqa: BLE001
+                logger.debug(f"옛 두뇌 정리: {ex.__class__.__name__}")
+        self._retired.clear()
 
     # ---- 시작 인사·앞부분 미리 읽히기
     def _pairs(self, msgs):
@@ -266,6 +360,10 @@ class Session:
         if interp.enabled(self.cfg) and interp.active(self.cfg):
             await self._interp_text(text)    # 통역 중 글 = 말소리와 같은 규칙(번역만 · 두뇌 대화·도구로 안 넘김)
             return True
+        say = debate.command(st, text, typed=True)    # 말싸움 켜기/끄기 — 두뇌로 안 넘기고 바로 바꿈
+        if say:
+            await self.worker.queue_frame(TTSSpeakFrame(say, append_to_context=False))
+            return True
         if st.wake and not st.always_name:
             st.set_wake(False, why="글 입력")
         if st.bot_speaking or st.thinking:
@@ -282,6 +380,7 @@ class Session:
                 logger.info("글 입력: 끊긴 비서 말 정리를 1초 기다렸지만 안 옴 — 그대로 넣음")
             except Exception as ex:  # noqa: BLE001
                 logger.warning(f"글 입력 끼어들기 실패: {ex}")
+        debate.touch(st)     # 말싸움 중 사용자 말 = 30분 자동 끔 기준 갱신
         st.turn_no += 1
         st.thinking, st.thinking_t = True, time.time()
         st.event("status", state="생각 중")
@@ -293,19 +392,20 @@ class Session:
         '통역 그만'·'영어 통역해 줘' 같은 켜기·끄기 글만 받음(글은 이 기기 사용자가 친 것). 두뇌 대화·도구로는 절대 안 넘김."""
         st, cfg = self.state, self.cfg
         s = interp._STATE
-        hint = s["mode"] if s["mode"] != "auto" else (s["last"] or interp.cfg_of(cfg).get("기본상대") or "en")
+        home = interp.L.home_of(cfg)
+        hint = s["mode"] if s["mode"] != "auto" else (s["last"] or interp.default_peer(cfg))
         src = interp.L.script_lang(text, hint=hint)
-        cmd = interp.L.parse_command(cfg, text) if src == "ko" else None
+        cmd = interp.L.parse_command(cfg, text) if src == home else None
         if cmd and cmd[0] == "off":
             interp.turn_off("글로 끔")
             st.event("interp", state="off", **interp.view(cfg))
-            await self.worker.queue_frame(TTSSpeakFrame("네, 통역 마칠게요.", append_to_context=False))
+            await self.worker.queue_frame(TTSSpeakFrame(tr("네, 통역 마칠게요."), append_to_context=False))
             return
         if cmd and cmd[0] == "on":
             code = interp.turn_on(cfg, cmd[1])
             interp.warm_voice(cfg, code)
             st.event("interp", state="on", **interp.view(cfg))
-            await self.worker.queue_frame(TTSSpeakFrame(f"네, {interp.L.name_of(cfg, code)}로 바꿀게요.", append_to_context=False))
+            await self.worker.queue_frame(TTSSpeakFrame(tr(f"네, {interp.L.name_of(cfg, code)}로 바꿀게요."), append_to_context=False))
             return
         interp.touch()
         dst = interp.plan(cfg, src)
@@ -319,7 +419,7 @@ class Session:
         item = interp.remember(text, out, src, dst)
         logger.info(f"통역(글) {src}→{dst} ({who} {sec:.2f}초, 원문 {len(text)}자 → {len(out)}자)")
         st.event("interp", state="done", src_lang=src, dst_lang=dst, src=text, dst=item["dst"], money=item.get("money"),
-                 src_name=sn, dst_name=dn, sec=round(sec, 2), asr_ms=0, voice=bool(interp.L.voice_of(cfg, dst)) or dst == "ko")
+                 src_name=sn, dst_name=dn, sec=round(sec, 2), asr_ms=0, voice=bool(interp.L.voice_of(cfg, dst)) or dst == "ko")   # ko = 김비서 목소리
         await self.worker.queue_frame(TTSSpeakFrame(out, append_to_context=False))
 
     # ---- 도중 저장
@@ -342,12 +442,14 @@ class Session:
     async def _autosave_loop(self):
         while True:
             await asyncio.sleep(2.0)
+            debate.tick(self.state)      # 말싸움: 30분 사용자 말이 없으면 자동 끔
             self.autosave()
 
     # ---- 끝 정리
     async def finish(self):
         """대화 원문 보관 → 일기 → 자동 기억 → 이어가기(요약 포함). 두뇌가 없거나 실패해도 원문·이어가기는 남김."""
         rep = {}
+        await self._cleanup_retired()
         mem = self.memory
         if mem is None:
             return rep

@@ -19,20 +19,38 @@ param(
   [switch]$NoShortcuts,
   [switch]$NoRegister,
   [switch]$PetOnly,              # 펫 실행 틀만 다시 설치(설치 창 '펫 다시 받기')
-  [string]$PetFile = ""          # 사용자가 브라우저로 직접 받아 둔 펫 실행 틀 압축 파일('직접 넣기')
+  [string]$PetFile = "",         # 사용자가 브라우저로 직접 받아 둔 펫 실행 틀 압축 파일('직접 넣기')
+  [string]$Lang = "ko"           # 설치 화면 언어(0.1.18~): ko | en | ja | zh
 )
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 if (-not $Source) { $Source = Split-Path -Parent $PSScriptRoot }
 $utf8 = New-Object System.Text.UTF8Encoding($false)
+
+# 설치 화면 언어 — 사전은 본체와 같은 app\i18n\<언어>.json. 한국어면 그대로.
+$wantLang = [string]$Lang          # ★ $script:lang 과 $Lang 은 같은 변수(스크립트 범위) — 덮어쓰기 전에 따로 둔다
+$script:lang = "ko"
+foreach ($c in @("ko", "en", "ja", "zh")) { if ($wantLang.Trim().ToLower().StartsWith($c)) { $script:lang = $c } }
+$script:dict = @{}
+if ($script:lang -ne "ko") {
+  try {
+    $o = [IO.File]::ReadAllText((Join-Path $Source "app\i18n\$($script:lang).json"), $utf8) | ConvertFrom-Json
+    foreach ($pr in $o.PSObject.Properties) { if ($pr.Value -is [string]) { $script:dict[$pr.Name] = $pr.Value } }
+  } catch { }
+}
+function T([string]$s, [object[]]$a = $null) {
+  $t = if ($script:dict.ContainsKey($s)) { [string]$script:dict[$s] } else { $s }
+  if ($a -and $a.Count) { try { $t = $t -f $a } catch { } }
+  return $t
+}
 $logDir = Join-Path $DataDir "logs"
 New-Item -ItemType Directory -Force -Path $logDir, (Split-Path -Parent $Status), (Join-Path $Prefix "install\downloads") | Out-Null
 $log = Join-Path $logDir "install.log"
 function Log([string]$m) { [IO.File]::AppendAllText($log, (Get-Date -Format "yyyy-MM-dd HH:mm:ss ") + $m + "`r`n", $utf8) }
 
-$steps = @(@("python", "파이썬 준비"), @("plan", "이 PC 사양 확인"), @("files", "프로그램 파일"), @("packages", "파이썬 부품"),
-           @("brain", "두뇌 프로그램"), @("models", "모델(두뇌·귀·목소리)"), @("pet", "펫"), @("finish", "바탕화면 아이콘·마무리"))
+$steps = @(@("python", (T "파이썬 준비")), @("plan", (T "이 PC 사양 확인")), @("files", (T "프로그램 파일")), @("packages", (T "파이썬 부품")),
+           @("brain", (T "두뇌 프로그램")), @("models", (T "모델(두뇌·귀·목소리)")), @("pet", (T "펫")), @("finish", (T "바탕화면 아이콘·마무리")))
 $script:t0 = Get-Date
 function Write-Status([string]$state, [string]$text, [double]$prog, $err) {
   $list = @()
@@ -60,15 +78,15 @@ function Why-Text($ex) {
   }
   $m = [string]$ex.Message
   # 말은 설치 본체(get_models.py WHY)와 같게 — 어려운 낱말 없이
-  if ($st -eq "NameResolutionFailure" -or $st -eq "ProxyNameResolutionFailure") { return "인터넷 연결이 안 돼요(받는 곳 주소를 찾지 못했어요)." }
-  if ($st -eq "TrustFailure" -or $st -eq "SecureChannelFailure" -or $m -match "SSL|TLS|인증서|certificate") { return "보안 연결을 확인하지 못했어요(백신이나 회사·학교 인터넷이 연결을 검사하거나, PC 시계가 틀렸을 수 있어요)." }
-  if ($st -eq "Timeout" -or $m -match "시간이 초과|시간을 초과|timed out|timeout") { return "받는 곳이 응답하지 않아요(인터넷이 느리거나 막혀 있어요)." }
-  if ($st -eq "ConnectFailure") { return "인터넷에서 받는 길이 막혀 있어요(회사·학교 인터넷이나 백신 때문일 수 있어요)." }
-  if ($code -eq 403 -or $code -eq 407) { return "받는 곳에서 거절했어요(회사·학교 인터넷이 막았을 수 있어요)." }
-  if ($code -eq 404) { return "받을 파일을 찾지 못했어요. 새 설치 파일을 받아 주세요." }
-  if ($code -ge 500) { return "받는 곳에 잠깐 문제가 있어요. 조금 뒤에 다시 해 주세요." }
-  if ($st -eq "ConnectionClosed" -or $st -eq "ReceiveFailure" -or $m -match "끊|closed|reset|모자람") { return "받는 도중에 끊겼어요." }
-  return "인터넷 연결에 문제가 있어요."
+  if ($st -eq "NameResolutionFailure" -or $st -eq "ProxyNameResolutionFailure") { return (T "인터넷 연결이 안 돼요(받는 곳 주소를 찾지 못했어요).") }
+  if ($st -eq "TrustFailure" -or $st -eq "SecureChannelFailure" -or $m -match "SSL|TLS|인증서|certificate") { return (T "보안 연결을 확인하지 못했어요(백신이나 회사·학교 인터넷이 연결을 검사하거나, PC 시계가 틀렸을 수 있어요).") }
+  if ($st -eq "Timeout" -or $m -match "시간이 초과|시간을 초과|timed out|timeout") { return (T "받는 곳이 응답하지 않아요(인터넷이 느리거나 막혀 있어요).") }
+  if ($st -eq "ConnectFailure") { return (T "인터넷에서 받는 길이 막혀 있어요(회사·학교 인터넷이나 백신 때문일 수 있어요).") }
+  if ($code -eq 403 -or $code -eq 407) { return (T "받는 곳에서 거절했어요(회사·학교 인터넷이 막았을 수 있어요).") }
+  if ($code -eq 404) { return (T "받을 파일을 찾지 못했어요. 새 설치 파일을 받아 주세요.") }
+  if ($code -ge 500) { return (T "받는 곳에 잠깐 문제가 있어요. 조금 뒤에 다시 해 주세요.") }
+  if ($st -eq "ConnectionClosed" -or $st -eq "ReceiveFailure" -or $m -match "끊|closed|reset|모자람") { return (T "받는 도중에 끊겼어요.") }
+  return (T "인터넷 연결에 문제가 있어요.")
 }
 
 # 한 번 받기(이어 받기): 윈도우의 보안 연결·프록시 설정을 그대로 쓰고, 60초 동안 아무것도 안 오면 끊음. 진행을 상태 파일에 적음
@@ -99,7 +117,10 @@ function Get-Part([string]$url, [string]$part, [long]$size, [string]$label, [int
           $last = Get-Date
           $rate = ($have - $got0) / [math]::Max(0.001, ((Get-Date) - $t0).TotalSeconds)
           $pct = if ($size -gt 0) { [math]::Min(99, 100.0 * $have / $size) } else { 10 }
-          Write-Status "하는 중" ("$label 받는 중 $(Size-Text $have)" + $(if ($size -gt 0) { " / $(Size-Text $size)" }) + " · $(Size-Text ([long]$rate))/초" + $(if ($try -gt 1) { " ($try 번째 시도)" })) $pct $null
+          $msg = if ($size -gt 0) { T '{0} 받는 중 {1} / {2}' @($label, (Size-Text $have), (Size-Text $size)) } else { T '{0} 받는 중 {1}' @($label, (Size-Text $have)) }
+          $msg += " " + (T '· {0}/초' @((Size-Text ([long]$rate))))
+          if ($try -gt 1) { $msg += " " + (T '({0} 번째 시도)' @($try)) }
+          Write-Status "하는 중" $msg $pct $null
         }
       }
     } finally { $out.Close(); $in.Close() }
@@ -115,9 +136,9 @@ function Get-Checked([string]$url, [string]$dest, [string]$sha, [long]$size, [st
   for ($i = 1; $i -le 30 -and $stuck -lt 5; $i++) {      # 받아지는 동안은 계속 이어 받고, 거의 못 받은(128KB 미만) 시도가 5번 이어지면 그만둠
     $before = 0L; if (Test-Path $part) { $before = (Get-Item $part).Length }
     try {
-      Write-Status "하는 중" "$label 받는 중$(if ($i -gt 1) { " ($i 번째 시도)" })" 5 $null
+      Write-Status "하는 중" ((T '{0} 받는 중' @($label)) + $(if ($i -gt 1) { " " + (T '({0} 번째 시도)' @($i)) })) 5 $null
       Get-Part $url $part $size $label $i
-      Write-Status "하는 중" "$label 확인 중" 99 $null
+      Write-Status "하는 중" (T '{0} 확인 중' @($label)) 99 $null
       $h = (Get-FileHash -Algorithm SHA256 $part).Hash.ToLower()
       if ($h -ne $sha) { Remove-Item -Force $part; throw "HASH:sha256 다름 $h" }
       Move-Item -Force $part $dest
@@ -129,7 +150,7 @@ function Get-Checked([string]$url, [string]$dest, [string]$sha, [long]$size, [st
       $after = 0L; if (Test-Path $part) { $after = (Get-Item $part).Length }
       if (($after - $before) -ge 131072) { $stuck = 0 } else { $stuck++ }      # 128KB 도 못 늘었으면 진전 없는 시도로 침
       if ("$($_.Exception.Message)" -like "HASH:*") {
-        $script:lastWhy = "받은 파일이 원본과 달라요(백신이나 회사 인터넷이 파일을 바꾸는 것 같아요)."
+        $script:lastWhy = T "받은 파일이 원본과 달라요(백신이나 회사 인터넷이 파일을 바꾸는 것 같아요)."
         $hashBad++
         if ($hashBad -ge 2) { Log "  $label 두 번 다 원본과 다름 → 그만둠"; throw "HASH:$label 이(가) 두 번 다 원본과 다름" }      # 새로 받아도 같으면 더 해도 같음
       }
@@ -140,7 +161,7 @@ function Get-Checked([string]$url, [string]$dest, [string]$sha, [long]$size, [st
       # 다시 해도 같은 것: 없음(404)은 바로, 거절(403·407)은 두 번째에 그만둠 · 거의 못 받은 시도가 5번 이어져도 그만둠
       if ($code -eq 404 -or (($code -eq 403 -or $code -eq 407) -and $i -ge 2) -or $stuck -ge 5) { break }
       $wait = [int][math]::Min(20, [math]::Pow(2, [math]::Max(1, $stuck)))
-      Write-Status "하는 중" "${label}: $($script:lastWhy) ${wait}초 뒤 이어서 받아요($i 번째 시도)" 5 $null
+      Write-Status "하는 중" (T '{0}: {1} {2}초 뒤 이어서 받아요({3} 번째 시도)' @($label, $script:lastWhy, $wait, $i)) 5 $null
       Start-Sleep -Seconds $wait
     }
   }
@@ -170,12 +191,12 @@ try {
   if ((Test-Path $py) -and (Test-Path $mark) -and ([IO.File]::ReadAllText($mark).Trim() -eq $want)) {
     Log "파이썬: 이미 있음($want)"
   } else {
-    Write-Status "하는 중" "공식 파이썬 $($rt.python.version) 받는 중" 5 $null
+    Write-Status "하는 중" (T '공식 파이썬 {0} 받는 중' @($rt.python.version)) 5 $null
     $zip = Join-Path $Prefix ("install\downloads\" + [IO.Path]::GetFileName($rt.python.url))
-    Get-Checked $rt.python.url $zip $rt.python.sha256 $rt.python.size "파이썬 $($rt.python.version)"
+    Get-Checked $rt.python.url $zip $rt.python.sha256 $rt.python.size (T '파이썬 {0}' @($rt.python.version))
     $md5 = (Get-FileHash -Algorithm MD5 $zip).Hash.ToLower()
     if ($md5 -ne $rt.python.md5_python_org) { throw "HASH:파이썬 md5 가 python.org 값과 다름" }
-    Write-Status "하는 중" "파이썬을 설치 폴더에 푸는 중" 60 $null
+    Write-Status "하는 중" (T "파이썬을 설치 폴더에 푸는 중") 60 $null
     Log "파이썬: 푸는 중 → $pyDir"
     if (Test-Path $pyDir) {
       try { Remove-Item -Recurse -Force $pyDir }
@@ -186,24 +207,24 @@ try {
     $pth = "python311.zip`r`n.`r`nLib\site-packages`r`n..\..\src`r`n# 김비서: 위 줄 = 설치 폴더의 src(본체 코드). 환경변수·레지스트리는 보지 않음`r`nimport site`r`n"
     [IO.File]::WriteAllText((Join-Path $pyDir $rt.python.pth), $pth, $utf8)
     $whl = Join-Path $Prefix ("install\downloads\" + [IO.Path]::GetFileName($rt.pip.url))
-    Get-Checked $rt.pip.url $whl $rt.pip.sha256 $rt.pip.size "pip $($rt.pip.version)"
-    Write-Status "하는 중" "pip 를 넣는 중" 90 $null
+    Get-Checked $rt.pip.url $whl $rt.pip.sha256 $rt.pip.size (T 'pip {0}' @($rt.pip.version))
+    Write-Status "하는 중" (T "pip 를 넣는 중") 90 $null
     [IO.Compression.ZipFile]::ExtractToDirectory($whl, (Join-Path $pyDir "Lib\site-packages"))
     [IO.File]::WriteAllText($mark, $want, $utf8)
     Log "파이썬: 풀고 pip 넣음($want)"
   }
-  Write-Status "됨" "파이썬 준비 끝" 100 $null
+  Write-Status "됨" (T "파이썬 준비 끝") 100 $null
 } catch {
   $m = $_.Exception.Message
   Log "!!!! 파이썬 준비 실패: $m"
-  $why = if ($m -like "NET:*") { "파이썬을 받지 못했어요. $($script:lastWhy)" }
-         elseif ($m -like "HASH:*") { "받은 파이썬이 원본과 달라요. 백신이나 회사 인터넷이 받는 파일을 바꾸는 것 같아요 — 다른 인터넷(휴대폰 핫스팟 등)으로 바꿔서 다시 해 보세요." }
-         elseif ($m -like "BUSY:*") { "설치 폴더의 예전 파이썬을 지우지 못했어요. 김비서가 켜져 있으면 끄고, 백신 알림을 확인해 주세요." }
-         elseif ($m -match "경로|path|PathTooLong") { "설치 폴더 경로가 너무 길거나 쓸 수 없는 곳이에요. 설치 위치를 짧은 폴더(예: C 드라이브 바로 아래 폴더)로 바꿔 주세요." }
-         elseif ($m -match "공간|space") { "디스크 공간이 모자라요. 공간을 비워 주세요." }
-         elseif ($m -match "거부|denied|Unauthorized") { "설치 폴더에 파일을 쓰지 못했어요. 백신 알림을 확인하거나 설치 위치를 바꿔 주세요." }
-         else { "파이썬을 준비하지 못했어요." }
-  Write-Status "실패" $why 0 ([ordered]@{ "단계" = "파이썬 준비"; "이유" = $why; "자세히" = $m; "기록" = $log })
+  $why = if ($m -like "NET:*") { T '파이썬을 받지 못했어요. {0}' @($script:lastWhy) }
+         elseif ($m -like "HASH:*") { T "받은 파이썬이 원본과 달라요. 백신이나 회사 인터넷이 받는 파일을 바꾸는 것 같아요 — 다른 인터넷(휴대폰 핫스팟 등)으로 바꿔서 다시 해 보세요." }
+         elseif ($m -like "BUSY:*") { T "설치 폴더의 예전 파이썬을 지우지 못했어요. 김비서가 켜져 있으면 끄고, 백신 알림을 확인해 주세요." }
+         elseif ($m -match "경로|path|PathTooLong") { T "설치 폴더 경로가 너무 길거나 쓸 수 없는 곳이에요. 설치 위치를 짧은 폴더(예: C 드라이브 바로 아래 폴더)로 바꿔 주세요." }
+         elseif ($m -match "공간|space") { T "디스크 공간이 모자라요. 공간을 비워 주세요." }
+         elseif ($m -match "거부|denied|Unauthorized") { T "설치 폴더에 파일을 쓰지 못했어요. 백신 알림을 확인하거나 설치 위치를 바꿔 주세요." }
+         else { T "파이썬을 준비하지 못했어요." }
+  Write-Status "실패" $why 0 ([ordered]@{ "단계" = (T "파이썬 준비"); "이유" = $why; "자세히" = $m; "기록" = $log })
   exit 1
 }
 
@@ -222,6 +243,7 @@ if ($Gemma) { $args2 += @("--gemma", $Gemma) }
 if ($DesktopDir) { $args2 += @("--desktop-dir", $DesktopDir) }
 if ($StartMenuDir) { $args2 += @("--startmenu-dir", $StartMenuDir) }
 if ($PacksCatalog -ne "<none>") { $args2 += @("--packs-catalog", $PacksCatalog) }
+if ($script:lang -ne "ko") { $args2 += @("--lang", $script:lang) }
 if ($NoShortcuts) { $args2 += "--no-shortcuts" }
 if ($NoRegister) { $args2 += "--no-register" }
 # 인자를 안전하게 따옴표로 묶어 넘김(한글·빈칸 경로)
@@ -249,9 +271,9 @@ if ($p.ExitCode -ne 0) {   # 설치 본체가 상태를 못 남기고 끝났으�
   $done = $false
   try { $done = ([IO.File]::ReadAllText($Status, $utf8) | ConvertFrom-Json)."끝" } catch { }
   if (-not $done) {
-    $why = "설치 도중 프로그램이 멈췄어요. '다시 하기'를 눌러 주세요. 계속되면 기록 파일을 보내 주세요."
+    $why = T "설치 도중 프로그램이 멈췄어요. '다시 하기'를 눌러 주세요. 계속되면 기록 파일을 보내 주세요."
     $tail = if ($errText) { $errText.Substring([math]::Max(0, $errText.Length - 600)) } else { "코드 $($p.ExitCode)" }
-    Write-Status "됨" $why 100 ([ordered]@{ "단계" = "설치"; "이유" = $why; "자세히" = $tail; "기록" = $log })
+    Write-Status "됨" $why 100 ([ordered]@{ "단계" = (T "설치"); "이유" = $why; "자세히" = $tail; "기록" = $log })
   }
 }
 exit $p.ExitCode

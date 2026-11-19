@@ -29,6 +29,8 @@ from pipecat.frames.frames import (
 from pipecat.observers.base_observer import BaseObserver, FramePushed
 from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
 
+from . import debate
+
 
 class ContextTrim(FrameProcessor):
     def __init__(self, turns=12, keep_head=1, **kw):
@@ -128,7 +130,7 @@ class Observer(BaseObserver):
             st.tool_busy = max(0, st.tool_busy - 1)
             st.event("tool", name=f.function_name, state="done")
         elif isinstance(f, TTSTextFrame):
-            st.event("bot", text=f.text)
+            st.event("bot", text=debate.filter_text(f.text, st) if debate.on(st) else f.text)
         elif isinstance(f, BotStartedSpeakingFrame):
             st.thinking = False
             st.bot_speaking = True

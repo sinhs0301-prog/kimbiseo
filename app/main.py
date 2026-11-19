@@ -61,8 +61,9 @@ PHONE = {"auth": None, "gw": None}      # 폰 연결(core/phone) — 등록 기�
 CONFIRMS = {}           # PC 창 '실행할까요?' 단추 기다림 {id: Future}
 UI_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui")
 UI_EVENTS = {"status", "user", "bot", "typed", "asr", "tool", "wake_mode", "wake", "name_call", "interrupted",
-             "brain_error", "speed", "settings_applied", "names", "session", "settings", "client_audio", "echo",
-             "barge", "tool_halt", "conn", "update", "interp", "confirm", "confirm_done", "voice_gate", "phone"}
+             "brain_error", "brain_prepare", "brain_ready", "speed", "settings_applied", "names", "session", "settings",
+             "client_audio", "echo", "barge", "tool_halt", "conn", "update", "interp", "confirm", "confirm_done",
+             "voice_gate", "phone", "debate"}
 
 
 def _make_memory():
@@ -390,6 +391,15 @@ def make_app():
     async def ui_file(name: str):
         return _ui(name)
 
+    @app.get("/api/i18n.js")
+    async def i18n_js():
+        """화면 번역 사전(0.1.18) — app/i18n/<언어>.json 을 화면 번역기(app/ui/i18n.js)에 넣고 시작.
+        한국어면 빈 사전이라 화면 번역기가 아무것도 바꾸지 않는다."""
+        code = i18n.lang_of(CFG)
+        data = json.dumps({"lang": code, "dict": i18n.table(code)}, ensure_ascii=False, separators=(",", ":"))
+        js = ("window.I18N&&I18N.load(" + data + ");window.I18N&&I18N.start();\n")
+        return Response(js, media_type="text/javascript; charset=utf-8")
+
     # ---------------------------------------------------------------- 대화 연결
     async def kick(who="PC 창"):
         """한 번에 한 기기만 대화 — 새 연결(PC 창·폰)이 오면 앞 대화를 끝냄. 앞이 폰이면 폰에 먼저 알림."""
@@ -595,7 +605,7 @@ def make_app():
         groups = S.when_groups(keys)
         _recompute_pending()
         s = CURRENT.get("session")
-        applied = s.apply_settings(keys) if (s is not None and keys) else []
+        applied = (await s.apply_settings(keys)) if (s is not None and keys) else []
         if PET is not None and {"비서.이름", "비서.별칭"} & set(keys):
             PET.names = [C.names(CFG)[0]] + C.names(CFG)[1]
         pet_said = await asyncio.to_thread(_tell_pet, keys) if {"펫.옷_받기", "펫.옷"} & set(keys) else {}
@@ -608,6 +618,27 @@ def make_app():
             from .core import cli_brain
             asyncio.ensure_future(cli_brain.shutdown_except(str(CFG["두뇌"].get("방식"))))
             asyncio.ensure_future(cli_brain.prewarm(CFG))
+        if "두뇌.방식" in keys:
+            from .core import brainserver as BS
+            if str(CFG["두뇌"].get("방식")) == "local":
+                async def _warm_local_brain():
+                    """로컬로 바꾼 직후 미리 켜 둔다 — 첫 말이 기다리지 않게. 화면에는 준비 초를 보낸다."""
+                    def wait(sec, limit):
+                        broadcast({"type": "brain_prepare", "초": int(sec), "최대": int(limit)})
+                    ok, code, detail = await BS.ensure_local(CFG, on_wait=wait)
+                    if str(CFG["두뇌"].get("방식")) != "local":
+                        BS.stop_owned()     # 기다리는 사이 다른 두뇌로 바뀜 — 방금 켠 것이 있으면 끈다
+                    if ok:
+                        broadcast({"type": "brain_ready"})
+                    elif code == "switched":
+                        pass
+                    else:
+                        msg = BS.explain(code, detail, CFG)
+                        logger.warning(f"두뇌 미리 켜기 실패: {code} {str(detail)[:200]}")
+                        broadcast({"type": "brain_error", "reason": msg, "text": msg, "code": code})
+                asyncio.ensure_future(_warm_local_brain())
+            else:
+                BS.stop_owned()      # 본체가 직접 켠 로컬 두뇌만 끈다(실행기·다른 프로그램은 그대로)
         if keys:
             logger.info(f"설정 바뀜: {', '.join(keys)} → 지금 대화 반영 {applied}")
             broadcast({"type": "settings", "keys": keys, "applied": applied})
@@ -1359,9 +1390,15 @@ def make_app():
 
     @app.post("/api/shutdown")
     async def shutdown():
-        from .core import cli_brain
-        asyncio.get_running_loop().call_later(0.3, lambda: (cli_brain.kill_all_sync(), os._exit(0)))
+        from .core import brainserver, cli_brain
+        asyncio.get_running_loop().call_later(
+            0.3, lambda: (brainserver.stop_owned(), cli_brain.kill_all_sync(), os._exit(0)))
         return {"ok": True}
+
+    @app.on_event("shutdown")
+    async def _stop_owned_brain():
+        from .core import brainserver
+        brainserver.stop_owned()
 
     return app
 
@@ -1380,7 +1417,8 @@ def _watch_parent(pid):
         k.WaitForSingleObject(h, 0xFFFFFFFF)
         logger.info(f"부모(실행기) PID {pid} 가 끝남 → 본체 끝냄")
         try:
-            from .core import cli_brain
+            from .core import brainserver, cli_brain
+            brainserver.stop_owned()
             cli_brain.kill_all_sync()
         except Exception:  # noqa: BLE001
             pass

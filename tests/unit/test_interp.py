@@ -49,6 +49,43 @@ def test_on_command_asr_variants():
         assert L.parse_command(cfg, t) is None, t
 
 
+def test_interp_home_language():
+    """통역 일반화(0.1.18 6단계) — 앱 언어가 en 이면 'English ↔ Korean'으로. 목록에서 내 언어를 빼고 ko 를 넣는다."""
+    cfg = fresh_cfg({"언어": "en"})
+    assert L.home_of(cfg) == "en"
+    langs = L.langs(cfg)
+    assert "ko" in langs and "en" not in langs, langs
+    assert L.name_of(cfg, "ko") == "Korean" and L.name_of(cfg, "en") == "English"
+    assert L.name_of(cfg, "th") == "Thai"
+    assert L.parse_command(cfg, "interpret Thai") == ("on", "th")
+    assert L.parse_command(cfg, "start interpreting") == ("on", "auto")
+    assert L.parse_command(cfg, "stop interpreting") == ("off", None)
+    assert L.parse_command(cfg, "translate this to Thai") is None
+    assert L.choose({"en": 0.8, "ko": 0.2}, home="en") == ("en", 0.8)
+    assert L.choose({"ko": 0.7, "ja": 0.3}, home="en")[0] == "ko"
+    # 내 언어(en)로 말하면 상대(ko)로, 상대(ko)가 말하면 내 언어(en)로
+    interp._STATE.update(on=False, mode="auto", last=None, dst=None)
+    interp.turn_on(cfg, "auto")
+    assert interp.plan(cfg, "en") == "ko"
+    assert interp.plan(cfg, "ko") == "en"
+    a = interp.ear_args(cfg)
+    assert a["langs"][0] == "en" and "ko" in a["langs"] and a["home"] == "en", a
+    interp._STATE["dst"] = "ko"
+    assert interp.speak_lang("안녕하세요", home="en") == "ko"     # 한국어 = 김비서 목소리
+    interp._STATE["dst"] = "en"
+    assert interp.speak_lang("Hello there", home="en") is None    # 내 언어 = 김비서 목소리
+    pr = interp._prompt(cfg, "en", "ko")
+    assert "interpreter from English to Korean" in pr, pr
+    assert interp.money(cfg, "3,000円", "3,000엔이에요.", "ja", "ko") == "", "ko 앱이 아니면 환율 안 붙임"
+    interp.turn_off()
+    # 한국어 앱은 0.1.17 그대로 — 내 언어 ko, 목록에 ko 없음
+    ko = fresh_cfg()
+    assert L.home_of(ko) == "ko" and "ko" not in L.langs(ko)
+    interp.turn_on(ko, "th")
+    assert interp.plan(ko, "ko") == "th" and interp.plan(ko, "ja") == "ko"
+    interp.turn_off()
+
+
 def test_choose():
     assert L.choose({"ko": 0.7, "th": 0.3}) == ("ko", 0.7)
     assert L.choose({"ko": 0.1, "th": 0.85, "en": 0.05}, last="en", audio_sec=1.0) == ("en", 0.05)   # 짧은 말은 직전 언어

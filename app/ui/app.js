@@ -48,7 +48,7 @@ function toast(msg, ms) {
 function confirmBox(text, yes) {
   const d = document.getElementById("dialog");
   document.getElementById("dialog-text").textContent = text;
-  document.getElementById("dialog-yes").textContent = yes || "네";
+  document.getElementById("dialog-yes").textContent = yes || tr("네");
   d.hidden = false;
   return new Promise((res) => {
     const done = (v) => { d.hidden = true; res(v); };
@@ -104,28 +104,31 @@ async function loadSettings() {
 }
 
 function setName(name) {
-  document.getElementById("top-name").textContent = name;
-  document.getElementById("talk-title").textContent = name;
+  // 영어 화면의 기본 이름은 'Kimmy (KimBiseo)' 로 보여 준다(사용자가 다른 이름을 넣으면 그대로).
+  const shown = (window.I18N && I18N.lang === "en" && name === "Kimmy") ? "Kimmy (KimBiseo)" : name;
+  document.getElementById("top-name").textContent = shown;
+  document.getElementById("talk-title").textContent = shown;
   document.getElementById("talk-initial").textContent = (name || "김").slice(0, 1);
-  document.title = name;
+  document.title = shown;
 }
 
 // 저장 결과 → 쉬운 안내 한 줄
 function savedMessage(r) {
-  if (!r || !r["바뀜"] || !r["바뀜"].length) return "바뀐 것이 없어요.";
+  if (!r || !r["바뀜"] || !r["바뀜"].length) return tr("바뀐 것이 없어요.");
   const g = r["반영"] || {}, out = [];
-  if ((g["즉시"] || []).length) out.push("지금 바로 바뀌었어요");
-  if ((g["다음대화"] || []).length) out.push(`${g["다음대화"].join("·")}은(는) 다음 대화부터 바뀌어요`);
+  if ((g["즉시"] || []).length) out.push(tr("지금 바로 바뀌었어요"));
+  if ((g["다음대화"] || []).length) out.push(tr("{0}은(는) 다음 대화부터 바뀌어요", {0: g["다음대화"].join("·")}));
   const rs = g["다시켜기"] || {};
-  Object.keys(rs).forEach((k) => out.push(`${rs[k].join("·")}은(는) ${k === "귀" ? "받아쓰기 서버" : "목소리 서버"}를 다시 켜야 바뀌어요`));
+  Object.keys(rs).forEach((k) => out.push(tr("{0}은(는) {1}를 다시 켜야 바뀌어요",
+    {0: rs[k].join("·"), 1: tr(k === "귀" ? "받아쓰기 서버" : "목소리 서버")})));
   if ((g["펫"] || []).length) {
     const po = (r["펫"] || {})["옷"];      // 켜져 있는 펫이 '옷 갈아입기'에 한 대답(펫이 꺼져 있으면 코드 없음)
-    if (po && po["받는중"]) out.push("펫이 새 옷을 받는 중이에요(다 받으면 갈아입어요)");
-    else if (po && po["ok"]) out.push("펫 옷을 바꿨어요");
-    else if (po && po["코드"] && po["error"]) out.push("펫: " + po["error"]);
-    else out.push("펫은 다음에 켜질 때 바뀌어요");
+    if (po && po["받는중"]) out.push(tr("펫이 새 옷을 받는 중이에요(다 받으면 갈아입어요)"));
+    else if (po && po["ok"]) out.push(tr("펫 옷을 바꿨어요"));
+    else if (po && po["코드"] && po["error"]) out.push(tr("펫: {0}", {0: po["error"]}));
+    else out.push(tr("펫은 다음에 켜질 때 바뀌어요"));
   }
-  return "저장했어요. " + out.join(". ") + ".";
+  return tr("저장했어요.") + " " + out.join(". ") + ".";
 }
 
 async function saveSettings(changes) {
@@ -145,13 +148,13 @@ function showPending() {
   box.replaceChildren();
   if (!keys.length) { box.hidden = true; return; }
   box.hidden = false;
-  const names = keys.map((k) => (k === "귀" ? "받아쓰기 서버" : "목소리 서버") + "(" + p[k].join("·") + ")");
-  box.appendChild(h("strong", {text: "다시 켜야 적용되는 설정이 있어요"}));
-  box.appendChild(h("p", {text: names.join(", ") + " — 김비서를 껐다 다시 켜면 적용돼요."}));
+  const names = keys.map((k) => tr(k === "귀" ? "받아쓰기 서버" : "목소리 서버") + "(" + p[k].join("·") + ")");
+  box.appendChild(h("strong", {text: tr("다시 켜야 적용되는 설정이 있어요")}));
+  box.appendChild(h("p", {text: tr("{0} — 김비서를 껐다 다시 켜면 적용돼요.", {0: names.join(", ")})}));
   const py = window.pywebview && window.pywebview.api;
   if (py && typeof py.restart_services === "function") {
-    box.appendChild(h("button", {class: "btn primary", type: "button", id: "pending-restart", text: "지금 다시 켜기",
-      onclick: async () => { toast("다시 켜는 중이에요. 잠시만 기다려 주세요."); try { await py.restart_services(keys); } catch (_) { /* 창 쪽 오류 */ } setTimeout(loadSettings, 1500); }}));
+    box.appendChild(h("button", {class: "btn primary", type: "button", id: "pending-restart", text: tr("지금 다시 켜기"),
+      onclick: async () => { toast(tr("다시 켜는 중이에요. 잠시만 기다려 주세요.")); try { await py.restart_services(keys); } catch (_) { /* 창 쪽 오류 */ } setTimeout(loadSettings, 1500); }}));
   }
 }
 
@@ -192,7 +195,12 @@ function setTop(text, cls) {
 
 function onEvent(ev) {
   const t = ev.type;
-  if (t === "hello") { setName(ev["이름"]); return; }
+  if (t === "hello") {
+    setName(ev["이름"]);
+    const db = document.getElementById("debate-badge");
+    if (db) { db.hidden = true; db.dataset.adult = "0"; }
+    return;
+  }
   if (t === "status") {
     K.lastStatus = ev.state;
     const face = document.getElementById("talk-face");
@@ -207,19 +215,37 @@ function onEvent(ev) {
   if (t === "user" || t === "typed") { Chat.add("user", ev.text); return; }
   if (t === "bot") { Chat.bot(ev.text); return; }
   if (t === "interrupted") { Chat.cut(); return; }
-  if (t === "tool" && ev.state === "start") { Chat.sys((TOOL_TEXT[ev.name] || "도구를 쓰고 있어요") + "."); return; }
-  if (t === "tool_halt") { Chat.sys("도구를 너무 많이 불러서 멈췄어요."); return; }
-  if (t === "brain_error") { Chat.sys("두뇌 연결에 문제가 있어요: " + (ev.reason || "")); return; }
-  if (t === "wake_mode") { Chat.sys(ev.on ? `이름(${get(K.cfg, "비서.이름", "김비서")})을 부르면 대답해요.` : "지금은 이름 없이도 대답해요."); return; }
+  if (t === "tool" && ev.state === "start") { Chat.sys(tr(TOOL_TEXT[ev.name] || "도구를 쓰고 있어요") + "."); return; }
+  if (t === "tool_halt") { Chat.sys(tr("도구를 너무 많이 불러서 멈췄어요.")); return; }
+  if (t === "brain_error") { Chat.sys(ev.text || ev.reason || tr("두뇌 연결에 문제가 있어요.")); return; }
+  if (t === "brain_prepare" || t === "brain_ready") {
+    // 두뇌를 바꾼 직후 로컬 두뇌를 켜고 모델을 읽는 동안 — '두뇌 준비 중(n초)'을 아래 줄에 보여 준다.
+    const el = document.getElementById("talk-state");
+    if (t === "brain_prepare") {
+      const txt = tr("두뇌 준비 중({0}초)", {0: ev["초"] == null ? 0 : ev["초"]});
+      if (Talk.on) el.textContent = txt;
+      setTop(txt, "busy");
+    } else if (Talk.on) {
+      el.textContent = STATE_TEXT[K.lastStatus] || K.lastStatus || "";
+      setTop(K.lastStatus || "준비됨", K.lastStatus === "듣는 중" ? "on" : "busy");
+    }
+    return;
+  }
+  if (t === "wake_mode") { Chat.sys(ev.on ? tr("이름({0})을 부르면 대답해요.", {0: get(K.cfg, "비서.이름", "김비서")}) : tr("지금은 이름 없이도 대답해요.")); return; }
   if (t === "names") { setName(ev.name); return; }
   if (t === "settings") { loadSettings().catch(() => {}); return; }
   if (t === "update") { Update.onEvent(ev); return; }
+  if (t === "debate") {
+    const db = document.getElementById("debate-badge");
+    if (db) { db.hidden = !ev.on; db.dataset.adult = ev.adult ? "1" : "0"; }
+    return;
+  }
   if (t === "interp") { Interp.onEvent(ev); return; }
   if (t === "confirm") { ToolConfirm.ask(ev); return; }
   if (t === "confirm_done") { ToolConfirm.done(ev); return; }
-  if (t === "voice_gate") { Chat.sys("(안 들음 — 등록한 목소리가 아니에요" + (ev.text ? ": " + ev.text : "") + ")"); return; }
-  if (t === "phone") { Chat.sys(ev.state === "on" ? `폰(${ev.name || ""})으로 대화 중이에요. 이 창의 대화는 쉬어요.` : "폰 대화가 끝났어요."); return; }
-  if (t === "conn" && !ev.on && Talk.on) { Talk.stop("대화가 끝났어요."); }
+  if (t === "voice_gate") { Chat.sys(tr("(안 들음 — 등록한 목소리가 아니에요{0})", {0: ev.text ? ": " + ev.text : ""})); return; }
+  if (t === "phone") { Chat.sys(ev.state === "on" ? tr("폰({0})으로 대화 중이에요. 이 창의 대화는 쉬어요.", {0: ev.name || ""}) : tr("폰 대화가 끝났어요.")); return; }
+  if (t === "conn" && !ev.on && Talk.on) { Talk.stop(tr("대화가 끝났어요.")); }
 }
 
 // ---------------------------------------------------------------- 대화 내용
@@ -238,9 +264,11 @@ const Chat = {
   add(kind, text) {
     if (!text) return;
     this.cur = null;
-    const who = kind === "user" ? "나" : get(K.cfg, "비서.이름", "김비서");
+    const who = kind === "user" ? tr("나") : get(K.cfg, "비서.이름", "김비서");
+    // 말한 내용(사용자·비서 글)은 번역하지 않고, 화면 안내(시스템 줄)만 번역한다.
     const li = h("li", {class: kind, "data-time": kind === "sys" ? null : hhmmss(new Date())},
-      kind === "sys" ? null : h("span", {class: "who", text: who}), h("span", {class: "txt", text}));
+      kind === "sys" ? null : h("span", {class: "who", text: who}),
+      h("span", {class: "txt", text, translate: kind === "sys" ? null : "no"}));
     this.list().appendChild(li);
     this.list().scrollTop = this.list().scrollHeight;
     return li;
@@ -271,7 +299,8 @@ const Talk = {
         const m = await KAudio.openMic(get(K.cfg, "화면.마이크", ""));
         this.mic = m.stream; info = m.info;
       } catch (e) {
-        Chat.sys(e.name === "NotFoundError" ? "마이크를 찾을 수 없어요. 글로만 대화해요." : "마이크를 쓸 수 없어요(" + e.message + "). 글로만 대화해요.");
+        Chat.sys(e.name === "NotFoundError" ? tr("마이크를 찾을 수 없어요. 글로만 대화해요.")
+          : tr("마이크를 쓸 수 없어요({0}). 글로만 대화해요.", {0: e.message}));
         this.mic = new AudioContext().createMediaStreamDestination().stream;
       }
       showAec(info);
@@ -304,7 +333,7 @@ const Talk = {
       document.getElementById("talk-state").textContent = STATE_TEXT["듣는 중"];
       setTop("대화 중", "on");
     } catch (e) {
-      Chat.sys("연결하지 못했어요: " + e.message);
+      Chat.sys(tr("연결하지 못했어요: {0}", {0: e.message}));
       this.stop();
     } finally {
       this.busy = false;
@@ -334,7 +363,7 @@ const Talk = {
         await new Promise((r) => setTimeout(r, 150));
       }
     }
-    try { await api("/api/text", {text}); } catch (e) { Chat.sys("보내지 못했어요: " + e.message); }
+    try { await api("/api/text", {text}); } catch (e) { Chat.sys(tr("보내지 못했어요: {0}", {0: e.message})); }
   },
 };
 
@@ -371,22 +400,23 @@ const Memory = {
     const fl = (j["지식"] || []).slice().reverse();
     if (!fl.length) facts.appendChild(h("li", {class: "mem-empty", text: "아직 기억하는 것이 없어요."}));
     fl.forEach((f) => facts.appendChild(h("li", {"data-id": f.id},
-      h("span", {class: "mem-text"}, f["내용"], h("span", {class: "mem-when", text: `${f["만든때"] || ""} · ${f["출처"] === "자동" ? "대화에서 저절로" : "말해서"}`})),
+      h("span", {class: "mem-text"}, h("span", {"translate": "no", text: f["내용"]}),
+        h("span", {class: "mem-when", text: `${f["만든때"] || ""} · ${tr(f["출처"] === "자동" ? "대화에서 저절로" : "말해서")}`})),
       h("button", {class: "btn", type: "button", text: "지우기", onclick: () => this.del({id: f.id}, f["내용"])}))));
     const dl = j["일기"] || [];
     if (!dl.length) diary.appendChild(h("li", {class: "mem-empty", text: "아직 일기가 없어요."}));
     dl.forEach((d) => diary.appendChild(h("li", {"data-day": d["날짜"]},
-      h("span", {class: "mem-text"}, h("strong", {text: d["날짜"]}), "\n" + (d["내용"] || "").replace(/^# .*\n/, "").replace(/^#+ */gm, "").trim()),
-      h("button", {class: "btn", type: "button", text: "지우기", onclick: () => this.del({day: d["날짜"]}, d["날짜"] + " 일기")}))));
+      h("span", {class: "mem-text", "translate": "no"}, h("strong", {text: d["날짜"]}), "\n" + (d["내용"] || "").replace(/^# .*\n/, "").replace(/^#+ */gm, "").trim()),
+      h("button", {class: "btn", type: "button", text: "지우기", onclick: () => this.del({day: d["날짜"]}, tr("{0} 일기", {0: d["날짜"]}))}))));
   },
   async del(what, label) {
-    if (!(await confirmBox(`'${String(label).slice(0, 40)}' 기억을 지울까요?`, "네, 지울게요"))) return;
-    try { await api("/api/memory/delete", what); toast("지웠어요."); } catch (e) { toast("지우지 못했어요: " + e.message); }
+    if (!(await confirmBox(tr("'{0}' 기억을 지울까요?", {0: String(label).slice(0, 40)}), tr("네, 지울게요")))) return;
+    try { await api("/api/memory/delete", what); toast(tr("지웠어요.")); } catch (e) { toast(tr("지우지 못했어요: {0}", {0: e.message})); }
     this.load();
   },
   async clearAll() {
-    if (!(await confirmBox("기억하는 사실·일기·지난 대화를 모두 지울까요? 되돌릴 수 없어요.", "네, 모두 지울게요"))) return;
-    try { await api("/api/memory/delete", {all: true}); toast("기억을 모두 지웠어요."); } catch (e) { toast("지우지 못했어요: " + e.message); }
+    if (!(await confirmBox(tr("기억하는 사실·일기·지난 대화를 모두 지울까요? 되돌릴 수 없어요."), tr("네, 모두 지울게요")))) return;
+    try { await api("/api/memory/delete", {all: true}); toast(tr("기억을 모두 지웠어요.")); } catch (e) { toast(tr("지우지 못했어요: {0}", {0: e.message})); }
     this.load();
   },
 };

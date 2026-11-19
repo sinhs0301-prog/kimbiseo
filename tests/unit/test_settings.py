@@ -77,9 +77,10 @@ def test_url_brain_needs_address():
 
 
 def test_when_groups():
-    g = S.when_groups(["비서.이름", "두뇌.방식", "목소리.엔진", "귀.장치", "펫.옷", "없는.키"])
+    g = S.when_groups(["비서.이름", "두뇌.방식", "대화.연결인사", "목소리.엔진", "귀.장치", "펫.옷", "없는.키"])
     assert "비서 이름" in "".join(g["즉시"]) or g["즉시"], g
-    assert g["다음대화"], g
+    assert "두뇌" in "".join(g["즉시"]), ("두뇌 방식은 저장 즉시(다음 말부터)", g)
+    assert "연결 인사" in "".join(g["다음대화"]), g
     assert set(g["다시켜기"]) == {"목소리", "귀"}, g
     assert g["펫"], g
 

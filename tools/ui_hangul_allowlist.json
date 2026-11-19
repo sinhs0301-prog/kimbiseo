@@ -1,0 +1,12 @@
+{
+ "_설명": "화면 한글 남음 자동 검사(tools/ui_hangul_check.py)에서 '일부러 한국어로 두는 글'만 적는다. match 는 kind=literal(그대로) 또는 regex. screens 를 적으면 그 화면에서만 뺀다. reason 은 왜 한국어로 두는지.",
+ "items": [
+  {
+   "id": "lang-native-ko",
+   "kind": "literal",
+   "match": "한국어",
+   "screens": ["설정:일반", "마법사 1단계"],
+   "reason": "언어 고르기의 '한국어' — 각 언어 화면에서도 그 언어를 제 이름(한국어)으로 보여 주는 것이 맞다(English·日本語·中文과 같은 규칙)."
+  }
+ ]
+}

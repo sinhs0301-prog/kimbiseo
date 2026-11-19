@@ -35,8 +35,10 @@ from pipecat.frames.frames import FunctionCallFromLLM, LLMContextFrame, TTSSpeak
 from pipecat.processors.frame_processor import FrameProcessor
 from pipecat.services.openai.llm import OpenAILLMService
 
+from . import brainserver
 from . import config as C
-from . import keystore
+from . import debate
+from . import i18n, keystore
 from .filters import HanziFilter, ThinkFilter
 from .memory import TIME_TAG
 from .prompt import now_tag
@@ -151,6 +153,7 @@ class BrainLLM(OpenAILLMService):
         self.tool_names = list(tool_names)
         self.do_rescue = bool(b.get("글로쓴호출_건지기", True))
         self.guard = guard
+        self.manage_server = False   # 본체 대화(Session.build → guards dict)가 만든 로컬 두뇌만 서버를 켜고 기다린다
         self.slot = int(slot)
         self.cache_key = cache_key or uuid.uuid4().hex[:12]
         self.cache_off = not bool(b.get("캐시", True))
@@ -185,6 +188,17 @@ class BrainLLM(OpenAILLMService):
         b = self.cfg["두뇌"]
         eb = dict(b.get("추가") or {})
         st = self.state
+        if debate.on(st):
+            # 말싸움: 지난 기록·도구 결과의 개인 값과 개인 도구를 두뇌에 안 넘긴다(core/debate.py).
+            if isinstance(params.get("messages"), list):
+                params["messages"] = debate.filter_messages(params["messages"], st)
+            if isinstance(params.get("tools"), list):
+                kept = debate.filter_tools(params["tools"], self.cfg)
+                if kept:
+                    params["tools"] = kept
+                else:
+                    params.pop("tools", None)
+                    params.pop("tool_choice", None)
         if params.get("tools") and (getattr(st, "stop_now", False)
                                     or (st.no_tools_key is not None and st.no_tools_key == self.cur_user_key)):
             params["tool_choice"] = "none"   # '그만' 뒤·도구 폭주로 멈춘 그 질문: 도구 없이 답하게(서버에서 강제)
@@ -434,22 +448,51 @@ class BrainLLM(OpenAILLMService):
             self._force_tool = False
             self._hold = None
 
+    async def _ensure_ready(self):
+        """로컬 두뇌: 서버가 없으면 켜고, 모델을 읽을 때까지 기다린다(화면에 '두뇌 준비 중(n초)').
+        실패하면 까닭(프로그램·모델 없음/포트/메모리/시간)을 그 언어로 말하고 다음 차례를 기다린다."""
+        seen = {"n": -1}
+
+        def wait(sec, limit):
+            if sec >= 1 and sec != seen["n"]:
+                seen["n"] = sec
+                self.state.event("brain_prepare", 초=sec, 최대=int(limit))
+
+        ok, code, detail = await brainserver.ensure_local(self.cfg, on_wait=wait)
+        if ok:
+            if seen["n"] >= 0:
+                self.state.event("brain_ready")
+            return True
+        if code == "switched":      # 기다리는 사이 다른 두뇌로 바뀜 — 이 차례는 조용히 넘김(다음 말부터 새 두뇌)
+            self._called = True
+            return False
+        msg = brainserver.explain(code, detail, self.cfg)
+        logger.warning(f"두뇌 준비 실패: {code} {str(detail)[:200]}")
+        self.state.event("brain_error", reason=msg, text=msg, code=code)
+        await self.push_frame(TTSSpeakFrame(msg))
+        self._called = True
+        return False
+
     async def _one_pass(self, context):
         """한 번 묻고 답을 내보냄(글로 쓴 호출 건지기 포함)."""
         self._think = ThinkFilter()
         self._hanzi = HanziFilter()
-        self._split = RESCUE.CallSplitter(self.tool_names, self.tool_first) if (self.do_rescue and self.tool_names) else None
+        names = [n for n in self.tool_names if n in debate.allowed_names(self.cfg)] if debate.on(self.state) else self.tool_names
+        self._split = RESCUE.CallSplitter(names, self.tool_first) if (self.do_rescue and names) else None
         self._said, self._raw = [], []
         self._called = False
         self._dropped = False
         st = self.state
         note = asyncio.ensure_future(self._slow_note(self.cur_user_key))
         try:
+            if self.kind == "local" and self.manage_server and not await self._ensure_ready():
+                return
             await super()._process_context(context)
         except Exception as ex:  # noqa: BLE001
-            logger.warning(f"두뇌 응답 실패: {ex.__class__.__name__} {str(ex)[:160]}")
-            st.event("brain_error", reason=ex.__class__.__name__)
-            await self.push_frame(TTSSpeakFrame("두뇌에 연결이 안 돼요. 설정에서 두뇌 주소를 확인해 주세요."))
+            msg = brainserver.describe_exception(ex, self.cfg)
+            logger.warning(f"두뇌 응답 실패: {ex.__class__.__name__} {str(ex)[:160]} → {msg}")
+            st.event("brain_error", reason=msg, text=msg)
+            await self.push_frame(TTSSpeakFrame(msg))
             self._called = True    # 다시 묻지 않음
             return
         finally:
@@ -644,6 +687,7 @@ def make_llm(state, cfg, tool_names=(), guards=None, session_key=""):
                    settings=BrainLLM.Settings(model=model, temperature=temp, max_tokens=mt, system_instruction=""),
                    retry_timeout_secs=float(b.get("첫응답_제한_초", 30)), retry_on_timeout=False)
     llm.kind = kind
+    llm.manage_server = kind == "local" and guards is not None
     return llm
 
 
@@ -675,9 +719,10 @@ def _claude_class():
             try:
                 await super()._process_context(context)
             except Exception as ex:  # noqa: BLE001
-                logger.warning(f"두뇌(클로드) 응답 실패: {ex.__class__.__name__}")
-                st.event("brain_error", reason=ex.__class__.__name__)
-                await self.push_frame(TTSSpeakFrame("두뇌에 연결이 안 돼요. 설정에서 열쇠와 인터넷 연결을 확인해 주세요."))
+                msg = brainserver.describe_exception(ex, self.cfg)
+                logger.warning(f"두뇌(클로드) 응답 실패: {ex.__class__.__name__} → {msg}")
+                st.event("brain_error", reason=msg, text=msg)
+                await self.push_frame(TTSSpeakFrame(msg))
 
     return ClaudeLLM
 
@@ -687,7 +732,7 @@ class NoBrain(FrameProcessor):
 
     def __init__(self, reason):
         super().__init__()
-        self.reason = str(reason)[:200]
+        self.reason = i18n.tr(str(reason))[:300]
         self.kind = "none"
         self.guard = None
         self.timing_log = []

@@ -46,6 +46,32 @@ const SIZES = { 작게: 380, 보통: 500, 크게: 660, '아주 크게': 860 };
 const MUSIC_LEVELS = ['끔', '작게', '보통', '크게'];
 const TEST_LINE = '안녕하세요! 김비서예요. 이렇게 말로 알려 드릴게요.';
 
+// ---------------------------------------------------------------- 화면 언어(0.1.18~)
+//   본체가 --lang=으로 넘겨 줌(없으면 %APPDATA%\KimBiseo\settings.json 의 '언어'). 사전 = 본체와 같은 app\i18n\<언어>.json.
+const LANG = (() => {
+  const pick = code => { const c = String(code || '').trim().toLowerCase(); return c.startsWith('en') ? 'en' : c.startsWith('ja') ? 'ja' : c.startsWith('zh') ? 'zh' : c.startsWith('ko') ? 'ko' : ''; };
+  const a = pick(argVal('lang'));
+  if (a) return a;
+  try {
+    const b = JSON.parse(fs.readFileSync(path.join(app.getPath('appData'), 'KimBiseo', 'settings.json'), 'utf8'));
+    const v = pick(b['언어']);
+    if (v) return v;
+  } catch (e) { /* 설정이 없거나 못 읽음 */ }
+  return 'ko';
+})();
+const I18N = (() => {
+  if (LANG === 'ko') return {};
+  for (const p of [path.join(__dirname, '..', 'app', 'i18n', LANG + '.json'), path.join(app.getAppPath(), '..', 'app', 'i18n', LANG + '.json')]) {
+    try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch (e) { /* 다음 자리 */ }
+  }
+  return {};
+})();
+function T(s, ...a) {
+  let t = (LANG !== 'ko' && I18N[s]) || s;
+  a.forEach((v, i) => { t = t.split('{' + i + '}').join(String(v)); });
+  return t;
+}
+
 // ---------------------------------------------------------------- 기록·설정
 const USER = app.getPath('userData');
 fs.mkdirSync(USER, { recursive: true });
@@ -266,7 +292,8 @@ function outfitsState() {
 function state() {
   return { version: VERSION, outfits: outfitsState(), sizes: Object.keys(SIZES), skin: hasOutfit() ? S.skin : null,
     size: S.sizePx ? null : S.size, sizePct: sizePctNow(), sizePx: S.sizePx || SIZES[S.size], sizeRange: [G.PCT_MIN, G.PCT_MAX], onTop: S.onTop, speaking: !!current, queue: speakQueue.length, port: httpPort,
-    musicVolume: S.musicVolume, musicLevels: DANCE_MUSIC ? MUSIC_LEVELS : [], danceMusic: DANCE_MUSIC };
+    musicVolume: S.musicVolume, musicLevels: DANCE_MUSIC ? MUSIC_LEVELS : [], danceMusic: DANCE_MUSIC,
+    lang: LANG, dict: LANG === 'ko' ? null : I18N };
 }
 
 function openMenu(at, nearPet = true) {
@@ -430,18 +457,18 @@ async function pump() {
 function updateTray() {
   if (!tray) return;
   tray.setContextMenu(Menu.buildFromTemplate([
-    { label: '메뉴 열기', click: () => openMenu(null, false) },
+    { label: T('메뉴 열기'), click: () => openMenu(null, false) },
     { type: 'separator' },
-    { label: '옷 고르기', enabled: PACKS.length > 0, submenu: PACKS.length ? PACKS.map(p => ({ label: p.name, type: 'radio', checked: S.skin === p.id, click: () => pick('skin', p.id) })) : [{ label: '(옷 없음)', enabled: false }] },
-    { label: '옷 관리·옷 더 받기', click: () => openWardrobe('mine') },
-    { label: '파일로 옷 추가', click: () => addPackByDialog() },
-    { label: '크기', submenu: Object.keys(SIZES).map(k => ({ label: k, type: 'radio', checked: S.size === k, click: () => pick('size', k) })) },
-    ...(DANCE_MUSIC ? [{ label: '춤 노래 크기', submenu: MUSIC_LEVELS.map(k => ({ label: k, type: 'radio', checked: S.musicVolume === k, click: () => pick('music', k) })) }] : []),
-    { label: '항상 위에 두기', type: 'checkbox', checked: S.onTop, click: mi => pick('ontop', mi.checked) },
-    { label: '말하기 시험', click: () => pick('speak-test') },
-    { label: '펫을 화면 오른쪽 아래로', click: () => pick('home') },
+    { label: T('옷 고르기'), enabled: PACKS.length > 0, submenu: PACKS.length ? PACKS.map(p => ({ label: p.name, type: 'radio', checked: S.skin === p.id, click: () => pick('skin', p.id) })) : [{ label: T('(옷 없음)'), enabled: false }] },
+    { label: T('옷 관리·옷 더 받기'), click: () => openWardrobe('mine') },
+    { label: T('파일로 옷 추가'), click: () => addPackByDialog() },
+    { label: T('크기'), submenu: Object.keys(SIZES).map(k => ({ label: T(k), type: 'radio', checked: S.size === k, click: () => pick('size', k) })) },
+    ...(DANCE_MUSIC ? [{ label: T('춤 노래 크기'), submenu: MUSIC_LEVELS.map(k => ({ label: T(k), type: 'radio', checked: S.musicVolume === k, click: () => pick('music', k) })) }] : []),
+    { label: T('항상 위에 두기'), type: 'checkbox', checked: S.onTop, click: mi => pick('ontop', mi.checked) },
+    { label: T('말하기 시험'), click: () => pick('speak-test') },
+    { label: T('펫을 화면 오른쪽 아래로'), click: () => pick('home') },
     { type: 'separator' },
-    { label: '끝내기', click: () => app.quit() },
+    { label: T('끝내기'), click: () => app.quit() },
   ]));
 }
 

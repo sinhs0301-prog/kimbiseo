@@ -25,7 +25,7 @@ const Update = {
     if (last) {
       box.className = "notice " + (last.ok ? "ok" : "bad");
       box.appendChild(h("strong", {text: last.ok ? `${last.to} 판으로 업데이트했어요.` : (last.rolled_back ? "업데이트가 잘 안 돼서 예전 판으로 되돌렸어요." : "업데이트를 하지 못했어요.")}));
-      if (!last.ok && last.why) box.appendChild(h("p", {text: "이유: " + last.why}));
+      if (!last.ok && last.why) box.appendChild(h("p", {text: "이유: " + last.why}));   // '이유' 머리말은 사전에서 번역됨
       if (!last.ok) box.appendChild(h("p", {text: "대화 기억·설정은 그대로예요. 나중에 다시 해 볼 수 있어요."}));
       box.appendChild(h("div", {class: "row"}, h("button", {class: "btn", type: "button", id: "update-seen", text: "알겠어요",
         onclick: async () => { try { await api("/api/update/seen", {}); } catch (_) { /* 넘어감 */ } this.load(); }})));
@@ -55,7 +55,7 @@ const Update = {
       st.textContent = "받아서 확인까지 끝났어요(서명·파일 확인). 바꾸는 동안 1~3분 김비서가 꺼졌다가 다시 켜져요. 대화 기억·설정·펫 옷은 그대로예요.";
       row.appendChild(h("button", {class: "btn primary", type: "button", id: "update-apply", text: "지금 바꾸고 다시 켜기", onclick: () => this.apply()}));
     } else {
-      st.textContent = `받는 양 ${this.size(n["크기"] || 0)} · 대화 기억·설정·펫 옷·모델은 그대로 두고 프로그램만 바꿔요.` + (v["오류"] ? " (지난번: " + v["오류"] + ")" : "");
+      st.textContent = tr("받는 양 {0} · 대화 기억·설정·펫 옷·모델은 그대로 두고 프로그램만 바꿔요.", {0: this.size(n["크기"] || 0)}) + (v["오류"] ? " " + tr("(지난번: {0})", {0: v["오류"]}) : "");
       row.appendChild(h("button", {class: "btn primary", type: "button", id: "update-download", text: "업데이트 하기", onclick: () => this.download()}));
     }
     box.append(st, row);

@@ -1,8 +1,16 @@
 // 설정 화면 — 칸마다 '저장'. 저장하면 본체가 바로 반영하고, 언제 바뀌는지(지금 / 다음 대화 / 다시 켜기 / 펫)를 알려 준다.
 "use strict";
+
+// 언어 이름(한국어·English·日本語·中文)은 각 언어 화면에서도 그 언어의 제 이름 그대로 둔다(번역하지 않음).
+function nativeNames(box) {
+  box.querySelectorAll("button").forEach((b) => {
+    if (/^(ko|en|ja|zh)$/.test(b.dataset.value || "")) b.setAttribute("translate", "no");
+  });
+  return box;
+}
 const Settings = {
   tab: "name",
-  tabs: [["name", "이름·호칭"], ["pet", "펫"], ["brain", "두뇌"], ["voice", "목소리"], ["mic", "마이크·스피커"], ["talk", "대화"], ["interp", "통역"], ["phone", "폰 연결"], ["myvoice", "내 목소리"], ["about", "정보"]],
+  tabs: [["general", "일반"], ["name", "이름·호칭"], ["pet", "펫"], ["brain", "두뇌"], ["voice", "목소리"], ["mic", "마이크·스피커"], ["talk", "대화"], ["interp", "통역"], ["phone", "폰 연결"], ["myvoice", "내 목소리"], ["about", "정보"]],
 
   async render() {
     await loadSettings().catch(() => {});
@@ -46,6 +54,27 @@ const Settings = {
     }}));
   },
 
+  // 일반 — 언어(앱 화면·대화·받아쓰기). 바꾸면 저장한 뒤 화면을 다시 불러온다.
+  t_general(card) {
+    const c = K.cfg;
+    card.appendChild(h("h1", {text: "일반"}));
+    const s1 = this.section(card, "언어", ["언어"]);
+    let lang = get(c, "언어", "ko");
+    s1.append(h("p", {class: "hint", text: "화면과 대화에 쓰는 언어예요. 고르면 저장하고 화면을 다시 불러옵니다. 기존 사용자는 한국어 그대로예요."}),
+      nativeNames(choiceGroup(Object.entries(I18N.NAMES).map(([code, name]) => ({값: code, 이름: name})), lang, async (v) => {
+        if (v === lang) return;
+        try { await saveSettings({언어: v}); location.reload(); }
+        catch (err) { toast("저장하지 못했어요: " + err.message, 7000); }
+      }, {wide: true, idp: "set-lang"})));
+    const s2 = this.section(card, "받아쓰기 언어", ["귀.받아쓰기_언어"]);
+    let ear = get(c, "귀.받아쓰기_언어", "");
+    const items = [{값: "", 이름: "앱 언어 따름"}, {값: "auto", 이름: "자동 감지"}]
+      .concat(Object.entries(I18N.NAMES).map(([code, name]) => ({값: code, 이름: name})));
+    s2.append(h("p", {class: "hint", text: "말을 글로 바꿀 때 쓰는 언어예요. 보통은 '앱 언어 따름'이 좋아요."}),
+      nativeNames(choiceGroup(items, ear, (v) => { ear = v; }, {wide: true, idp: "set-earlang"})),
+      this.saveRow("set-earlang-save", () => ({귀: {받아쓰기_언어: ear}})));
+  },
+
   // 이름·호칭
   t_name(card) {
     const ch = K.choices, c = K.cfg;
@@ -57,7 +86,7 @@ const Settings = {
     const drawTags = () => {
       tags.replaceChildren();
       if (!aliases.length) tags.appendChild(h("span", {class: "hint", text: "(없음)"}));
-      aliases.forEach((a) => tags.appendChild(h("span", {class: "tag"}, a, h("button", {type: "button", "aria-label": a + " 빼기", text: "×",
+      aliases.forEach((a) => tags.appendChild(h("span", {class: "tag"}, a, h("button", {type: "button", "aria-label": tr("{0} 빼기", {0: a}), text: "×",
         onclick: () => { aliases = aliases.filter((x) => x !== a); drawTags(); }}))));
     };
     drawTags();
@@ -118,7 +147,7 @@ const Settings = {
     const dropBox = h("div", {id: "set-persona-warn"});
     const drawDrop = (list) => {
       dropBox.replaceChildren();
-      if (list && list.length) dropBox.appendChild(notice("warn", "이 문장은 두뇌에 전달하지 않아요", list.map((x) => `'${x}'`).join(" · ") + " — 성격 설명에는 말투·분위기만 적어 주세요. 규칙을 바꾸는 말은 따르지 않아요."));
+      if (list && list.length) dropBox.appendChild(notice("warn", "이 문장은 두뇌에 전달하지 않아요", list.map((x) => `'${x}'`).join(" · ") + " " + tr("— 성격 설명에는 말투·분위기만 적어 주세요. 규칙을 바꾸는 말은 따르지 않아요.")));
     };
     drawDrop(get(c, "비서.성격_빠짐", []));
     s3.append(h("p", {class: "big-q", text: "말투"}),
@@ -226,8 +255,8 @@ const Settings = {
     let voice = get(c, "목소리.목소리", "auto"), speed = get(c, "목소리.말속도", 1.0);
     const st = h("p", {class: "hint", id: "set-voice-status"});
     let vdSpeedSet = null;      // 아래 '세부 설정'의 말 빠르기 슬라이더와 같은 값을 가리킴
-    const speedGrp = choiceGroup(ch["말속도"].map((x) => ({값: x, 이름: x === 1 ? "보통" : x + "배"})), speed, (v) => { speed = v; if (vdSpeedSet) vdSpeedSet(v, true); }, {idp: "set-speed"});
-    s2.append(choiceGroup(ch["목소리"].map((x) => ({값: x.id, 이름: x["이름"] + (x["준비"] ? "" : " (준비 중)"), 설명: x["설명"], 막음: !x["준비"]})), voice, (v) => { voice = v; }, {wide: true, idp: "set-voice"}),
+    const speedGrp = choiceGroup(ch["말속도"].map((x) => ({값: x, 이름: x === 1 ? tr("보통") : tr("{0}배", {0: x})})), speed, (v) => { speed = v; if (vdSpeedSet) vdSpeedSet(v, true); }, {idp: "set-speed"});
+    s2.append(choiceGroup(ch["목소리"].map((x) => ({값: x.id, 이름: tr(x["이름"]) + (x["준비"] ? "" : " " + tr("(준비 중)")), 설명: x["설명"], 막음: !x["준비"]})), voice, (v) => { voice = v; }, {wide: true, idp: "set-voice"}),
       h("p", {class: "big-q", text: "말 빠르기"}),
       speedGrp,
       h("div", {class: "row"}, h("button", {class: "btn", type: "button", id: "set-voice-play", text: "들어 보기", onclick: () => playSample(voice, st)})), st);
@@ -243,7 +272,7 @@ const Settings = {
       const s4 = this.section(card, "세부 설정", rows.filter((r) => r.key !== "top_k").map((r) => "목소리." + r.key));
       s4.id = "set-vd";
       const vals = {}, ctl = {};
-      const fmt = (r, v) => (r["정수"] ? String(Math.round(v)) : Number(v).toFixed(2)) + (r["단위"] || "");
+      const fmt = (r, v) => (r["정수"] ? String(Math.round(v)) : Number(v).toFixed(2)) + (r["단위"] ? tr(r["단위"]) : "");
       s4.appendChild(h("p", {class: "hint", text: "김비서 목소리가 말하는 느낌을 조금씩 바꿀 수 있어요. 잘 모르겠으면 그대로 두세요 — '기본값으로'를 누르면 처음 값으로 돌아가요."}));
       rows.forEach((r) => {
         const key = r.key, cur = Number(get(c, "목소리." + key, r["기본"]));
@@ -264,8 +293,8 @@ const Settings = {
         s4.appendChild(h("div", {class: "slider" + (off ? " off" : ""), "data-key": key},
           h("div", {class: "slider-head"}, h("label", {for: range.id, text: r["이름"]}), out),
           range,
-          h("div", {class: "slider-ends"}, h("span", {text: fmt(r, r.min)}), h("span", {text: "기본 " + fmt(r, r["기본"])}), h("span", {text: fmt(r, r.max)})),
-          h("p", {class: "hint", text: r["설명"] + (off ? " (지금 고른 윈도우 기본 음성에는 쓰이지 않아요.)" : "")})));
+          h("div", {class: "slider-ends"}, h("span", {text: fmt(r, r.min)}), h("span", {text: window.tr ? tr("기본 {0}", {0: fmt(r, r["기본"])}) : "기본 " + fmt(r, r["기본"])}), h("span", {text: fmt(r, r.max)})),
+          h("p", {class: "hint", text: (window.tr ? tr(r["설명"]) : r["설명"]) + (off ? (window.tr ? " " + tr("(지금 고른 윈도우 기본 음성에는 쓰이지 않아요.)") : " (지금 고른 윈도우 기본 음성에는 쓰이지 않아요.)") : "")})));
       });
       const st2 = h("p", {class: "hint", id: "set-vd-status"});
       const collect = () => { const o = {}; rows.forEach((r) => { o[r.key] = vals[r.key]; }); return {목소리: o}; };
@@ -321,7 +350,7 @@ const Settings = {
         stream = m.stream;
         const d = KAudio.describe(m.info);
         aec.dataset.aec = String(d.aec);
-        aec.replaceChildren(d.aec ? notice("ok", "메아리 지우기가 켜져 있어요", d.lines.join(" · ")) : notice("bad", "메아리 지우기가 꺼져 있어요", d.lines.join(" · ") + ". 이어폰을 쓰시거나 다른 마이크를 골라 주세요."));
+        aec.replaceChildren(d.aec ? notice("ok", "메아리 지우기가 켜져 있어요", d.lines.join(" · ")) : notice("bad", "메아리 지우기가 꺼져 있어요", d.lines.join(" · ") + ". " + tr("이어폰을 쓰시거나 다른 마이크를 골라 주세요.")));
         stopM = KAudio.meter(stream, (v) => { meter.firstChild.style.width = Math.round(v * 100) + "%"; });
         if (!micSel.options.length || micSel.options.length < 2) await fill();
       } catch (e) { aec.replaceChildren(notice("bad", "마이크를 열지 못했어요", e.message)); }
@@ -360,6 +389,16 @@ const Settings = {
     const [l3, i3] = box("set-mem-diary", "대화가 끝나면 짧은 일기 남기기", "기억.일기");
     s4.append(l1, l2, l3, h("div", {class: "row"}, h("button", {class: "btn", type: "button", text: "기억 보기·지우기", onclick: () => show("memory")})),
       this.saveRow("set-mem-save", () => ({기억: {켜기: i1.checked, 자동: i2.checked, 일기: i3.checked}})));
+    const s5 = this.section(card, "말싸움(토론)", ["말싸움.성인"]);
+    const adultBox = h("input", {type: "checkbox", id: "set-debate-adult"});
+    adultBox.checked = !!get(c, "말싸움.성인", false);
+    adultBox.addEventListener("change", () => {
+      if (adultBox.checked && !confirm("성인 말싸움은 19세 이상만 쓰세요. 욕설·막말·섹드립이 나옵니다. 켤까요?")) adultBox.checked = false;
+    });
+    s5.append(h("p", {class: "hint", text: "말로 '말싸움 하자'라고 하면 켜지고, '말싸움 그만'·'평소로'라고 하면 꺼져요. 켜진 동안에는 이름·주소·전화·기억 같은 개인 정보를 두뇌에 넘기지 않고, 검색·날씨·계산 도구만 써요. 30분 동안 말이 없으면 저절로 꺼져요."}),
+      h("p", {class: "hint", text: "말싸움 중에는 반말·센 말·비꼬기·도발로 받아쳐요. 아래를 켜면 실제 욕설·막말·과장된 위협 드립·섹드립까지 허용해요(PC 판만, 폰 앱 대화에서는 항상 꺼져요)."}),
+      h("label", {class: "toggle", for: "set-debate-adult"}, adultBox, "성인 말싸움(19세 이상)"),
+      this.saveRow("set-debate-save", () => ({말싸움: {성인: adultBox.checked}})));
   },
 
   // 통역(interp.js)
@@ -383,7 +422,8 @@ const Settings = {
     card.appendChild(s);
     const out = h("div", {id: "set-update-result"});
     const last = Update.v && Update.v["마지막_확인"];
-    s.append(h("p", {class: "hint", text: "새 판이 나오면 김비서를 켤 때(하루 한 번) 알려 드려요. 대화 기억·설정·펫 옷·모델은 그대로 두고 프로그램만 바꿔요." + (last ? ` 마지막 확인: ${last}` : "")}),
+    s.append(h("p", {class: "hint", text: (window.tr ? tr("새 판이 나오면 김비서를 켤 때(하루 한 번) 알려 드려요. 대화 기억·설정·펫 옷·모델은 그대로 두고 프로그램만 바꿔요.") : "새 판이 나오면 김비서를 켤 때(하루 한 번) 알려 드려요. 대화 기억·설정·펫 옷·모델은 그대로 두고 프로그램만 바꿔요.")
+      + (last ? (window.tr ? " " + tr("마지막 확인: {0}", {0: last}) : ` 마지막 확인: ${last}`) : "")}),
       h("div", {class: "row"}, h("button", {class: "btn", type: "button", id: "set-update-check", text: "업데이트 확인", onclick: () => Update.check(out)})), out);
     if (!Update.v) Update.load().then(() => { const e = document.getElementById("set-version"); if (e && Update.v) e.textContent = Update.v["지금_판"]; });
   },

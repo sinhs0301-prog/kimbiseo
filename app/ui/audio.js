@@ -172,9 +172,10 @@ const KAudio = (() => {
   function describe(info) {
     if (!info) return null;
     const s = info.settings || {};
-    const word = (x) => (x === true ? "켜짐" : x === false ? "꺼짐" : "알 수 없음");
-    return {aec: info.aec, lines: [`메아리 지우기: ${word(s.echoCancellation)}`, `잡음 줄이기: ${word(s.noiseSuppression)}`,
-      `소리 크기 자동: ${word(s.autoGainControl)}`], label: info.label};
+    const T = (x, v) => (window.tr ? tr(x, v) : x);
+    const word = (x) => T(x === true ? "켜짐" : x === false ? "꺼짐" : "알 수 없음");
+    return {aec: info.aec, lines: [T("메아리 지우기: {0}", {0: word(s.echoCancellation)}), T("잡음 줄이기: {0}", {0: word(s.noiseSuppression)}),
+      T("소리 크기 자동: {0}", {0: word(s.autoGainControl)})], label: info.label};
   }
 
   return {openMic, stop, devices, setSink, meter, recordUtterance, beepUrl, describe, last: () => last};

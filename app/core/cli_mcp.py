@@ -94,7 +94,8 @@ async def _one(brain, m):
     if meth == "ping":
         return {"jsonrpc": "2.0", "id": mid, "result": {}}
     if meth == "tools/list":
-        return {"jsonrpc": "2.0", "id": mid, "result": {"tools": tool_list(brain.tool_specs)}}
+        specs = brain.active_specs() if hasattr(brain, "active_specs") else brain.tool_specs
+        return {"jsonrpc": "2.0", "id": mid, "result": {"tools": tool_list(specs)}}
     if meth == "tools/call":
         name = str(params.get("name") or "")
         args = params.get("arguments")

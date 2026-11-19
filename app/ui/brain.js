@@ -82,7 +82,7 @@ function BrainPanel(d, opts) {
     if (!g) { wrap.appendChild(h("p", {class: "hint", text: "Gemma 상태를 살펴보는 중이에요."})); return wrap; }
     const pr = g["진행"];
     if (g["설치중"] || (pr && !pr["끝"])) {
-      wrap.appendChild(notice("", "Gemma 받는 중" + (pr && pr["전체"] != null ? ` · ${pr["전체"]}%` : ""), (pr && pr["글"]) || "준비하는 중이에요."));
+      wrap.appendChild(notice("", tr("Gemma 받는 중") + (pr && pr["전체"] != null ? ` · ${pr["전체"]}%` : ""), (pr && pr["글"]) || tr("준비하는 중이에요.")));
       if (!poll) poll = setInterval(async () => {
         try { const s = await api("/api/brain/gemma/status"); opt["Gemma"] = s; } catch (_) { /* 다음에 */ }
         const p2 = opt["Gemma"]["진행"];
@@ -96,8 +96,8 @@ function BrainPanel(d, opts) {
       return wrap;
     }
     if (g["있음"]) {
-      wrap.appendChild(notice("ok", `Gemma 설치됨 · ${g["판"] ? g["판"] + " · " : ""}${g["크기_GB"]}GB` + (g["무검열"] ? " · 무검열 판" : ""),
-        "이 PC 에서 돌아요. 대화가 밖으로 나가지 않아요." + (g["무검열"] ? " 무검열 판이라 거르지 않은 답이 나올 수 있어요." : "")));
+      wrap.appendChild(notice("ok", tr("Gemma 설치됨") + ` · ${g["판"] ? g["판"] + " · " : ""}${g["크기_GB"]}GB` + (g["무검열"] ? " · " + tr("무검열 판") : ""),
+        tr("이 PC 에서 돌아요. 대화가 밖으로 나가지 않아요.") + (g["무검열"] ? " " + tr("무검열 판이라 거르지 않은 답이 나올 수 있어요.") : "")));
     } else {
       wrap.appendChild(notice("warn", "Gemma 가 설치돼 있지 않아요", "'Gemma 설치'를 누르면 원래 배포처(허깅페이스)에서 고른 판을 받아요."));
     }
@@ -166,7 +166,7 @@ function BrainPanel(d, opts) {
           const r = await api("/api/brain/models", {"두뇌": {방식: "compat", 호환_주소: d.호환_주소 || ""}});
           if (!r.ok) { note.textContent = r["오류"] || "불러오지 못했어요."; return; }
           const all = r["모델"] || [];
-          note.textContent = `모델 ${all.length}개 — 눌러서 고르세요.` + (all.length > 40 ? " (많아서 앞의 40개만 보여요. 이름을 직접 넣어도 돼요)" : "");
+          note.textContent = tr("모델 {0}개 — 눌러서 고르세요.", {0: all.length}) + (all.length > 40 ? " " + tr("(많아서 앞의 40개만 보여요. 이름을 직접 넣어도 돼요)") : "");
           for (const id of all.slice(0, 40)) {
             list.appendChild(h("button", {class: "tag pick", type: "button", text: id, onclick: () => { m.value = id; d.호환_모델 = id; }}));
           }
@@ -190,7 +190,7 @@ function BrainPanel(d, opts) {
   };
   const group = h("div", {});
   const drawGroup = () => group.replaceChildren(choiceGroup(ch["두뇌"].map((x) => ({값: x.id,
-    이름: x["이름"] + (opt && opt["제안"] === x.id ? " (로그인됨 · 추천)" : ""), 설명: x["설명"]})), d.방식, (v) => {
+    이름: tr(x["이름"]) + (opt && opt["제안"] === x.id ? " " + tr("(로그인됨 · 추천)") : ""), 설명: x["설명"]})), d.방식, (v) => {
     d.방식 = v; result.replaceChildren(); draw(); if (opts && opts.onPick) opts.onPick(v);
   }, {wide: true, idp}));
   drawGroup();
