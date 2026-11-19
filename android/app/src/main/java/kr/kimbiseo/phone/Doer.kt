@@ -78,12 +78,14 @@ class Doer(private val ctx: Context) {
         val tm = ctx.getSystemService(android.telephony.TelephonyManager::class.java)
         val korea = NavRules.inKorea(dest, listOf(tm?.networkCountryIso, tm?.simCountryIso))
         val pm = ctx.packageManager
+        // 모델·PC 가 "카카오내비" 같은 이름을 보내도 키(kakaonavi)로 맞춘다.
+        val want = NavAppRules.canonical(app) ?: app
         // 앞의 앱이 안 열리면(사용 중지·주소를 못 받음) 다음 깔린 앱 → 웹 카카오맵
-        for (t in NavRules.candidates(dest, app, ::installed, ctx.packageName, korea)) {
+        for (t in NavRules.candidates(dest, want, ::installed, ctx.packageName, korea)) {
             val i = if (t.pkg == NavRules.KAKAONAVI) pm.getLaunchIntentForPackage(t.pkg) ?: continue
                     else Intent(Intent.ACTION_VIEW, Uri.parse(t.uri)).also { if (t.pkg.isNotEmpty()) it.setPackage(t.pkg) }
             if (t.pkg.isNotEmpty() && i.resolveActivity(pm) == null) continue
-            val instead = NavRules.label(app).let { if (it.isNotEmpty() && it != t.app) ctx.getString(R.string.doer_instead, appName(it)) + " " else "" }
+            val instead = NavRules.label(want).let { if (it.isNotEmpty() && it != t.app) ctx.getString(R.string.doer_instead, appName(it)) + " " else "" }
             val said = try {
                 if (t.pkg == NavRules.KAKAONAVI) {
                     ctx.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText(ctx.getString(R.string.clip_destination), dest))
@@ -96,8 +98,10 @@ class Doer(private val ctx: Context) {
                 }
             } catch (_: android.content.ActivityNotFoundException) { continue } catch (_: SecurityException) { continue }
             Bus.line("sys", ctx.getString(R.string.doer_nav_log, appName(t.app), dest))
+            android.util.Log.i("KimbiseoDoer", "navigate dest=$dest want=${want.ifEmpty { "(none)" }} -> ${t.app} ${t.pkg}")
             return res(true, said)
         }
+        android.util.Log.i("KimbiseoDoer", "navigate dest=$dest want=${want.ifEmpty { "(none)" }} -> no map")
         return res(false, ctx.getString(R.string.doer_no_map))
     }
 
@@ -139,13 +143,26 @@ class Doer(private val ctx: Context) {
     private fun openApp(name: String): JSONObject {
         if (name.isEmpty()) return res(false, ctx.getString(R.string.doer_no_app_name))
         val pm = ctx.packageManager
+        // 지도·내비는 서랍 이름(언어·띄어쓰기)이 달라도 패키지로 바로 연다.
+        val navKey = NavAppRules.canonical(name)
+        if (navKey != null) {
+            val pkg = NavAppRules.pkg(navKey)
+            val i = if (pkg != null && installed(pkg)) pm.getLaunchIntentForPackage(pkg) else null
+            if (i != null) {
+                val shown = appName(NavAppRules.display(navKey))
+                android.util.Log.i("KimbiseoDoer", "open_app $name -> $navKey $pkg")
+                return res(true, open(i, shown, ctx.getString(R.string.doer_app_opened, shown)))
+            }
+            android.util.Log.i("KimbiseoDoer", "open_app $name -> $navKey $pkg not installed")
+        }
         val acts = pm.queryIntentActivities(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0)
             .filter { it.activityInfo.packageName != ctx.packageName }
         val labels = acts.map { it.loadLabel(pm).toString() }
         val k = AppRules.best(name, labels)
-        if (k < 0) return res(false, ctx.getString(R.string.doer_app_not_found, name))
+        if (k < 0) { android.util.Log.i("KimbiseoDoer", "open_app $name -> label not found"); return res(false, ctx.getString(R.string.doer_app_not_found, name)) }
         val ai = acts[k].activityInfo
         val i = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER).setClassName(ai.packageName, ai.name)
+        android.util.Log.i("KimbiseoDoer", "open_app $name -> label ${labels[k]} ${ai.packageName}")
         return res(true, open(i, labels[k], ctx.getString(R.string.doer_app_opened, labels[k])))
     }
 }

@@ -144,6 +144,94 @@ class SoloRulesTest {
         assertNull(SoloAction.fromUser("오늘 날씨 어때?"))
     }
 
+    /** 실제로 말할 법한 문장 — 앱과 목적지가 정확히 나뉘는지(한국어). */
+    @Test fun user_nav_with_app_korean() {
+        val cases = listOf(
+            "카카오내비로 천안역 안내해줘" to ("kakaonavi" to "천안역"),
+            "강남역 카카오내비로 안내해줘" to ("kakaonavi" to "강남역"),
+            "네이버지도로 강남역 가자" to ("naver" to "강남역"),
+            "네이버 지도로 서울역까지 안내해줘" to ("naver" to "서울역"),
+            "카카오맵으로 부산역 가는 길" to ("kakaomap" to "부산역"),
+            "티맵으로 집 가는 길" to ("tmap" to "집"),
+            "T맵으로 회사 가자" to ("tmap" to "회사"),
+            "구글지도로 대전역 안내해줘" to ("google" to "대전역"),
+            "카카오내비로 강남역에서 안내해줘" to ("kakaonavi" to "강남역"),
+            "다음지도로 서면역 가자" to ("kakaomap" to "서면역"),
+        )
+        for ((said, want) in cases) {
+            val a = SoloAction.fromUser(said)
+            assertEquals(said, "navigate", a?.optString("do"))
+            assertEquals(said, want.first, a?.optString("app"))
+            assertEquals(said, want.second, a?.optString("destination"))
+        }
+    }
+
+    @Test fun user_open_app_map_names() {
+        val cases = listOf("네이버 지도 열어줘", "카카오내비 켜줘", "카카오맵 앱 열어줘", "티맵 실행해줘")
+        for (said in cases) {
+            val a = SoloAction.fromUser(said)
+            assertEquals(said, "open_app", a?.optString("do"))
+            assertTrue(said, a?.optString("app")?.isNotBlank() == true)
+        }
+        assertEquals("네이버 지도", SoloAction.fromUser("네이버 지도 열어줘")?.optString("app"))
+    }
+
+    /** English·日本語·中文 — 앱 이름이 영문·현지 이름이어도 app 칸으로. */
+    @Test fun user_nav_with_app_other_languages() {
+        val cases = listOf(
+            "Take me to Seoul Station with KakaoNavi" to ("kakaonavi" to "Seoul Station"),
+            "Navigate to Busan Station using Naver Map" to ("naver" to "Busan Station"),
+            "カカオナビで天安駅まで案内して" to ("kakaonavi" to "天安駅"),
+            "ティマップで東京駅へ行きたい" to ("tmap" to "東京駅"),
+            "用卡卡奥导航去首尔站" to ("kakaonavi" to "首尔站"),
+            "用T地图去釜山站" to ("tmap" to "釜山站"),
+        )
+        for ((said, want) in cases) {
+            val a = SoloAction.fromUser(said)
+            assertEquals(said, "navigate", a?.optString("do"))
+            assertEquals(said, want.first, a?.optString("app"))
+            assertEquals(said, want.second, a?.optString("destination"))
+        }
+        assertEquals("open_app", SoloAction.fromUser("Open Google Maps")?.optString("do"))
+        assertEquals("open_app", SoloAction.fromUser("Open TMAP")?.optString("do"))
+        assertEquals("open_app", SoloAction.fromUser("ネイバーマップを開いて")?.optString("do"))
+        assertEquals("open_app", SoloAction.fromUser("打开谷歌地图")?.optString("do"))
+    }
+
+    /** 모델 PHONE 줄에 app 이 없으면 사용자 말로 채우고, 목적지에 섞인 앱 이름은 뺀다. */
+    @Test fun enrich_fills_app_from_user_words() {
+        val user = "강남역 카카오내비로 안내해줘"
+        val p = SoloAction.parse("안내할게요.\nPHONE {\"do\":\"navigate\",\"destination\":\"강남역 카카오내비\"}")
+        val a = SoloAction.enrich(p.action, user)
+        assertEquals("navigate", a?.optString("do"))
+        assertEquals("kakaonavi", a?.optString("app"))
+        assertEquals("강남역", a?.optString("destination"))
+        // 모델이 이미 app 을 넣었으면 그대로(사용자 말로 덮지 않음)
+        val p2 = SoloAction.parse("PHONE {\"do\":\"navigate\",\"destination\":\"강남역\",\"app\":\"naver\"}")
+        assertEquals("naver", SoloAction.enrich(p2.action, user)?.optString("app"))
+        // 길안내가 아니면 손대지 않음
+        val p3 = SoloAction.parse("PHONE {\"do\":\"dial\",\"contact\":\"엄마\"}")
+        assertEquals("dial", SoloAction.enrich(p3.action, user)?.optString("do"))
+        assertNull(SoloAction.enrich(null, user))
+    }
+
+    @Test fun nav_app_names_are_recognized() {
+        assertEquals("naver", NavAppRules.canonical("네이버 지도"))
+        assertEquals("naver", NavAppRules.canonical("NAVER Map"))
+        assertEquals("kakaonavi", NavAppRules.canonical("카카오내비 앱"))
+        assertEquals("tmap", NavAppRules.canonical("T맵"))
+        assertEquals("google", NavAppRules.canonical("Google Maps"))
+        assertEquals("kakaomap", NavAppRules.canonical("다음지도"))
+        assertNull(NavAppRules.canonical("설정"))
+        assertEquals(NavRules.NAVER, NavAppRules.pkg("naver"))
+        assertEquals(NavRules.KAKAONAVI, NavAppRules.pkg("kakaonavi"))
+        assertEquals("카카오내비", NavAppRules.display("kakaonavi"))
+        // 목적지에서 앱 이름·조사 떼기
+        assertEquals("강남역", NavAppRules.destWithout("강남역 카카오내비"))
+        assertEquals("천안역", NavAppRules.destWithout("카카오내비로 천안역"))
+        assertEquals("Seoul Station", NavAppRules.destWithout("Seoul Station with KakaoNavi"))
+    }
+
     @Test fun detect_language_by_script() {
         assertEquals("ko", SoloLang.detect("안녕하세요"))
         assertEquals("ja", SoloLang.detect("こんにちは、元気ですか"))

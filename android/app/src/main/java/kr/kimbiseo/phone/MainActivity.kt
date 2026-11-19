@@ -108,6 +108,7 @@ class MainActivity : Activity() {
 
     /** 시험판만: adb 로 짝짓기·말 넣기·글 보내기·확인 답 */
     private fun testHooks(i: Intent) {
+        if (i.getBooleanExtra("test_mode_solo", false)) Store.setMode(this, "solo")
         i.getStringExtra("test_pair")?.let { u -> PairRules.parse(u)?.let { p -> pending = p; if (i.getBooleanExtra("test_pair_auto", false)) doPair(p) else show() } }
         if (i.getBooleanExtra("test_start", false)) startTalk()
         i.getStringExtra("test_feed")?.let { TalkService.me?.testFeed(it) }
@@ -120,6 +121,23 @@ class MainActivity : Activity() {
         if (i.getBooleanExtra("test_stop", false)) TalkService.me?.stopTalk()
         // 폰 일 바로 해 보기(PC 없이): {"do":"navigate","destination":"강남역","app":"google"} → 결과 한 줄을 화면 기록·logcat 에
         //  (새 intent 를 받는 동안은 잠깐 '뒤'로 보여서, 화면이 다시 앞에 온 뒤에 함 — 실제처럼 바로 열기)
+        // 폰 단독 말 풀이 시험 — 사용자 말 → SoloAction → Doer(앱 고르기 로그). 모델 없이 확인.
+        i.getStringExtra("test_solo_do")?.let { t ->
+            root.postDelayed({
+                val a = SoloAction.fromUser(t)
+                android.util.Log.i("KimbiseoTest", "test_solo_do '$t' -> $a")
+                if (a != null) {
+                    val r = Doer(this).run(a)
+                    android.util.Log.i("KimbiseoTest", "test_solo_do result ok=${r.optBoolean("ok")} ${r.optString("말")}")
+                }
+            }, 1500)
+        }
+        i.getStringExtra("test_solo_line")?.let { line ->
+            val user = i.getStringExtra("test_solo_user") ?: ""
+            val p = SoloAction.parse(line)
+            val a = SoloAction.enrich(p.action, user)
+            android.util.Log.i("KimbiseoTest", "test_solo_line user='$user' -> action=$a text='${p.text}'")
+        }
         i.getStringExtra("test_do")?.let { j ->
             root.postDelayed({
                 val r = Doer(this).run(org.json.JSONObject(j))

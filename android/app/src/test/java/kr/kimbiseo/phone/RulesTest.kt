@@ -98,4 +98,16 @@ class RulesTest {
         assertEquals(4, AppRules.best("설정", labels))
         assertEquals(-1, AppRules.best("넷플릭스", labels))
     }
+
+    @Test fun appNames_ignore_spacing_case_and_aliases() {
+        // 띄어쓰기·대소문자·영문/한글 이름이 달라도 같은 앱으로 본다.
+        assertEquals(0, AppRules.best("네이버 지도", listOf("NAVER Map", "카카오맵")))
+        assertEquals(0, AppRules.best("navermap", listOf("네이버 지도", "카카오맵")))
+        assertEquals(1, AppRules.best("카카오내비", listOf("카카오맵", "KakaoNavi")))
+        assertEquals(0, AppRules.best("t맵", listOf("TMAP", "카카오맵")))
+        assertEquals(0, AppRules.best("티맵", listOf("T map", "카카오맵")))
+        assertEquals(0, AppRules.best("구글지도", listOf("Google Maps", "네이버 지도")))
+        assertEquals(0, AppRules.best("구글맵", listOf("Google Maps", "네이버 지도")))
+        assertEquals(0, AppRules.best("다음지도", listOf("KakaoMap", "네이버 지도")))
+    }
 }

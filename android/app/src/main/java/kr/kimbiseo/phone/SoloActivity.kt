@@ -61,6 +61,7 @@ class SoloActivity : Activity() {
     private var liveBuf = ""
     private var pendingText: String? = null
     private var userAction: JSONObject? = null
+    private var userText = ""
     private var tts: TextToSpeech? = null
     private var ttsOk = false
     private var ttsLang = ""
@@ -127,6 +128,25 @@ class SoloActivity : Activity() {
             recreate(); return
         }
         i.getStringExtra("test_solo_text")?.let { t -> i.removeExtra("test_solo_text"); pendingText = t; if (screen == "chat") sendText(t) }
+        // 시험용 — 모델을 안 올리고 사용자 말 해석 + Doer 실행 로그만 본다(앱 고르기 확인).
+        i.getStringExtra("test_solo_do")?.let { t ->
+            i.removeExtra("test_solo_do")
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                val a = SoloAction.fromUser(t)
+                android.util.Log.i("KimbiseoTest", "test_solo_do '$t' -> $a")
+                if (a != null) {
+                    val r = Doer(this).run(a)
+                    android.util.Log.i("KimbiseoTest", "test_solo_do result ok=${r.optBoolean("ok")} ${r.optString("말")}")
+                }
+            }, 1500)
+        }
+        i.getStringExtra("test_solo_line")?.let { line ->
+            val user = i.getStringExtra("test_solo_user") ?: ""
+            i.removeExtra("test_solo_line"); i.removeExtra("test_solo_user")
+            val p = SoloAction.parse(line)
+            val a = SoloAction.enrich(p.action, user)
+            android.util.Log.i("KimbiseoTest", "test_solo_line user='$user' -> action=$a text='${p.text}'")
+        }
         if (tb(i, "test_solo_settings")) { i.removeExtra("test_solo_settings"); screen = "settings"; show() }
         if (tb(i, "test_solo_chat")) { i.removeExtra("test_solo_chat"); screen = "chat"; show() }
         if (tb(i, "test_solo_model")) { i.removeExtra("test_solo_model"); screen = "model"; show() }
@@ -417,6 +437,7 @@ class SoloActivity : Activity() {
         generating = true
         val my = ++sendGen
         userAction = SoloAction.fromUser(t)   // 모델이 PHONE 줄을 빠뜨려도 폰 일은 되게(안전망)
+        userText = t
         liveBuf = ""
         history?.add("me", t)
         addLineView("me", t)
@@ -435,7 +456,7 @@ class SoloActivity : Activity() {
             finishReply(full)
         }, onError = { e ->
             if (my != sendGen) return@send
-            generating = false; userAction = null; window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            generating = false; userAction = null; userText = ""; window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             val nomem = SoloBrain.isNoMem(e)
             val m = if (nomem) getString(R.string.solo_nomem_title) else getString(R.string.solo_error, e)
             liveView?.text = m
@@ -448,8 +469,11 @@ class SoloActivity : Activity() {
 
     private fun finishReply(full: String) {
         val p = SoloAction.parse(full)
+        // 모델이 app 칸을 빼먹었으면 사용자가 말한 앱 이름으로 채운다(사용자 말 우선).
+        val act = SoloAction.enrich(p.action, userText)
         val fallback = userAction
         userAction = null
+        userText = ""
         var text = p.text
         if (p.action == null && fallback != null) {
             // 모델이 PHONE 줄을 안 붙였어도 사용자가 부탁한 폰 일은 한다. 답도 폰이 한 결과로 바꾼다.
@@ -467,7 +491,7 @@ class SoloActivity : Activity() {
         }
         if (text.isNotBlank()) { history?.add("bot", text); speak(text) }
         scrollDown()
-        if (p.action != null) runAction(p.action)
+        if (act != null) runAction(act)
         generating = false
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         drawState()
@@ -479,6 +503,7 @@ class SoloActivity : Activity() {
         sendGen++
         generating = false
         userAction = null
+        userText = ""
         SoloBrain.stop()
         liveView?.text = visible(liveBuf).ifBlank { getString(R.string.solo_stopped) }
         liveView = null
@@ -508,6 +533,7 @@ class SoloActivity : Activity() {
         sendGen++
         generating = false
         userAction = null
+        userText = ""
         SoloBrain.stop()
         history?.clear()
         if (brainReady) {

@@ -7,7 +7,7 @@ android {
     namespace = "kr.kimbiseo.phone"; compileSdk = 36
     defaultConfig {
         applicationId = "kr.kimbiseo.phone"; minSdk = 26; targetSdk = 36
-        versionCode = 4; versionName = "0.1.2"
+        versionCode = 5; versionName = "0.1.3"
         buildConfigField("boolean", "TEST_HOOKS", if (System.getenv("KIMBISEO_TEST") == "1") "true" else "false")
         val abis = System.getenv("KIMBISEO_ABIS") ?: ""
         if (abis.isNotEmpty()) ndk { abiFilters += abis.split(",") }

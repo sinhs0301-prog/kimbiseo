@@ -130,7 +130,7 @@
       "path": "android/app/build.gradle.kts",
       "origin": "new",
       "treatment": "new",
-      "sha256": "3da13ebe057c006475093c5531a0630457123faccfcac092e0e4479c7db887b0"
+      "sha256": "ef2b86d3a2a122037231e118ee0e2917ed904fea6b4d508a7c983fb017713dc7"
     },
     {
       "path": "android/app/src/main/AndroidManifest.xml",
@@ -148,7 +148,7 @@
       "path": "android/app/src/main/java/kr/kimbiseo/phone/Doer.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "ba052813c7fdb1c17a8964d14cd8f3441c5193912e89cfb4300b3a3314cb3dd4"
+      "sha256": "2bfb07830bd2cec035404e926474c3cb9efcd7a5caf334835bd97ac9e612885d"
     },
     {
       "path": "android/app/src/main/java/kr/kimbiseo/phone/L.kt",
@@ -167,7 +167,7 @@
       "path": "android/app/src/main/java/kr/kimbiseo/phone/MainActivity.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "452c8fe8f523a13d91dfe41dea64bd642a42dc20c8e18a88f0ff0b0253aae5d2"
+      "sha256": "753ce44ff57692d4cf3a5550f2c4746d4c35f531874a396862b19785be629815"
     },
     {
       "path": "android/app/src/main/java/kr/kimbiseo/phone/Net.kt",
@@ -206,7 +206,7 @@
       "path": "android/app/src/main/java/kr/kimbiseo/phone/Rules.kt",
       "origin": "derived:운영판 폰 앱 연락처·앱 이름 찾기 규칙을 고쳐 옮김",
       "treatment": "modified",
-      "sha256": "5a2a777a93d57e1ae5dbc4cbc3811154e12aa9eb7eafc769333ae190ab87a524",
+      "sha256": "529c9f35b1379a72f252459b2e420d6b4c81573491c3d4a1d77f5905938e9117",
       "note": "연락처 이름 너그럽게 찾기(호칭·띄어쓰기·모음 혼동)는 운영판 방식, 길안내·앱 이름은 새로",
       "exceptions": [
         {
@@ -220,19 +220,19 @@
       "path": "android/app/src/main/java/kr/kimbiseo/phone/SoloAction.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "1a82e9064c1d1c7321bfdd2ddd08b4c0947fd501e5764c57b6912725a9f1abcb"
+      "sha256": "9238f823429c5535f9912e32f25ada9b1ab07f49435738b5a473383bc84820a9"
     },
     {
       "path": "android/app/src/main/java/kr/kimbiseo/phone/SoloActivity.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "2972067b2029f2dc5d3a25f7a44af523b2627f5a9dfad95c60194ede8687cc64"
+      "sha256": "1f3d2f08982dd3f7c73bd7b73255c34f747e8a157f1b03f714daf69f7c449048"
     },
     {
       "path": "android/app/src/main/java/kr/kimbiseo/phone/SoloBrain.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "fbd1a982f595d9cdabbc9e9d86e052466f2012ab1cb7e01aec2215f7f62a8db0"
+      "sha256": "17ffa2b4506101319fea7a50cd622eee53594433147afd2e2c76cbd37eba8d03"
     },
     {
       "path": "android/app/src/main/java/kr/kimbiseo/phone/SoloDownload.kt",
@@ -406,7 +406,7 @@
       "path": "android/app/src/test/java/kr/kimbiseo/phone/RulesTest.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "97106fbbc9ef83943162e256ad1ef2c0ab2cc6ba7ebeb528035bc9d4fea0704b",
+      "sha256": "c7d009beb8f9ec71a7c4438f53f390868d2b1c74787706f8f10fa2cda57e0e55",
       "exceptions": [
         {
           "line": null,
@@ -479,7 +479,7 @@
       "path": "android/app/src/test/java/kr/kimbiseo/phone/SoloRulesTest.kt",
       "origin": "new",
       "treatment": "new",
-      "sha256": "7441877f6cbbe91f6e6254436bb3b62e8e3b674116498583d97b938562a6d99c"
+      "sha256": "9015c87670c29ab74a368426fdf912fc7b5b7b38047bb554b996924807a54324"
     },
     {
       "path": "android/bench_unsloth/README.md",

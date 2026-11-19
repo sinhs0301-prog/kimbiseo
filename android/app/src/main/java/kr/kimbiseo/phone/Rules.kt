@@ -55,6 +55,113 @@ object NavRules {
     fun label(want: String): String = target(want, "", "", true)?.app ?: ""
 }
 
+/**
+ * 지도·내비 앱 이름 알아보기 — 말로 부른 이름을 다섯 가지 키로 바꾼다(순수 규칙 — 단위 시험).
+ *  띄어쓰기·대소문자·영문/한글·일본어·중국어 이름을 같은 키로 본다.
+ *  키 = kakaomap | naver | tmap | google | kakaonavi (PHONE 줄·PC 가 보내는 값과 같음).
+ */
+object NavAppRules {
+    private val ALIAS: List<Pair<String, String>> = listOf(
+        // 카카오내비
+        "카카오내비" to "kakaonavi", "카카오내비게이션" to "kakaonavi", "카내비" to "kakaonavi",
+        "kakaonavi" to "kakaonavi", "kakaonavigation" to "kakaonavi",
+        "カカオナビ" to "kakaonavi", "カカオナビゲーション" to "kakaonavi",
+        "卡卡奥导航" to "kakaonavi", "卡卡奥导航仪" to "kakaonavi",
+        // 카카오맵
+        "카카오맵" to "kakaomap", "다음지도" to "kakaomap", "다음맵" to "kakaomap",
+        "kakaomap" to "kakaomap", "daummap" to "kakaomap",
+        "カカオマップ" to "kakaomap", "カカオ地図" to "kakaomap", "ダウム地図" to "kakaomap",
+        "卡卡奥地图" to "kakaomap", "daum地图" to "kakaomap",
+        // 네이버지도
+        "네이버지도" to "naver", "네이버맵" to "naver",
+        "navermap" to "naver", "naver地图" to "naver", "naver地図" to "naver",
+        "ネイバーマップ" to "naver", "ネイバー地図" to "naver",
+        // 티맵
+        "티맵" to "tmap", "t맵" to "tmap", "tmap" to "tmap", "t地图" to "tmap",
+        "ティマップ" to "tmap", "tマップ" to "tmap",
+        // 구글지도
+        "구글지도" to "google", "구글맵" to "google", "googlemaps" to "google", "googlemap" to "google",
+        "グーグルマップ" to "google", "グーグル地図" to "google",
+        "谷歌地图" to "google",
+    )
+    private val PKG = mapOf(
+        "kakaomap" to NavRules.KAKAOMAP, "naver" to NavRules.NAVER, "tmap" to NavRules.TMAP,
+        "google" to NavRules.GOOGLE, "kakaonavi" to NavRules.KAKAONAVI,
+    )
+
+    data class Hit(val key: String, val start: Int, val end: Int)
+
+    /** 앱 이름만 따로 준 경우("네이버 지도"·"카카오내비 앱") → 키. 아니면 null. */
+    fun canonical(name: String): String? {
+        val n = NameRules.normName(name).removeSuffix("앱").removeSuffix("어플")
+        if (n.isEmpty()) return null
+        return ALIAS.firstOrNull { it.first == n }?.second
+    }
+
+    fun pkg(key: String): String? = PKG[key]
+
+    fun display(key: String): String = when (key) {
+        "kakaomap" -> "카카오맵"; "naver" -> "네이버지도"; "tmap" -> "티맵"
+        "google" -> "구글지도"; "kakaonavi" -> "카카오내비"; else -> key
+    }
+
+    /** 문장 안에서 지도·내비 앱 이름을 찾는다(띄어쓰기 무시). 없으면 null. */
+    fun find(text: String): Hit? {
+        val norm = StringBuilder()
+        val at = ArrayList<Int>()
+        var i = 0
+        while (i < text.length) {
+            val cp = text.codePointAt(i)
+            if (Character.isLetterOrDigit(cp)) { norm.appendCodePoint(Character.toLowerCase(cp)); at.add(i) }
+            i += Character.charCount(cp)
+        }
+        val n = norm.toString()
+        var best: Hit? = null
+        for ((alias, key) in ALIAS) {
+            if (alias.length > n.length) continue
+            var from = 0
+            while (from <= n.length - alias.length) {
+                val k = n.indexOf(alias, from)
+                if (k < 0) break
+                val lastAt = at[k + alias.length - 1]
+                val h = Hit(key, at[k], lastAt + Character.charCount(text.codePointAt(lastAt)))
+                val b = best
+                if (b == null || h.start < b.start || (h.start == b.start && h.end - h.start > b.end - b.start)) best = h
+                from = k + 1
+            }
+        }
+        return best
+    }
+
+    /** 앱 이름과 붙은 조사·연결말을 함께 떼어 낸 나머지 문장("카카오내비로 천안역" → "천안역"). */
+    fun strip(text: String, h: Hit): String {
+        var s = h.start
+        var e = h.end
+        val after = listOf("어플로", "앱으로", "어플", "앱", "으로", "로", "에서", "で", "に", "へ", "の")
+        val tail = text.substring(e)
+        var cut = tail.takeWhile { it.isWhitespace() }.length
+        for (t in after) if (tail.startsWith(t, cut)) { cut += t.length; break }
+        e += cut
+        val before = listOf("with", "via", "using", "through", "on", "用", "使用")
+        val head = text.substring(0, s)
+        val h2 = head.trimEnd()
+        var cut2 = 0
+        for (t in before) {
+            if (!h2.endsWith(t, ignoreCase = true)) continue
+            val at = h2.length - t.length
+            if (at == 0 || h2[at - 1].isWhitespace()) { cut2 = head.length - at; break }
+        }
+        s -= cut2
+        return text.removeRange(s, e).replace(Regex("\\s{2,}"), " ").trim()
+    }
+
+    /** 목적지 글에 섞인 앱 이름을 뺀다("강남역 카카오내비" → "강남역"). */
+    fun destWithout(dest: String): String {
+        val h = find(dest) ?: return dest
+        return strip(dest, h).ifBlank { dest }
+    }
+}
+
 object NameRules {
     const val STRONG = 75
     const val NEAR = 30
@@ -187,7 +294,17 @@ object AppRules {
     private val ALIAS = mapOf(
         "유튜브" to listOf("youtube"), "유투브" to listOf("youtube"), "유튜브뮤직" to listOf("youtubemusic"),
         "카톡" to listOf("카카오톡", "kakaotalk"), "카카오톡" to listOf("kakaotalk"), "크롬" to listOf("chrome"),
-        "지메일" to listOf("gmail"), "구글지도" to listOf("지도", "maps", "googlemaps"), "플레이스토어" to listOf("playstore", "play스토어"),
+        "지메일" to listOf("gmail"), "구글지도" to listOf("지도", "maps", "googlemaps", "구글맵"), "구글맵" to listOf("구글지도", "maps", "googlemaps"),
+        // 지도·내비 — 서랍 이름이 영문이거나 띄어쓰기가 달라도 찾게
+        "카카오맵" to listOf("kakaomap", "다음지도", "daummap"), "다음지도" to listOf("카카오맵", "kakaomap", "daummap"),
+        "kakaomap" to listOf("카카오맵", "다음지도"), "daummap" to listOf("다음지도", "카카오맵"),
+        "네이버지도" to listOf("navermap", "네이버맵"), "네이버맵" to listOf("네이버지도", "navermap"),
+        "navermap" to listOf("네이버지도", "네이버맵"),
+        "카카오내비" to listOf("kakaonavi", "카카오내비게이션", "카내비"), "카내비" to listOf("카카오내비", "kakaonavi"),
+        "kakaonavi" to listOf("카카오내비", "카내비"),
+        "티맵" to listOf("tmap", "t맵"), "t맵" to listOf("티맵", "tmap"), "tmap" to listOf("티맵", "t맵"),
+        "googlemaps" to listOf("구글지도", "구글맵"), "googlemap" to listOf("구글지도", "구글맵"),
+        "플레이스토어" to listOf("playstore", "play스토어"),
         "넷플릭스" to listOf("netflix"), "인스타" to listOf("instagram", "인스타그램"), "인스타그램" to listOf("instagram"),
         "페이스북" to listOf("facebook"), "왓츠앱" to listOf("whatsapp"), "텔레그램" to listOf("telegram"), "스포티파이" to listOf("spotify"),
         "설정" to listOf("settings"), "카메라" to listOf("camera"), "계산기" to listOf("calculator"), "시계" to listOf("clock"),
