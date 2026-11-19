@@ -36,4 +36,17 @@ object PetRules {
     /** sha256 비교(서버는 소문자, 폰은 대문자로 계산) — 둘 다 있어야 참. */
     fun shaOk(a: String?, b: String?): Boolean =
         !a.isNullOrBlank() && !b.isNullOrBlank() && a.trim().equals(b.trim(), ignoreCase = true)
+
+    /** 성인/PC 전용으로 아는 옷 id — 옛 꾸러미(pack.json 에 표시 없음)도 id 로 거른다. */
+    val adultIds = setOf("kimbiseo_bikini")
+
+    /**
+     * 플레이(전체이용가) 폰에 보여도 되는 옷인가. PC 가 보낸 rating 이 "all" 이고 성인 id 가 아닐 때만 참.
+     *  표시가 없거나(옛 PC·옛 꾸러미) 모르는 값이면 거짓 — 안전한 쪽으로 숨긴다.
+     */
+    fun isAllAges(rating: String?, id: String?): Boolean {
+        val oid = cleanOutfit(id)
+        if (oid.isEmpty() || oid in adultIds) return false
+        return (rating ?: "").trim().lowercase() == "all"
+    }
 }

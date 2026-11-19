@@ -42,4 +42,17 @@ class PetRulesTest {
         assertFalse(PetRules.shaOk(null, "abcdef"))
         assertFalse(PetRules.shaOk("abcdef", "abcdee"))
     }
+
+    @Test fun allAgesOnlyWhenMarkedAllAndNotAdultId() {
+        assertTrue(PetRules.isAllAges("all", "kimbiseo_f"))
+        assertTrue(PetRules.isAllAges(" ALL ", "kimbiseo_mix"))
+        assertFalse(PetRules.isAllAges("19", "kimbiseo_f"))
+        assertFalse(PetRules.isAllAges("", "kimbiseo_f"))            // 표시 못 읽음 → 숨김
+        assertFalse(PetRules.isAllAges(null, "kimbiseo_f"))
+        assertFalse(PetRules.isAllAges("adult", "kimbiseo_f"))       // 모르는 표시 → 숨김
+        assertFalse(PetRules.isAllAges("all", "kimbiseo_bikini"))    // 옛 꾸러미도 id 로 거름
+        assertFalse(PetRules.isAllAges("all", "kimbiseo_bikini "))   // 앞뒤 빈칸
+        assertFalse(PetRules.isAllAges("all", ""))
+        assertFalse(PetRules.isAllAges("all", null))
+    }
 }
